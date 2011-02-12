@@ -36,7 +36,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       for (var i = 0; i < bits.length; i++) {
         var sampleRate = 1;
         var fields = bits[i].split("|");
-        if (fields[1] == "ms") {
+        if (fields[1].trim() == "ms") {
           if (! timers[key]) {
             timers[key] = [];
           }
