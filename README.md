@@ -48,3 +48,10 @@ Guts
 
 * NodeJS
 * Graphite
+
+Inspiration
+-----------
+
+StatsD was inspired (heavily) by the project (of the same name) at Flickr. Here's a post where Cal Henderson described it in depth:
+[Counting and timing](http://code.flickr.com/blog/2008/10/27/counting-timing/)
+
