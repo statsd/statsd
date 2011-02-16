@@ -24,6 +24,7 @@ class Statsd(object):
         """
         Increments one or more stats counters
         >>> Statsd.increment('some.int')
+        >>> Statsd.increment('some.int',0.5)
         """
         Statsd.update_stats(stats, 1, sample_rate)
 
@@ -62,12 +63,14 @@ class Statsd(object):
         except Error:
             exit(1)
         
-        sampled_data = []
+        sampled_data = {}
         
         if(sample_rate < 1):
-            pass
-        #     for (stat in data.keys):
-        #         value = data[stat]
+            import random
+            if random.random() <= sample_rate:
+                for stat in data.keys():
+                    value = data[stat]
+                    sampled_data[stat] = "%s|@%s" %(value, sample_rate)
         else:
             sampled_data=data
         
