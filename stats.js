@@ -7,6 +7,15 @@ var counters = {};
 var timers = {};
 var debugInt, flushInt, server;
 
+function makeStat(config, name, value, ts) {
+  var stat = name;
+  if (config.hostname && config.cluster) {
+    stat += "." + config.cluster + "." + config.hostname;
+  }
+  stat += " " + name + " " + value + " " + ts + "\n";
+  return stat;
+}
+
 config.configFile(process.argv[2], function (config, oldConfig) {
   if (! config.debug && debugInt) {
     clearInterval(debugInt); 
@@ -65,8 +74,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
       for (key in counters) {
         var value = counters[key] / (flushInterval / 1000);
-        var message = 'stats.' + key + ' ' + value + ' ' + ts + "\n";
-        statString += message;
+        statString += makeStat(config, 'stats.' + key, value, ts);
         counters[key] = 0;
 
         numStats += 1;
@@ -100,19 +108,17 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
           timers[key] = [];
 
-          var message = "";
-          message += 'stats.timers.' + key + '.mean ' + mean + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.upper ' + max + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.upper_' + pctThreshold + ' ' + maxAtThreshold + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.lower ' + min + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
-          statString += message;
+          statString += makeStat(config, 'stats.timers.' + key + '.mean', mean, ts);
+          statString += makeStat(config, 'stats.timers.' + key + '.upper', upper, ts);
+          statString += makeStat(config, 'stats.timers.' + key + '.upper_' + pctThreshold, maxAtThreshold, ts);
+          statString += makeStat(config, 'stats.timers.' + key + '.lower', lower, ts);
+          statString += makeStat(config, 'stats.timers.' + key + '.count', count, ts);
 
           numStats += 1;
         }
       }
 
-      statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
+      statString += makeStat(config, 'statsd.numStats', numStats, ts);
       
       var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
 
