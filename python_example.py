@@ -11,24 +11,36 @@
 # Sends statistics to the stats daemon over UDP
 class Statsd(object):
     
-    # Log timing information
     @staticmethod
     def timing(stats, time, sample_rate=1):
+        """
+        Log timing information
+        >>> Statsd.timing('some.time','500|ms')
+        """
         Statsd.update_stats(stats, time, sample_rate)
 
-    # Increments one or more stats counters
     @staticmethod
     def increment(stats, sample_rate=1):
+        """
+        Increments one or more stats counters
+        >>> Statsd.increment('some.int')
+        """
         Statsd.update_stats(stats, 1, sample_rate)
 
-    # Decrements one or more stats counters
     @staticmethod
     def decrement(stats, sample_rate=1):
+        """
+        Decrements one or more stats counters
+        >>> Statsd.decrement('some.int')
+        """
         Statsd.update_stats(stats, -1, sample_rate)
     
-    # Updates one or more stats counters by arbitrary amounts
     @staticmethod
     def update_stats(stats, delta=1, sampleRate=1):
+        """
+        Updates one or more stats counters by arbitrary amounts
+        >>> Statsd.update_stats('some.int',10)
+        """
         if (type(stats) is not list):
             stats = [stats]
         data = {}
@@ -37,10 +49,11 @@ class Statsd(object):
 
         Statsd.send(data, sampleRate)
     
-    # Squirt the metrics over UDP
     @staticmethod
     def send(data, sample_rate=1):
-        
+        """
+        Squirt the metrics over UDP
+        """
         try:
             import local_settings as settings
             host = settings.statsd_host
