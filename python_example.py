@@ -15,6 +15,7 @@ class Statsd(object):
     def timing(stats, time, sample_rate=1):
         """
         Log timing information
+        >>> from python_example import Statsd
         >>> Statsd.timing('some.time','500|ms')
         """
         Statsd.update_stats(stats, time, sample_rate)
