@@ -1,3 +1,13 @@
+# python_example.py
+
+# Steve Ivy <steveivy@gmail.com>
+# http://monkinetic.com
+ 
+# this file expects local_settings.py to be in the same dir, with statsd host and port information:
+# 
+# statsd_host = 'localhost'
+# statsd_port = 8125
+
 # Sends statistics to the stats daemon over UDP
 class Statsd(object):
     
@@ -25,7 +35,7 @@ class Statsd(object):
         for stat in stats:
             data[stat] = "%s|c" % delta
 
-        StatsD.send(data, sampleRate)
+        Statsd.send(data, sampleRate)
     
     # Squirt the metrics over UDP
     @staticmethod
@@ -33,8 +43,9 @@ class Statsd(object):
         
         try:
             import local_settings as settings
-            host = settings['statsd_host']
-            port = settings['statsd_port']
+            host = settings.statsd_host
+            port = settings.statsd_port
+            addr=(host, port)
         except Error:
             exit(1)
         
@@ -54,7 +65,8 @@ class Statsd(object):
                 value = data[stat]
                 send_data = "%s:%s" % (stat, value)
                 udp_sock.sendto(send_data, addr)
-        except Error, e:
+        except:
+            import sys
             from pprint import pprint
-            pprint(e)
+            print "Unexpected error:", pprint(sys.exc_info())
             pass # we don't care
