@@ -109,9 +109,9 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           timers[key] = [];
 
           statString += makeStat(config, 'stats.timers.' + key + '.mean', mean, ts);
-          statString += makeStat(config, 'stats.timers.' + key + '.upper', upper, ts);
+          statString += makeStat(config, 'stats.timers.' + key + '.upper', max, ts);
           statString += makeStat(config, 'stats.timers.' + key + '.upper_' + pctThreshold, maxAtThreshold, ts);
-          statString += makeStat(config, 'stats.timers.' + key + '.lower', lower, ts);
+          statString += makeStat(config, 'stats.timers.' + key + '.lower', min, ts);
           statString += makeStat(config, 'stats.timers.' + key + '.count', count, ts);
 
           numStats += 1;
@@ -119,7 +119,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       statString += makeStat(config, 'statsd.numStats', numStats, ts);
-      
+
       var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
 
       graphite.on('connect', function() {
