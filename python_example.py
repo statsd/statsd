@@ -12,13 +12,15 @@
 class Statsd(object):
     
     @staticmethod
-    def timing(stats, time, sample_rate=1):
+    def timing(stat, time, sample_rate=1):
         """
         Log timing information
         >>> from python_example import Statsd
         >>> Statsd.timing('some.time','500|ms')
         """
-        Statsd.update_stats(stats, time, sample_rate)
+        stats = {}
+        stats[stat] = "%d|ms" % time
+        Statsd.send(stats, sample_rate)
 
     @staticmethod
     def increment(stats, sample_rate=1):
