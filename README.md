@@ -1,8 +1,9 @@
 StatsD
 ======
 
-Sometimes you need to count stuff.
-Maybe you need to know how long something took.
+A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to [graphite][graphite].
+
+We ([Etsy][etsy]) [blogged][blog post] about how it works and why we created it.
 
 
 Concepts
@@ -43,11 +44,11 @@ Tells StatsD that this counter is being sent sampled ever 1/10th of the time.
 Guts
 ----
 
-* UDP
+* [UDP][udp]
   Client libraries use UDP to send information to the StatsD daemon.
 
-* NodeJS
-* Graphite
+* [NodeJS][node]
+* [Graphite][graphite]
 
 Inspiration
 -----------
@@ -55,3 +56,32 @@ Inspiration
 StatsD was inspired (heavily) by the project (of the same name) at Flickr. Here's a post where Cal Henderson described it in depth:
 [Counting and timing](http://code.flickr.com/blog/2008/10/27/counting-timing/). Cal re-released the code recently: [Perl StatsD](https://github.com/iamcal/Flickr-StatsD)
 
+
+Contribute
+---------------------
+
+You're interested in contributing to StatsD? *AWESOME*. Here are the basic steps:
+
+fork StatsD from here: http://github.com/etsy/statsd
+
+1. Clone your fork
+2. Hack away
+3. If you are adding new functionality, document it in the README
+4. If necessary, rebase your commits into logical chunks, without errors
+5. Push the branch up to GitHub
+6. Send a pull request to the etsy/statsd project.
+
+We'll do our best to get your changes in!
+
+[graphite]: http://graphite.wikidot.com
+[etsy]: http://www.etsy.com
+[blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
+[node]: http://nodejs.org
+[udp]: http://enwp.org/udp
+
+
+Contributors
+-----------------
+
+In lieu of a list of contributors, check out the commit history for the project: 
+http://github.com/etsy/statsd/commits/master
