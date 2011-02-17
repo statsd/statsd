@@ -16,7 +16,7 @@ class Statsd(object):
         """
         Log timing information
         >>> from python_example import Statsd
-        >>> Statsd.timing('some.time','500|ms')
+        >>> Statsd.timing('some.time', 500)
         """
         stats = {}
         stats[stat] = "%d|ms" % time
