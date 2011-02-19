@@ -50,6 +50,14 @@ Guts
 * [NodeJS][node]
 * [Graphite][graphite]
 
+Graphite uses "schemas" to define the different round robin datasets it houses (analogous to RRAs in rrdtool). Here's what Etsy is using for the stats databases:
+
+    [stats]
+    priority = 110 
+    pattern = ^stats\..*
+    retentions = 10:2160,60:10080,600:262974
+
+
 Inspiration
 -----------
 
