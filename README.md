@@ -58,6 +58,7 @@ Graphite uses "schemas" to define the different round robin datasets it houses (
     retentions = 10:2160,60:10080,600:262974
 
 That translates to:
+
 * 6 hours of 10 second data (what we consider "near-realtime")
 * 1 week of 1 minute data
 * 5 years of 10 minute data
