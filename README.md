@@ -57,6 +57,12 @@ Graphite uses "schemas" to define the different round robin datasets it houses (
     pattern = ^stats\..*
     retentions = 10:2160,60:10080,600:262974
 
+That translates to:
+* 6 hours of 10 second data (what we consider "near-realtime")
+* 1 week of 1 minute data
+* 5 years of 10 minute data
+
+This has been a good tradeoff so far between size-of-file (round robin databases are fixed size) and data we care about. Each "stats" database is about 3.2 megs with these retentions.
 
 Inspiration
 -----------
