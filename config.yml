@@ -1,0 +1,34 @@
+---
+# Flush interval should be your finest retention in seconds
+flush_interval: 10        
+
+# Graphite
+graphite_host: localhost
+graphite_port: 8125
+
+# Mongo
+mongo_host: statsd.example.com
+mongo_database:     statsdb
+
+# If you change these, you need to delete the capped collections yourself!
+# Average mongo record size is 152 bytes
+# 10s or 1min data is transient so we'll use MongoDB's capped collections. These collections are fixed in size.
+# 5min and 1d data is interesting to preserve long-term. These collections are not capped.
+retentions: 
+    - name: stats_per_10s
+      seconds: 10
+      capped: true
+      cap_bytes: 268_435_456 # 2**28
+    - name: stats_per_1min
+      seconds: 60
+      capped: true
+      cap_bytes: 1_073_741_824 # 2**30
+    - name: stats_per_5min
+      seconds: 600
+      cap_bytes: 0 
+      capped: false
+    - name: stats_per_day
+      seconds: 86400
+      cap_bytes: 0 
+      capped: false
+

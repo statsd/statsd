@@ -65,6 +65,40 @@ That translates to:
 
 This has been a good tradeoff so far between size-of-file (round robin databases are fixed size) and data we care about. Each "stats" database is about 3.2 megs with these retentions.
 
+Ruby
+----
+A ruby version of statsd. 
+
+### Installation
+
+    gem install statsd
+
+### Configuration
+
+Edit the example config.yml and em-server.rb to your liking. There are 2 flush protocols: graphite and mongo (experimental).
+
+### Server
+Run the server:
+
+    ruby em-server.rb
+
+### Client    
+In your client code:
+
+    require 'rubygems'
+    require 'statsd'
+    STATSD = Statsd::Client.new('localhost',8125)
+
+    STATSD.increment('some_counter') # basic incrementing
+    STATSD.increment('system.nested_counter', 0.1) # incrementing with sampling (10%)
+
+    STATSD.decrement(:some_other_counter) # basic decrememting using a symbol
+    STATSD.decrement('system.nested_counter', 0.1) # decrementing with sampling (10%)
+
+    STATSD.timing('some_job_time', 20) # reporting job that took 20ms
+    STATSD.timing('some_job_time', 20, 0.05) # reporting job that took 20ms with sampling (5% sampling)
+
+
 Inspiration
 -----------
 
@@ -93,7 +127,8 @@ We'll do our best to get your changes in!
 [blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
 [node]: http://nodejs.org
 [udp]: http://enwp.org/udp
-
+[eventmachine]: http://rubyeventmachine.com/
+[mongodb]: http://www.mongodb.org/
 
 Contributors
 -----------------

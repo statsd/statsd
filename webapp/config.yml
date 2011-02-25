@@ -1,0 +1,3 @@
+---
+dbhost: statsd.example.com
+db:     statsdb

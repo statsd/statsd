@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+require 'pathname'
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path("../../Gemfile",
+  Pathname.new(__FILE__).realpath)
+puts ENV['BUNDLE_GEMFILE']
+require 'rubygems'
+require 'bundler/setup'
+
+#load Gem.bin_path('statsd', 'statsd')
+
+require File.expand_path(File.dirname(__FILE__) + '/../statsd-web.rb')
+require 'vegas'
+
+Vegas::Runner.new(StatsdWeb, 'statsd-web')
