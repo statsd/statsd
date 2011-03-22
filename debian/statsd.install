@@ -1,0 +1,4 @@
+stats.js	/usr/share/statsd
+config.js	/usr/share/statsd
+debian/rdioConfig.js	/etc/statsd
+debian/scripts/start	/usr/share/statsd/scripts
