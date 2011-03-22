@@ -5,7 +5,7 @@ Maintainer: Manish Singh <manish@rd.io>
 Standards-Version: 3.9.1
 
 Package: statsd
-Architecture: any
+Architecture: all
 Depends: nodejs
 Description: Stats aggregation daemon
   A network daemon for aggregating statistics (counters and timers),
