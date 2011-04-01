@@ -38,7 +38,7 @@ Sampling
 
     gorets:1|c|@0.1
 
-Tells StatsD that this counter is being sent sampled ever 1/10th of the time.
+Tells StatsD that this counter is being sent sampled every 1/10th of the time.
 
 
 Guts
