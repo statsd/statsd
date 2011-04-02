@@ -65,6 +65,17 @@ That translates to:
 
 This has been a good tradeoff so far between size-of-file (round robin databases are fixed size) and data we care about. Each "stats" database is about 3.2 megs with these retentions.
 
+Installation and Configuration
+------------------------------
+
+ * Install node.js
+ * Clone the project
+ * Create a config file from exampleConfig.js and put it somewhere
+ * Start the Daemon:
+
+    node stats.js /path/to/config
+
+
 Inspiration
 -----------
 
