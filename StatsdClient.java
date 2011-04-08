@@ -28,8 +28,6 @@
  * You know... the "Java way."
  */
 
-package com.meetup.statsd;
-
 import java.util.Random;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -46,15 +44,17 @@ public class StatsdClient {
 
 	private InetAddress _host;
 	private int _port;
+	
+	private DatagramSocket _sock;
 
-	public StatsdClient(String host, int port) throws UnknownHostException {
-		_host = InetAddress.getByName(host);
-		_port = port;
+	public StatsdClient(String host, int port) throws UnknownHostException, SocketException {
+		this(InetAddress.getByName(host), port);
 	}
 
-	public StatsdClient(InetAddress host, int port) {
+	public StatsdClient(InetAddress host, int port) throws SocketException {
 		_host = host;
 		_port = port;
+		_sock = new DatagramSocket();
 	}
 
 	public boolean timing(String key, int value) {
@@ -118,22 +118,13 @@ public class StatsdClient {
 	}
 
 	private boolean send(double sampleRate, String... stats) {
-		DatagramSocket sock;
-
-		try {
-			sock = new DatagramSocket();
-		}
-		catch (SocketException e) {
-			log.error(e.getMessage());
-			return false;
-		}
 
 		boolean retval = false; // didn't send anything
 		if (sampleRate < 1.0) {
 			for (String stat : stats) {
 				if (RNG.nextDouble() <= sampleRate) {
 					stat = String.format("%s|@%f", stat, sampleRate);
-					if (doSend(sock, stat)) {
+					if (doSend(stat)) {
 						retval = true;
 					}
 				}
@@ -141,7 +132,7 @@ public class StatsdClient {
 		}
 		else {
 			for (String stat : stats) {
-				if (doSend(sock, stat)) {
+				if (doSend(stat)) {
 					retval = true;
 				}
 			}
@@ -150,10 +141,10 @@ public class StatsdClient {
 		return retval;
 	}
 
-	private boolean doSend(DatagramSocket sock, String stat) {
+	private boolean doSend(String stat) {
 		try {
 			byte[] data = stat.getBytes();
-			sock.send(new DatagramPacket(data, data.length, _host, _port));
+			_sock.send(new DatagramPacket(data, data.length, _host, _port));
 			return true;
 		}
 		catch (IOException e) {
