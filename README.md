@@ -14,7 +14,7 @@ Concepts
 
 * *values*
   Each stat will have a value. How it is interpreted depends on modifiers
-  
+
 * *flush*
   After the flush interval timeout (default 10 seconds), stats are munged and sent over to Graphite.
 
@@ -53,7 +53,7 @@ Guts
 Graphite uses "schemas" to define the different round robin datasets it houses (analogous to RRAs in rrdtool). Here's what Etsy is using for the stats databases:
 
     [stats]
-    priority = 110 
+    priority = 110
     pattern = ^stats\..*
     retentions = 10:2160,60:10080,600:262974
 
@@ -109,5 +109,5 @@ We'll do our best to get your changes in!
 Contributors
 -----------------
 
-In lieu of a list of contributors, check out the commit history for the project: 
+In lieu of a list of contributors, check out the commit history for the project:
 http://github.com/etsy/statsd/commits/master
