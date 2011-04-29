@@ -119,12 +119,15 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
       statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
       
-      var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
-
-      graphite.on('connect', function() {
-        this.write(statString);
-        this.end();
-      });
+      try {
+        var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
+        graphite.on('connect', function() {
+          this.write(statString);
+          this.end();
+        });
+      } catch(e){
+        // no big deal
+      }
 
     }, flushInterval);
   }
