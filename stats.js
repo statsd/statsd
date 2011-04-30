@@ -8,6 +8,8 @@ var dgram  = require('dgram')
 var keyCounter = {};
 var counters = {};
 var timers = {};
+var raws = [];
+var averages = {};
 var gauges = {};
 var pctThreshold = null;
 var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
@@ -72,11 +74,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
   if (config.debug) {
     if (debugInt !== undefined) { clearInterval(debugInt); }
-    debugInt = setInterval(function () {
-      util.log("Counters:\n" + util.inspect(counters) +
-               "\nTimers:\n" + util.inspect(timers) +
-               "\nGauges:\n" + util.inspect(gauges));
-    }, config.debugInterval || 10000);
+      debugInt = setInterval(function () {
+        util.log("Counters:\n" + util.inspect(counters) +
+                 "\nTimers:\n" + util.inspect(timers) +
+                 "\nRaws:\n" + util.inspect(raws) +
+                 "\nAverages:\n" + util.inspect(averages) +
+                 "\nGauges:\n" + util.inspect(gauges));
+      }, config.debugInterval || 10000);
   }
 
   if (server === undefined) {
@@ -118,6 +122,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           timers[key].push(Number(fields[0] || 0));
         } else if (fields[1].trim() == "g") {
           gauges[key] = Number(fields[0] || 0);
+        } else if (fields[1].trim() == "r") {
+          raws.push([key, Number(fields[0] || 0), Math.round(new Date().getTime()/1000)]);
+        } else if (fields[1].trim() == "a") {
+          if (! averages[key]) {
+            averages[key] = [];
+          }
+          averages[key].push(Number(fields[0] || 0));
         } else {
           if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
             sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
