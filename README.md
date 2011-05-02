@@ -61,6 +61,20 @@ StatsD now also supports gauges, arbitrary values, which can be recorded.
 
     gaugor:333|g
 
+Averaging
+--------
+
+    load_5min:2.3|a
+
+Tells StatsD that the "load" average keys should be averaged before being reported.
+
+Raw Data
+--------
+
+    population:45344|r
+
+Will buffer a set of commands to send to carbon without any preprocessing. (As the major point of StatsD is to serve as an aggregator, be careful with this metric. Try to use counts, timers, and averages when you can instead of pushing lots of raw data to carbon. However, to keep reporting interfaces consistent, this is useful.)
+
 Debugging
 ---------
 
