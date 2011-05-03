@@ -121,12 +121,19 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       
       try {
         var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
+        graphite.addListener('error', function(connectionException){
+          if (config.debug) {
+            sys.log(connectionException);
+          }
+        });
         graphite.on('connect', function() {
           this.write(statString);
           this.end();
         });
       } catch(e){
-        // no big deal
+        if (config.debug) {
+          sys.log(e);
+        }
       }
 
     }, flushInterval);
