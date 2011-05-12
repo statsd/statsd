@@ -1,7 +1,10 @@
-var dgram  = require('dgram')
-  , sys    = require('sys')
-  , net    = require('net')
-  , config = require('./config')
+var dgram      = require('dgram')
+  , sys        = require('sys')
+  , net        = require('net')
+  , config     = require('./config')
+  , base64     = require('base64')
+  , https      = require('https');
+
 
 var counters = {};
 var timers = {};
@@ -18,6 +21,7 @@ var stats = {
     bad_lines_seen: 0,
   }
 };
+var modulus = Math.pow(2,32);
 
 config.configFile(process.argv[2], function (config, oldConfig) {
   if (! config.debug && debugInt) {
@@ -36,10 +40,18 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     server = dgram.createSocket('udp4', function (msg, rinfo) {
       if (config.dumpMessages) { sys.log(msg.toString()); }
       var bits = msg.toString().split(':');
-      var key = bits.shift()
-                    .replace(/\s+/g, '_')
-                    .replace(/\//g, '-')
-                    .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+      var key = '';
+      if ((config.graphService) && (config.graphService == "librato-metrics")){
+        key = bits.shift()
+                  .replace(/\s+/g, '_')
+                  .replace(/\.\//g, '-')
+                  .replace(/[^a-zA-Z_\-0-9]/g, '');
+      } else {
+        key = bits.shift()
+                  .replace(/\s+/g, '_')
+                  .replace(/\//g, '-')
+                  .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+      }
 
       if (bits.length == 0) {
         bits.push("1");
@@ -134,17 +146,27 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     var flushInterval = Number(config.flushInterval || 10000);
 
     flushInt = setInterval(function () {
-      var statString = '';
+      var stats = {};
+      stats["gauges"] = {};
+      stats["counters"] = {};
       var ts = Math.round(new Date().getTime() / 1000);
       var numStats = 0;
       var key;
 
       for (key in counters) {
-        var value = counters[key] / (flushInterval / 1000);
-        var message = 'stats.' + key + ' ' + value + ' ' + ts + "\n";
-        message += 'stats_counts.' + key + ' ' + counters[key] + ' ' + ts + "\n";
-        statString += message;
-        counters[key] = 0;
+        stats["counters"][key] = {};
+        if ((config.graphService) && (config.graphService == "librato-metrics")){
+          counters[key] = counters[key] % modulus;
+          stats["counters"][key]["value"] = counters[key];
+        } else {
+          var value = counters[key] / (flushInterval / 1000);
+          stats["counters"][key]["value"] = value;
+        }
+
+        if ((config.graphService) && (config.graphService == "librato-metrics")){
+        } else {
+          counters[key] = 0;
+        }
 
         numStats += 1;
       }
@@ -163,53 +185,110 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           if (count > 1) {
             var thresholdIndex = Math.round(((100 - pctThreshold) / 100) * count);
             var numInThreshold = count - thresholdIndex;
-            values = values.slice(0, numInThreshold);
-            maxAtThreshold = values[numInThreshold - 1];
-
+            values_sliced = values.slice(0, numInThreshold);
+            maxAtThreshold = values_sliced[numInThreshold - 1];
             // average the remaining timings
             var sum = 0;
             for (var i = 0; i < numInThreshold; i++) {
-              sum += values[i];
+              sum += values_sliced[i];
             }
-
             mean = sum / numInThreshold;
           }
 
-          timers[key] = [];
+          var sum = 0;
+          var sumOfSquares = 0;
+          for (var i = 0; i < count; i++) {
+            sum += values[i];
+            sumOfSquares += values[i] * values[i];
+          }
 
-          var message = "";
-          message += 'stats.timers.' + key + '.mean ' + mean + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.upper ' + max + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.upper_' + pctThreshold + ' ' + maxAtThreshold + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.lower ' + min + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
-          statString += message;
+          timers[key] = [];
+          stats["gauges"][key] = {};
+          stats["gauges"][key]["count"] = count;
+          stats["gauges"][key]["sum_squares"] = sumOfSquares;
+          stats["gauges"][key]["upper_" + pctThreshold] = maxAtThreshold;
+          stats["gauges"][key]["sum"] = sum;
+          stats["gauges"][key]["min"] = min;
+          stats["gauges"][key]["max"] = max;
 
           numStats += 1;
         }
       }
 
-      statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
+      stats["counters"]["numStats"] = {};
+      stats["counters"]["numStats"]["value"] = numStats;
+
+
+      var stats_str ='';
       
-      try {
-        var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
-        graphite.addListener('error', function(connectionException){
-          if (config.debug) {
-            sys.log(connectionException);
+      if ((config.graphService) && (config.graphService == "librato-metrics")){
+        stats_str = JSON.stringify(stats);
+      } else {
+        for (k in stats["counters"]){
+          var stat = stats["counters"][k];
+          var per_interval_value = stat["value"] / (flushInterval / 1000);
+          stats_str += ('stats.' + k + ' ' + per_interval_value + ' ' + ts + "\n");
+          stats_str += ('stats_counts.' + k + ' ' + stat["value"] + ' ' + ts + "\n");
+        }
+        for (k in stats["gauges"]){
+          var stat = stats["gauges"][k];
+          for (s in stat){
+            stats_str += ('stats.timers.' + k + '.' + s + ' ' + stat[s] + ' ' + ts + "\n");
           }
+        }
+      }
+
+      if (config.debug) {
+        sys.log(stats_str);
+        sys.log(stats_str.length);
+      }
+
+      if ((config.graphService) && (config.graphService == "librato-metrics")){
+        var options = {
+          host: 'metrics-api.librato.com',
+          port: 443,
+          path: '/v1/metrics.json',
+          method: 'POST',
+          headers: {
+            "Authorization": 'Basic ' + base64.encode(new Buffer(config.libratoUser + ':' + config.libratoApiKey)),
+            "Content-Length": stats_str.length,
+            "Content-Type": "application/json"
+          }
+        };
+
+        var req = https.request(options, function(res) {
+          res.on('data', function(d) {
+            process.stdout.write(d);
+          });
         });
-        graphite.on('connect', function() {
-          this.write(statString);
-          this.end();
-          stats['graphite']['last_flush'] = Math.round(new Date().getTime() / 1000);
-        });
-      } catch(e){
-        if (config.debug) {
+        req.write(stats_str);
+        req.end();
+        stats['graphite']['last_flush'] = Math.round(new Date().getTime() / 1000);
+
+        req.on('error', function(e) {
+          sys.log("There was an error");
           sys.log(e);
+        });
+      } else {
+        try {
+          var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
+          graphite.addListener('error', function(connectionException){
+              if (config.debug) {
+                sys.log(connectionException);
+              }
+          });
+          graphite.on('connect', function() {
+              this.write(stats_str);
+              this.end();
+              stats['graphite']['last_flush'] = Math.round(new Date().getTime() / 1000);
+              });
+        } catch(e){
+          if (config.debug) {
+            sys.log(e);
+          }
         }
         stats['graphite']['last_exception'] = Math.round(new Date().getTime() / 1000);
       }
-
     }, flushInterval);
   }
 
