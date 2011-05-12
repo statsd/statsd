@@ -72,7 +72,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var message = 'stats.' + key + ' ' + value + ' ' + ts + "\n";
         message += 'stats_counts.' + key + ' ' + counters[key] + ' ' + ts + "\n";
         statString += message;
-        counters[key] = 0;
+        delete counters[key];
 
         numStats += 1;
       }
@@ -103,7 +103,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             mean = sum / numInThreshold;
           }
 
-          timers[key] = [];
+          delete timers[key];
 
           var message = "";
           message += 'stats.timers.' + key + '.mean ' + mean + ' ' + ts + "\n";
