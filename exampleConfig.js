@@ -4,5 +4,6 @@
 , port: 8125
 , debug: false
 , dumpMessages: false
+, debugSendMessages: false
 }
 

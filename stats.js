@@ -127,6 +127,9 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           }
         });
         graphite.on('connect', function() {
+          if (config.debugSendMessages) {
+            sys.log(statString);
+          }
           this.write(statString);
           this.end();
         });
