@@ -5,5 +5,7 @@
 , debug: false
 , dumpMessages: false
 , debugSendMessages: false
+, percentThreshold: 90
+, flushInterval: 10000
 }
 
