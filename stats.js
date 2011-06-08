@@ -57,7 +57,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
     });
 
-    server.bind(config.port || 8125);
+    server.bind(config.port || 8125, config.address || '0.0.0.0');
 
     var flushInterval = Number(config.flushInterval || 10000);
 
