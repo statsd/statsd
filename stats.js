@@ -5,7 +5,7 @@ var dgram  = require('dgram')
 
 var counters = {};
 var timers = {};
-var debugInt, flushInt, server;
+var debugInt, flushInt, server, packetCount;
 
 config.configFile(process.argv[2], function (config, oldConfig) {
   if (! config.debug && debugInt) {
@@ -21,8 +21,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   }
 
   if (server === undefined) {
+    packetCount = 0;
     server = dgram.createSocket('udp4', function (msg, rinfo) {
       if (config.dumpMessages) { sys.log(msg.toString()); }
+      packetCount += 1;
       var bits = msg.toString().split(':');
       var key = bits.shift()
                     .replace(/\s+/g, '_')
@@ -45,6 +47,18 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             timers[key] = [];
           }
           timers[key].push(Number(fields[0] || 0));
+        } else if (fields[1].trim() == "stopc") {
+          if (counters[key] != undefined)
+          {
+            if (config.dumpMessages) { sys.log("Stopping counter: " + key); }
+            delete(counters[key]);
+          }
+        } else if (fields[1].trim() == "stopms") {
+          if (timers[key] != undefined)
+          {
+            if (config.dumpMessages) { sys.log("Stopping timer: " + key); }
+            delete(timers[key]);
+          }
         } else {
           if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
             sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
@@ -118,6 +132,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
+      statString += 'statsd.packetCount ' + packetCount + ' ' + ts + "\n";
+      packetCount = 0;
       
       try {
         var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
