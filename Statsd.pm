@@ -7,8 +7,8 @@ use strict;
 use warnings;
 use IO::Socket ();
 
-our $STATSD_HOST = 'localhost';
-our $STATSD_PORT = 8125;
+our $HOST = 'localhost';
+our $POST = 8125;
 
 =head1 NAME
 
@@ -183,8 +183,8 @@ sub send {
 
     my $udp_sock = IO::Socket::INET->new(
         Proto    => 'udp',
-        PeerAddr => $STATSD_HOST,
-        PeerPort => $STATSD_PORT,
+        PeerAddr => $HOST,
+        PeerPort => $PORT,
     ) or return;
 
     # We don't want to die if Statsd::send() doesn't work...
