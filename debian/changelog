@@ -1,5 +1,0 @@
-statsd (0.0.1) unstable; urgency=low
-
-  * Initial rdio packaging.
-
- -- Manish Singh <manish@rd.io>  Mon, 21 Mar 2011 23:04:52 -0700

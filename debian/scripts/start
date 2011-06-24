@@ -1,3 +1,0 @@
-#!/bin/sh
-# Called by Upstart, /etc/init/statsd.conf
-/usr/bin/nodejs /usr/share/statsd/stats.js /etc/statsd/rdioConfig.js 2>&1 >> /tmp/statsd.log
