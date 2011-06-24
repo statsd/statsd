@@ -7,22 +7,28 @@ var counters = {};
 var timers = {};
 var debugInt, flushInt, server;
 
-config.configFile(process.argv[2], function (config, oldConfig) {
-  if (! config.debug && debugInt) {
-    clearInterval(debugInt); 
+config.configFile(process.argv[2], function(config, oldConfig) {
+  if (!config.debug && debugInt) {
+    clearInterval(debugInt);
     debugInt = false;
   }
 
   if (config.debug) {
-    if (debugInt !== undefined) { clearInterval(debugInt); }
-    debugInt = setInterval(function () { 
+    if (debugInt !== undefined) {
+      clearInterval(debugInt);
+    }
+
+    debugInt = setInterval(function() {
       sys.log("Counters:\n" + sys.inspect(counters) + "\nTimers:\n" + sys.inspect(timers));
     }, config.debugInterval || 10000);
   }
 
   if (server === undefined) {
-    server = dgram.createSocket('udp4', function (msg, rinfo) {
-      if (config.dumpMessages) { sys.log(msg.toString()); }
+    server = dgram.createSocket('udp4', function(msg, rinfo) {
+      if (config.dumpMessages) {
+        sys.log(msg.toString());
+      }
+
       var bits = msg.toString().split(':');
       var key = bits.shift()
                     .replace(/\s+/g, '_')
@@ -37,21 +43,25 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var sampleRate = 1;
         var fields = bits[i].split("|");
         if (fields[1] === undefined) {
-            sys.log('Bad line: ' + fields);
-            continue;
+          sys.log('Bad line: ' + fields);
+          continue;
         }
+
         if (fields[1].trim() == "ms") {
           if (! timers[key]) {
             timers[key] = [];
           }
+
           timers[key].push(Number(fields[0] || 0));
         } else {
           if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
             sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
           }
+
           if (! counters[key]) {
             counters[key] = 0;
           }
+
           counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
         }
       }
@@ -61,7 +71,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
     var flushInterval = Number(config.flushInterval || 10000);
 
-    flushInt = setInterval(function () {
+    flushInt = setInterval(function() {
       var statString = '';
       var ts = Math.round(new Date().getTime() / 1000);
       var numStats = 0;
@@ -80,7 +90,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       for (key in timers) {
         if (timers[key].length > 0) {
           var pctThreshold = config.percentThreshold || 90;
-          var values = timers[key].sort(function (a,b) { return a-b; });
+          var values = timers[key].sort(function(a,b) { return a-b; });
           var count = values.length;
           var min = values[0];
           var max = values[count - 1];
@@ -118,7 +128,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
-      
+
       try {
         var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
         graphite.addListener('error', function(connectionException){
@@ -126,6 +136,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             sys.log(connectionException);
           }
         });
+
         graphite.on('connect', function() {
           this.write(statString);
           this.end();
@@ -135,9 +146,6 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           sys.log(e);
         }
       }
-
     }, flushInterval);
   }
-
 });
-

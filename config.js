@@ -1,18 +1,24 @@
-var fs  = require('fs')
+var fs = require('fs')
   , sys = require('sys')
   , vm = require('vm')
 
-var Configurator = function (file) {
-
+var Configurator = function(file) {
   var self = this;
   var config = {};
   var oldConfig = {};
+
+  if (typeof file == 'undefined') {
+    throw new Error('You must pass in a config file into statsd.');
+  }
 
   this.updateConfig = function () {
     sys.log('reading config file: ' + file);
 
     fs.readFile(file, function (err, data) {
-      if (err) { throw err; }
+      if (err) {
+        throw err;
+      }
+
       old_config = self.config;
 
       self.config = vm.runInThisContext('config = ' + data, file);
@@ -23,7 +29,9 @@ var Configurator = function (file) {
   this.updateConfig();
 
   fs.watchFile(file, function (curr, prev) {
-    if (curr.ino != prev.ino) { self.updateConfig(); }
+    if (curr.ino != prev.ino) {
+      self.updateConfig();
+    }
   });
 };
 
