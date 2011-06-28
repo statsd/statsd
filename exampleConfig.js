@@ -5,11 +5,11 @@ Required Variables:
   graphiteHost:     hostname or IP of Graphite server
   graphitePort:     port of Graphite server
   port:             StatsD listening port [default: 8125]
+  logFile:          StatsD daemon log file
+  pidFile:          StatsD daemon pid file
 
 Optional Variables:
 
-  pidFile:          file you want to store the pid for the current statsd
-                    execution
   debug:            debug flag [default: false]
   debugInterval:    interval to print debug information [ms, default: 10000]
   dumpMessages:     log all incoming messages

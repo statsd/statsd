@@ -1,8 +1,8 @@
 var dgram  = require('dgram')
   , sys    = require('sys')
-  , fs     = require('fs')
   , net    = require('net')
   , config = require('./config')
+  , daemon = require('./node_modules/daemon.node/lib/daemon');
 
 var counters = {};
 var timers = {};
@@ -12,19 +12,6 @@ config.configFile(process.argv[2], function(config, oldConfig) {
   if (!config.debug && debugInt) {
     clearInterval(debugInt);
     debugInt = false;
-  }
-
-  if (config.pidFile) {
-    fs.writeFile(config.pidFile, '' + process.pid + '', function (err) {
-      if (err) {
-        throw err;
-      }
-
-      if (config.debug) {
-        sys.log('statsd pid=' + process.pid);
-        sys.log('pidfile created: ' + config.pidFile);
-      }
-    });
   }
 
   if (config.debug) {
@@ -62,7 +49,7 @@ config.configFile(process.argv[2], function(config, oldConfig) {
         }
 
         if (fields[1].trim() == "ms") {
-          if (!timers[key]) {
+          if (! timers[key]) {
             timers[key] = [];
           }
 
@@ -72,7 +59,7 @@ config.configFile(process.argv[2], function(config, oldConfig) {
             sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
           }
 
-          if (! counters[key]) {
+          if (!counters[key]) {
             counters[key] = 0;
           }
 
@@ -162,4 +149,13 @@ config.configFile(process.argv[2], function(config, oldConfig) {
       }
     }, flushInterval);
   }
+
+  daemon.daemonize(config.logFile, config.pidFile, function (err, pid) {
+    // We are now in the daemon process
+    if (err) {
+      throw new Error('Error starting daemon: ' + err);
+    }
+
+    sys.log('Daemon started successfully with pid: ' + pid);
+  });
 });
