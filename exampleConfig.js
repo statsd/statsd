@@ -8,6 +8,8 @@ Required Variables:
 
 Optional Variables:
 
+  pidFile:          file you want to store the pid for the current statsd
+                    execution
   debug:            debug flag [default: false]
   debugInterval:    interval to print debug information [ms, default: 10000]
   dumpMessages:     log all incoming messages

@@ -1,5 +1,6 @@
 var dgram  = require('dgram')
   , sys    = require('sys')
+  , fs     = require('fs')
   , net    = require('net')
   , config = require('./config')
 
@@ -11,6 +12,19 @@ config.configFile(process.argv[2], function(config, oldConfig) {
   if (!config.debug && debugInt) {
     clearInterval(debugInt);
     debugInt = false;
+  }
+
+  if (config.pidFile) {
+    fs.writeFile(config.pidFile, '' + process.pid + '', function (err) {
+      if (err) {
+        throw err;
+      }
+
+      if (config.debug) {
+        sys.log('statsd pid=' + process.pid);
+        sys.log('pidfile created: ' + config.pidFile);
+      }
+    });
   }
 
   if (config.debug) {
@@ -48,7 +62,7 @@ config.configFile(process.argv[2], function(config, oldConfig) {
         }
 
         if (fields[1].trim() == "ms") {
-          if (! timers[key]) {
+          if (!timers[key]) {
             timers[key] = [];
           }
 
