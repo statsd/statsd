@@ -2,7 +2,7 @@ var dgram  = require('dgram')
   , sys    = require('sys')
   , net    = require('net')
   , config = require('./config')
-  , daemon = require('daemon');
+  , daemon = require('/usr/local/lib/node_modules/daemon');
 
 var counters = {};
 var timers = {};
