@@ -78,6 +78,7 @@ This has been a good tradeoff so far between size-of-file (round robin databases
 Installation and Configuration
 ------------------------------
 
+ * Install indexzero's daemon.node: https://github.com/indexzero/daemon.node
  * Install node.js
  * Clone the project
  * Create a config file from exampleConfig.js and put it somewhere
