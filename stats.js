@@ -5,6 +5,7 @@ var dgram  = require('dgram')
 
 var counters = {};
 var timers = {};
+var gauges = {};
 var debugInt, flushInt, server;
 
 config.configFile(process.argv[2], function (config, oldConfig) {
@@ -40,7 +41,11 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             sys.log('Bad line: ' + fields);
             continue;
         }
-        if (fields[1].trim() == "ms") {
+        if (fields[1].trim() == "g") {
+            if (!gauges[key])
+                gauges[key] = [];
+            gauges[key].push([fields[0], Math.round(Date.now() / 1000)]);
+        } else if (fields[1].trim() == "ms") {
           if (! timers[key]) {
             timers[key] = [];
           }
@@ -117,8 +122,15 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         }
       }
 
+      for (var key in gauges) {
+         statString += gauges[key].map(function(value) {
+             numStats += 1;
+             return 'stats.' + key + ' ' + value[0] + ' ' + value[1] + '\n';
+         }).join("");
+      }
+
       statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
-      
+      console.log(statString)
       try {
         var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
         graphite.addListener('error', function(connectionException){

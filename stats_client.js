@@ -38,6 +38,13 @@ var StatsD = exports.StatsD = function(config) {
         this.updateStats(stat, -1, sampleRate);
     };
     
+    this.gauge = function(stat, value) {
+        var data = {};
+        data[stat] = value + "|g";
+        
+        this.send(data);
+    };
+    
     /**
      * Updates one or more stats counters by arbitrary amounts
      */
@@ -119,4 +126,5 @@ if (!module.parent) {
     stats.increment("user.create", 0.5);
     stats.decrement("project.delete");
     stats.decrement("project.delete", 0.5);
+    stats.gauge("workspace.count", 20);
 }
