@@ -130,7 +130,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
-      console.log(statString)
+
       try {
         var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
         graphite.addListener('error', function(connectionException){
