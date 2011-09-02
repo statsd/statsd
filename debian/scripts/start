@@ -1,3 +1,12 @@
 #!/bin/sh
-# Called by Upstart, /etc/init/statsd.conf
-/usr/bin/nodejs /usr/share/statsd/stats.js /etc/statsd/rdioConfig.js 2>&1 >> /var/log/statsd/statsd.log
+
+if [ -x /usr/bin/nodejs ]; then
+	NODE_BIN=/usr/bin/nodejs
+elif [ -x /usr/bin/node ]; then
+	NODE_BIN=/usr/bin/node
+else
+	echo "Can't find /usr/bin/nodejs or /usr/bin/node"
+	exit 1
+fi
+
+$NODE_BIN /usr/share/statsd/stats.js /etc/statsd/rdioConfig.js 2>&1 >> /var/log/statsd/statsd.log
