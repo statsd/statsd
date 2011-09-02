@@ -1,4 +1,4 @@
-statsd (0.0.1) unstable; urgency=low
+statsd (0.0.1-1) unstable; urgency=low
 
   * Initial rdio packaging.
 
