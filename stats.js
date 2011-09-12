@@ -2,10 +2,11 @@ var dgram  = require('dgram')
   , sys    = require('sys')
   , net    = require('net')
   , config = require('./config')
+  , http = require('http');
 
 var counters = [];
 var timers = [];
-var debugInt, flushInts = [], server;
+var debugInt, flushInts = [], server, sserver;
 
 
 String.prototype.startsWith = function(str) {
@@ -46,6 +47,26 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     debugInt = setInterval(function () { 
       sys.log("Counters:\n" + sys.inspect(counters) + "\nTimers:\n" + sys.inspect(timers));
     }, config.debugInterval || 10000);
+  }
+                    
+  // status server
+  if (sserver === undefined) {
+    sserver = http.createServer(function (req, res) {
+      if (req.url.substring(0, 5) === "/ping") {
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end('PONG\n');
+      }
+      else {
+        res.writeHead(200, {'Content-Type': 'application/json'});
+        var status = {
+          'timers': timers,
+          'counters': counters
+        };
+        res.end(sys.inspect(status));
+      }
+    });
+
+    sserver.listen(config.statusPort, config.statusAddr || "127.0.0.1");
   }
 
   if (server === undefined) {
