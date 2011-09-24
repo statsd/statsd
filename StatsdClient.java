@@ -143,7 +143,7 @@ public class StatsdClient {
 
 	private boolean doSend(String stat) {
 		try {
-			byte[] data = stat.getBytes();
+			byte[] data = stat.getBytes("utf-8");
 			_sock.send(new DatagramPacket(data, data.length, _host, _port));
 			return true;
 		}
