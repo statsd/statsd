@@ -73,7 +73,7 @@ Installation and Configuration
  * Create a config file from exampleConfig.js and put it somewhere
  * Start the Daemon:
 
-    node stats.js /path/to/config.js
+    node stats.js /path/to/config
 
 
 Inspiration
