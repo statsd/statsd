@@ -5,7 +5,7 @@ var dgram  = require('dgram')
 
 var counters = {};
 var timers = {};
-var debugInt, flushInt, server, mgmt_server;
+var debugInt, flushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 
 var stats = {
@@ -72,7 +72,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       stats['messages']['last_msg_seen'] = Math.round(new Date().getTime() / 1000);
     });
 
-    mgmt_server = net.createServer(function(stream) {
+    mgmtServer = net.createServer(function(stream) {
       stream.setEncoding('ascii');
 
       stream.on('data', function(data) {
@@ -129,7 +129,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     });
 
     server.bind(config.port || 8125);
-    mgmt_server.listen(config.mgmt_port || 8126);
+    mgmtServer.listen(config.mgmt_port || 8126);
 
     var flushInterval = Number(config.flushInterval || 10000);
 
