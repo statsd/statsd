@@ -207,7 +207,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         if (config.debug) {
           sys.log(e);
         }
-        stats['graphite']['last_execption'] = Math.round(new Date().getTime() / 1000);
+        stats['graphite']['last_exception'] = Math.round(new Date().getTime() / 1000);
       }
 
     }, flushInterval);
