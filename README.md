@@ -23,7 +23,7 @@ Counting
 
     gorets:1|c
 
-This is a simple counter. Add 1 to the "gorets" bucket. It stays in memory until the flush interval.
+This is a simple counter. Add 1 to the "gorets" bucket. It stays in memory until the flush interval `config.flushInterval`.
 
 
 Timing
@@ -31,7 +31,7 @@ Timing
 
     glork:320|ms
 
-The glork took 320ms to complete this time. StatsD figures out 90th percentile, average (mean), lower and upper bounds for the flush interval.
+The glork took 320ms to complete this time. StatsD figures out 90th percentile, average (mean), lower and upper bounds for the flush interval.  The percentile threshold can be tweaked with `config.percentThreshold`.
 
 Sampling
 --------
@@ -40,6 +40,16 @@ Sampling
 
 Tells StatsD that this counter is being sent sampled every 1/10th of the time.
 
+Debugging
+---------
+
+There are additional config variables available for debugging:
+
+* `debug` - log exceptions and periodically print out information on counters and timers
+* `debugInterval` - interval for printing out information on counters and timers
+* `dumpMessages` - print debug info on incoming messages
+
+For more information, check the `exampleConfig.js`.
 
 Guts
 ----
