@@ -3,6 +3,8 @@ var dgram      = require('dgram')
   , net        = require('net')
   , config     = require('./config')
   , base64     = require('base64')
+  , underscore = require('underscore')
+  , async      = require('async')
   , https      = require('https');
 
 
@@ -11,7 +13,7 @@ var timers = {};
 var debugInt, flushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 
-var stats = {
+var globalstats = {
   graphite: {
     last_flush: startup_time,
     last_exception: startup_time
@@ -21,9 +23,12 @@ var stats = {
     bad_lines_seen: 0,
   }
 };
-var modulus = Math.pow(2,32);
 
 config.configFile(process.argv[2], function (config, oldConfig) {
+  function graphServiceIs(name){
+    return (config.graphService) && (config.graphService == name);
+  }
+
   if (! config.debug && debugInt) {
     clearInterval(debugInt); 
     debugInt = false;
@@ -41,11 +46,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       if (config.dumpMessages) { sys.log(msg.toString()); }
       var bits = msg.toString().split(':');
       var key = '';
-      if ((config.graphService) && (config.graphService == "librato-metrics")){
-        key = bits.shift()
-                  .replace(/\s+/g, '_')
-                  .replace(/\.\//g, '-')
-                  .replace(/[^a-zA-Z_\-0-9]/g, '');
+      if (graphServiceIs("librato-metrics")){
+        key = bits.shift().replace(/[^-.:_\w]+/, '_').substr(0,255)
       } else {
         key = bits.shift()
                   .replace(/\s+/g, '_')
@@ -62,7 +64,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var fields = bits[i].split("|");
         if (fields[1] === undefined) {
             sys.log('Bad line: ' + fields);
-            stats['messages']['bad_lines_seen']++;
+            globalstats['messages']['bad_lines_seen']++;
             continue;
         }
         if (fields[1].trim() == "ms") {
@@ -81,7 +83,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         }
       }
 
-      stats['messages']['last_msg_seen'] = Math.round(new Date().getTime() / 1000);
+      globalstats['messages']['last_msg_seen'] = Math.round(new Date().getTime() / 1000);
     });
 
     mgmtServer = net.createServer(function(stream) {
@@ -154,19 +156,18 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       var key;
 
       for (key in counters) {
-        stats["counters"][key] = {};
-        if ((config.graphService) && (config.graphService == "librato-metrics")){
-          counters[key] = counters[key] % modulus;
-          stats["counters"][key]["value"] = counters[key];
+        var stat;
+        if (graphServiceIs("librato-metrics")){
+          stat = stats["gauges"];
         } else {
-          var value = counters[key] / (flushInterval / 1000);
-          stats["counters"][key]["value"] = value;
+          stat = stats["counters"];
         }
 
-        if ((config.graphService) && (config.graphService == "librato-metrics")){
-        } else {
-          counters[key] = 0;
-        }
+        var value = counters[key] / (flushInterval / 1000);
+        stat[key] = {};
+        stat[key]["value"] = value;
+
+        counters[key] = 0;
 
         numStats += 1;
       }
@@ -205,92 +206,163 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           timers[key] = [];
           stats["gauges"][key] = {};
           stats["gauges"][key]["count"] = count;
-          stats["gauges"][key]["sum_squares"] = sumOfSquares;
-          stats["gauges"][key]["upper_" + pctThreshold] = maxAtThreshold;
           stats["gauges"][key]["sum"] = sum;
+          stats["gauges"][key]["sum_squares"] = sumOfSquares;
           stats["gauges"][key]["min"] = min;
           stats["gauges"][key]["max"] = max;
+          if (!graphServiceIs("librato-metrics")){
+            stats["gauges"][key]["upper_" + pctThreshold] = maxAtThreshold;
+            stats["gauges"][key]["mean"] = mean;
+          }
 
           numStats += 1;
         }
       }
 
-      stats["counters"]["numStats"] = {};
-      stats["counters"]["numStats"]["value"] = numStats;
-
-
-      var stats_str ='';
-      
-      if ((config.graphService) && (config.graphService == "librato-metrics")){
-        stats_str = JSON.stringify(stats);
+      if (graphServiceIs("librato-metrics")){
+        stats["gauges"]["numStats"] = {};
+        stats["gauges"]["numStats"]["value"] = numStats;
       } else {
-        for (k in stats["counters"]){
-          var stat = stats["counters"][k];
-          var per_interval_value = stat["value"] / (flushInterval / 1000);
-          stats_str += ('stats.' + k + ' ' + per_interval_value + ' ' + ts + "\n");
-          stats_str += ('stats_counts.' + k + ' ' + stat["value"] + ' ' + ts + "\n");
-        }
-        for (k in stats["gauges"]){
-          var stat = stats["gauges"][k];
-          for (s in stat){
-            stats_str += ('stats.timers.' + k + '.' + s + ' ' + stat[s] + ' ' + ts + "\n");
-          }
-        }
+        stats["counters"]["numStats"] = {};
+        stats["counters"]["numStats"]["value"] = numStats;
       }
 
-      if (config.debug) {
-        sys.log(stats_str);
-        sys.log(stats_str.length);
+      var slicey = function(obj,slicelen){
+        var slicecounter = 0;
+        var groups = underscore.groupBy(obj,function (num){ var ret = Math.floor(slicecounter/slicelen); slicecounter += + 1; return ret;});
+        return underscore.map(groups,function(k,v){ return k; });
       }
 
-      if ((config.graphService) && (config.graphService == "librato-metrics")){
-        var options = {
-          host: 'metrics-api.librato.com',
-          port: 443,
-          path: '/v1/metrics.json',
-          method: 'POST',
-          headers: {
-            "Authorization": 'Basic ' + base64.encode(new Buffer(config.libratoUser + ':' + config.libratoApiKey)),
-            "Content-Length": stats_str.length,
-            "Content-Type": "application/json"
+      function build_hash(type){
+        return function(group){
+          var hash = {};
+          hash[type] = {};
+          underscore.each(group,function(metric){
+            hash[type][metric] = stats[type][metric];
+          });
+          if (graphServiceIs("librato-metrics")){
+            hash["measure_time"] = ts
           }
+          return hash;
         };
+      }
 
-        var req = https.request(options, function(res) {
-          res.on('data', function(d) {
-            process.stdout.write(d);
-          });
-        });
-        req.write(stats_str);
-        req.end();
-        stats['graphite']['last_flush'] = Math.round(new Date().getTime() / 1000);
+      function build_string(type){
+        return function(stats){
+          var stats_str ='';
 
-        req.on('error', function(e) {
-          sys.log("There was an error");
-          sys.log(e);
-        });
-      } else {
-        try {
-          var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
-          graphite.addListener('error', function(connectionException){
-              if (config.debug) {
-                sys.log(connectionException);
+          if (graphServiceIs("librato-metrics")){
+            stats_str = JSON.stringify(stats);
+          } else {
+            for (k in stats[type]){
+              var stat = stats[type][k];
+              if (type == "counters"){
+                var per_interval_value = stat["value"] / (flushInterval / 1000);
+                stats_str += ('stats.' + k + ' ' + per_interval_value + ' ' + ts + "\n");
+                stats_str += ('stats_counts.' + k + ' ' + stat["value"] + ' ' + ts + "\n");
+              } else {
+                for (s in stat){
+                  stats_str += ('stats.timers.' + k + '.' + s + ' ' + stat[s] + ' ' + ts + "\n");
+                }
               }
-          });
-          graphite.on('connect', function() {
-              this.write(stats_str);
-              this.end();
-              stats['graphite']['last_flush'] = Math.round(new Date().getTime() / 1000);
-              });
-        } catch(e){
-          if (config.debug) {
+            }
+          }
+          return stats_str;
+        };
+      }
+
+      var slice_length = config.batch || 200;
+      var ggroups = slicey(underscore.keys(stats["gauges"]),slice_length);
+      var cgroups = slicey(underscore.keys(stats["counters"]),slice_length);
+      var ghashes = underscore.map(ggroups,build_hash("gauges"));
+      var chashes = underscore.map(cgroups,build_hash("counters"));
+
+      var lengths = underscore.map(ggroups.concat(cgroups),function (m){ return m.length; });
+      var chunks = underscore.map(ggroups.concat(cgroups),function (m){ return m.join(); });
+
+      var gstrs = underscore.map(ghashes,build_string("gauges"));
+      var cstrs = underscore.map(chashes,build_string("counters"));
+
+      var strings = gstrs.concat(cstrs);
+
+      async.forEach(strings,function(stats_str,cb){
+        if (config.debug) {
+          sys.log(stats_str);
+          sys.log(stats_str.length);
+        }
+
+        if (graphServiceIs("librato-metrics")){
+          var submit_to_librato = function(stats_str,retry){
+            var options = {
+              host: 'metrics-api.librato.com',
+              port: 443,
+              path: '/v1/metrics.json',
+              method: 'POST',
+              headers: {
+                "Authorization": 'Basic ' + base64.encode(new Buffer(config.libratoUser + ':' + config.libratoApiKey)),
+                "Content-Length": stats_str.length,
+                "Content-Type": "application/json"
+              }
+            };
+
+            var req = https.request(options, function(res) {
+              if(res.statusCode != 204){
+                res.on('data', function(d){
+                  var errdata = "HTTP " + res.statusCode + ": " + d;
+                  if (retry){
+                    setTimeout(function(){
+                      submit_to_librato(stats_str,false);
+                    }, Math.floor(flushInterval/2) + 100);
+                  } else {
+                    sys.log("Error connecting to Librato!\n" + errdata);
+                  }
+                });
+              }
+            });
+            req.write(stats_str);
+            req.end();
+            globalstats['graphite']['last_flush'] = Math.round(new Date().getTime() / 1000);
+            req.on('error', function(errdata) {
+                if (retry){
+                  setTimeout(function(){
+                    submit_to_librato(stats_str,false);
+                  }, Math.floor(flushInterval/2) + 100);
+                } else {
+                  sys.log("Error connecting to Librato!\n" + errdata);
+                }
+            });
+          }
+
+          submit_to_librato(stats_str,true);
+        } else {
+          try {
+            var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
+            graphite.addListener('error', function(connectionException){
+                if (config.debug) {
+                  sys.log(connectionException);
+                }
+            });
+            graphite.on('connect', function() {
+                this.write(stats_str);
+                this.end();
+                globalstats['graphite']['last_flush'] = Math.round(new Date().getTime() / 1000);
+                });
+          } catch(e){
+            if (config.debug) {
+              sys.log(e);
+            }
+          }
+        }
+        cb(null,null);
+      }, function(e){
+        if (e){
+          globalstats['graphite']['last_exception'] = Math.round(new Date().getTime() / 1000);
+          if(config.debug) {
             sys.log(e);
           }
         }
-        stats['graphite']['last_exception'] = Math.round(new Date().getTime() / 1000);
-      }
+      });
     }, flushInterval);
   }
-
 });
 
