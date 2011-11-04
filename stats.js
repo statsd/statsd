@@ -159,6 +159,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
           var mean = min;
           var maxAtThreshold = max;
+          var sum = max;
 
           if (count > 1) {
             var thresholdIndex = Math.round(((100 - pctThreshold) / 100) * count);
@@ -167,7 +168,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             maxAtThreshold = values[numInThreshold - 1];
 
             // average the remaining timings
-            var sum = 0;
+            sum = 0;
             for (var i = 0; i < numInThreshold; i++) {
               sum += values[i];
             }
@@ -183,6 +184,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           message += 'stats.timers.' + key + '.upper_' + pctThreshold + ' ' + maxAtThreshold + ' ' + ts + "\n";
           message += 'stats.timers.' + key + '.lower ' + min + ' ' + ts + "\n";
           message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
+          message += 'stats.timers.' + key + '.sum ' + sum + ' ' + ts + "\n";
           statString += message;
 
           numStats += 1;
