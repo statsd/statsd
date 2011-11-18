@@ -14,7 +14,7 @@ var Configurator = function (file) {
       if (err) { throw err; }
       old_config = self.config;
 
-      self.config = process.compile('config = ' + data, file);
+      self.config = eval('config = ' + fs.readFileSync(file));
       self.emit('configChanged', self.config);
     });
   };
