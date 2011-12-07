@@ -11,8 +11,8 @@
 # Sends statistics to the stats daemon over UDP
 class Statsd(object):
     
-    @staticmethod
-    def timing(stat, time, sample_rate=1):
+    @classmethod
+    def timing(cls, stat, time, sample_rate=1):
         """
         Log timing information
         >>> from python_example import Statsd
@@ -20,27 +20,27 @@ class Statsd(object):
         """
         stats = {}
         stats[stat] = "%d|ms" % time
-        Statsd.send(stats, sample_rate)
+        cls.send(stats, sample_rate)
 
-    @staticmethod
-    def increment(stats, sample_rate=1):
+    @classmethod
+    def increment(cls, stats, sample_rate=1):
         """
         Increments one or more stats counters
         >>> Statsd.increment('some.int')
         >>> Statsd.increment('some.int',0.5)
         """
-        Statsd.update_stats(stats, 1, sample_rate)
+        cls.update_stats(stats, 1, sample_rate)
 
-    @staticmethod
-    def decrement(stats, sample_rate=1):
+    @classmethod
+    def decrement(cls, stats, sample_rate=1):
         """
         Decrements one or more stats counters
         >>> Statsd.decrement('some.int')
         """
-        Statsd.update_stats(stats, -1, sample_rate)
+        cls.update_stats(stats, -1, sample_rate)
     
-    @staticmethod
-    def update_stats(stats, delta=1, sampleRate=1):
+    @classmethod
+    def update_stats(cls, stats, delta=1, sampleRate=1):
         """
         Updates one or more stats counters by arbitrary amounts
         >>> Statsd.update_stats('some.int',10)
@@ -51,10 +51,10 @@ class Statsd(object):
         for stat in stats:
             data[stat] = "%s|c" % delta
 
-        Statsd.send(data, sampleRate)
+        cls.send(data, sampleRate)
     
-    @staticmethod
-    def send(data, sample_rate=1):
+    @classmethod
+    def send(cls, data, sample_rate=1):
         """
         Squirt the metrics over UDP
         """
