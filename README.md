@@ -1,7 +1,7 @@
 StatsD
 ======
 
-A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to [graphite][graphite].
+A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to graphing services such as [graphite][graphite] or [Librato Metrics][metrics].
 
 We ([Etsy][etsy]) [blogged][blog post] about how it works and why we created it.
 
@@ -24,7 +24,6 @@ Counting
     gorets:1|c
 
 This is a simple counter. Add 1 to the "gorets" bucket. It stays in memory until the flush interval `config.flushInterval`.
-
 
 Timing
 ------
@@ -58,9 +57,18 @@ Guts
   Client libraries use UDP to send information to the StatsD daemon.
 
 * [NodeJS][node]
+
+Statsd can submit data to multiple graphing services. Currently these include:
+
 * [Graphite][graphite]
 
-Graphite uses "schemas" to define the different round robin datasets it houses (analogous to RRAs in rrdtool). Here's what Etsy is using for the stats databases:
+* [Librato Metrics][metrics]
+
+Graphing Services
+-----------------
+
+**Graphite**
+Graphite is an open source highly scalable real-time graphing system. Graphite uses "schemas" to define the different round robin datasets it houses (analogous to RRAs in rrdtool). Here's what Etsy is using for the stats databases:
 
     [stats]
     priority = 110
@@ -74,6 +82,9 @@ That translates to:
 * 5 years of 10 minute data
 
 This has been a good tradeoff so far between size-of-file (round robin databases are fixed size) and data we care about. Each "stats" database is about 3.2 megs with these retentions.
+
+**Librato Metrics**
+Librato Metrics is a hosted graphing service that eliminates the need to set up and run your own graphing server. Submitting data to [Librato Metrics][metrics] requires a username and API token. You can find your API token in your [account settings](https://metrics.librato.com/account).
 
 TCP Stats Interface
 -------------------
@@ -98,9 +109,12 @@ Installation and Configuration
  * Install node.js
  * Clone the project
  * Create a config file from exampleConfig.js and put it somewhere
+ * Add connection info for your graphing service to exampleConfig.js
  * Start the Daemon:
 
-    node stats.js /path/to/config
+```
+node stats.js /path/to/config
+```
 
 
 Inspiration
@@ -127,6 +141,7 @@ fork StatsD from here: http://github.com/etsy/statsd
 We'll do our best to get your changes in!
 
 [graphite]: http://graphite.wikidot.com
+[metrics]: https://metrics.librato.com
 [etsy]: http://www.etsy.com
 [blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
 [node]: http://nodejs.org
