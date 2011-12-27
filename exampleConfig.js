@@ -2,9 +2,16 @@
 
 Required Variables:
 
+  port:             StatsD listening port [default: 8125]
+
+Graphite Required Variables:
+
+(Leave these unset to avoid sending stats to Graphite.
+ Set debug flag and leave these unset to run in 'dry' debug mode -
+ useful for testing statsd clients without a Graphite server.)
+
   graphiteHost:     hostname or IP of Graphite server
   graphitePort:     port of Graphite server
-  port:             StatsD listening port [default: 8125]
 
 Optional Variables:
 
