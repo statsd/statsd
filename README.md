@@ -10,7 +10,7 @@ Concepts
 --------
 
 * *buckets*
-  Each stat is in it's own "bucket". They are not predefined anywhere. Buckets can be named anything that will translate to Graphite (periods make folders, etc)
+  Each stat is in its own "bucket". They are not predefined anywhere. Buckets can be named anything that will translate to Graphite (periods make folders, etc)
 
 * *values*
   Each stat will have a value. How it is interpreted depends on modifiers
