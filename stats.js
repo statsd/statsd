@@ -161,8 +161,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           var maxAtThreshold = max;
 
           if (count > 1) {
-            var thresholdIndex = Math.round(((100 - pctThreshold) / 100) * count);
-            var numInThreshold = count - thresholdIndex;
+            var numInThreshold = Math.round(pctThreshold * count);
             values = values.slice(0, numInThreshold);
             maxAtThreshold = values[numInThreshold - 1];
 
