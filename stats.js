@@ -131,6 +131,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     server.bind(config.port || 8125);
     mgmtServer.listen(config.mgmt_port || 8126);
 
+    sys.log("server is up");
+
     var flushInterval = Number(config.flushInterval || 10000);
 
     flushInt = setInterval(function () {
