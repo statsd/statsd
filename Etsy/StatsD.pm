@@ -2,6 +2,7 @@ package Etsy::StatsD;
 use strict;
 use warnings;
 use IO::Socket;
+use Carp;
 
 =head1 NAME
 
@@ -23,7 +24,14 @@ sub new {
 	my ($class, $host, $port, $sample_rate) = @_;
 	$host = 'localhost' unless defined $host;
 	$port = 8125 unless defined $port;
-	bless {host=>$host, port=>$port, sample_rate=>$sample_rate}, $class;
+
+	my $sock = new IO::Socket::INET(
+		PeerAddr        => $host,
+		PeerPort        => $port,
+		Proto           => 'udp',
+	) or croak "Failed to initialize socket: $!";
+
+	bless {socket=>$sock, sample_rate=>$sample_rate}, $class;
 }
 
 =item timing(STAT, TIME, SAMPLE_RATE)
@@ -100,19 +108,13 @@ sub send {
 	
 	return '0 but true' unless keys %$sampled_data;
 
-	my $sock = new IO::Socket::INET(
-		PeerAddr        => $self->{host},
-		PeerPort        => $self->{port},
-		Proto           => 'udp',
-	) or return undef;
-
 	#failures in any of this can be silently ignored
 	my $count=0;
+	my $socket = $self->{socket};
 	while (my($stat,$value) = each %$sampled_data) {
-		print $sock "$stat:$value\n";
+		print $socket "$stat:$value\n";
 		++$count;
 	}
-	close $sock;
 	return $count;
 }
 
