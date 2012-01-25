@@ -18,13 +18,22 @@ Optional Variables:
   debug:            debug flag [default: false]
   debugInterval:    interval to print debug information [ms, default: 10000]
   dumpMessages:     log all incoming messages
-  flushInterval:    interval (in ms) to flush to Graphite
+  flushInterval:    interval (in ms) to flush to Graphite or Librato
   percentThreshold: for time information, calculate the Nth percentile
-                    [%, default: 90]
-
+                      [%, default: 90]
+  batch:            split up large updates to Graphite/Librato into batches
+                      of size N [default: 200]
 */
+
 {
-  graphitePort: 2003
-, graphiteHost: "graphite.host.com"
-, port: 8125
+    port: 8125
+  , graphitePort: 2003
+  , graphiteHost: "graphite.host.com"
+//, debug: 1
+//, debugInterval: 10000
+//, dumpMessages: 1
+//, mgmt_port: 8126
+//, flushInterval: 10000
+//, percentThreshold: 90
+//, batch: 200
 }

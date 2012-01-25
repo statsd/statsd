@@ -1,0 +1,31 @@
+{
+  "name": "statsd",
+  "description": "A lightweight daemon to collect metrics",
+  "author": "Etsy",
+  "contributors": [
+    {
+      "name": "Librato",
+      "email": "metrics@librato.com",
+      "url": "http://librato.com"
+    }
+  ],
+  "scripts": {
+    "test": "./run_tests.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/etsy/statsd.git"
+  },
+  "version": "1.5.0",
+  "dependencies": {
+    "async": "0.1.x",
+    "underscore": "1.2.x",
+    "temp": "0.4.x"
+  },
+  "devDependencies": {
+    "nodeunit": "0.6.x"
+  },
+  "engine": {
+    "node" : ">=0.4"
+  }
+}
