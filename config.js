@@ -1,5 +1,5 @@
 var fs  = require('fs')
-  , sys = require('sys')
+  , sys = require('util')
 
 var Configurator = function (file) {
 

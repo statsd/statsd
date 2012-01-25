@@ -1,3 +1,5 @@
+// this file tests that graphite and librato work simultaneously
+
 var fs           = require('fs'),
     net          = require('net'),
     temp         = require('temp'),
@@ -69,19 +71,27 @@ var collect_for = function(server,timeout,cb){
 
 module.exports = {
   setUp: function (callback) {
-    this.testport = 31337;
+    this.graphiteTestport = 31336;
+    this.libratoTestport = 31337;
+
     this.myflush = 200;
     var configfile = "{\n\
-                 batch: 200 \n\
+                  batch: 200 \n\
                ,  flushInterval: " + this.myflush + " \n\
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
                ,  debug: true\n\
-               ,  graphitePort: " + this.testport + "\n\
+               ,  libratoUser: \"test@librato.com\"\n\
+               ,  libratoSnap: 10\n\
+               ,  libratoApiKey: \"fakekey\"\n\
+               ,  libratoHost: \"http://127.0.0.1:" + this.libratoTestport + "\" \n\
+               ,  graphitePort: " + this.graphiteTestport + "\n\
                ,  graphiteHost: \"127.0.0.1\"}";
 
-    this.acceptor = net.createServer();
-    this.acceptor.listen(this.testport);
+    this.graphiteAcceptor = net.createServer();
+    this.graphiteAcceptor.listen(this.graphiteTestport);
+    this.libratoAcceptor = http.createServer();
+    this.libratoAcceptor.listen(this.libratoTestport);
     this.sock = dgram.createSocket('udp4');
 
     this.server_up = true;
@@ -121,7 +131,8 @@ module.exports = {
   },
   tearDown: function (callback) {
     this.sock.close();
-    this.acceptor.close();
+    this.graphiteAcceptor.close();
+    this.libratoAcceptor.close();
     this.ok_to_die = true;
     if(this.server_up){
       this.exit_callback_callback = callback;
@@ -132,10 +143,19 @@ module.exports = {
   },
 
   send_well_formed_posts: function (test) {
-    test.expect(2);
+    test.expect(7);
+
+    // only call test.done() when both graphite and librato have finished
+    var protocols_hit = 0;
+    var finish_protocol = function(){
+      protocols_hit++;
+      if(protocols_hit >= 2){
+        test.done();
+      }
+    }
 
     // we should integrate a timeout into this
-    this.acceptor.once('connection',function(c){
+    this.graphiteAcceptor.once('connection',function(c){
       var body = '';
       c.on('data',function(d){ body += d; });
       c.on('end',function(){
@@ -148,80 +168,38 @@ module.exports = {
         });
         test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'statsd.numStats'),'graphite output includes numStats');
         test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'statsd.numStats' })['statsd.numStats'],0);
-        test.done();
+        finish_protocol();
       });
     });
-  },
 
-  timers_are_valid: function (test) {
-    test.expect(3);
-
-    var testvalue = 100;
-    var me = this;
-    this.acceptor.once('connection',function(c){
-      statsd_send('a_test_value:' + testvalue + '|ms',me.sock,'127.0.0.1',8125,function(){
-          collect_for(me.acceptor,me.myflush*2,function(strings){
-            test.ok(strings.length > 0,'should receive some data');
-            var hashes = _.map(strings, function(x) {
-              var chunks = x.split(' ');
-              var data = {};
-              data[chunks[0]] = chunks[1];
-              return data;
-            });
-            var numstat_test = function(post){
-              var mykey = 'statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 1);
-            };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
-
-            var testtimervalue_test = function(post){
-              var mykey = 'stats.timers.a_test_value.mean';
-              return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
-            };
-            test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
-
+    this.libratoAcceptor.once('request',function(req,res){
+        res.writeHead(204);
+        res.end();
+        test.equals(req.method,'POST');
+        var uri_parts = urlparse(req.url);
+        test.equals(uri_parts["pathname"],'/v1/metrics.json')
+        var body = '';
+        req.on('data',function(data){ body += data; });
+        req.on('end',function(){
+          try {
+              var post = JSON.parse(body);
+          } catch (e) {
+            test.ok(false,"string sent was not valid JSON: " + e);
             test.done();
-          });
-      });
-    });
-  },
+            return;
+          }
+          test.ok(true);
+          var message_keys = ['measure_time','gauges'];
+          test.ok(array_contents_are_equal(_.keys(post),message_keys),"JSON must only have: [" + message_keys + "], received: [" + _.keys(post) + "]");
 
-  counts_are_valid: function (test) {
-    test.expect(4);
-
-    var testvalue = 100;
-    var me = this;
-    this.acceptor.once('connection',function(c){
-      statsd_send('a_test_value:' + testvalue + '|c',me.sock,'127.0.0.1',8125,function(){
-          collect_for(me.acceptor,me.myflush*2,function(strings){
-            test.ok(strings.length > 0,'should receive some data');
-            var hashes = _.map(strings, function(x) {
-              var chunks = x.split(' ');
-              var data = {};
-              data[chunks[0]] = chunks[1];
-              return data;
-            });
-            var numstat_test = function(post){
-              var mykey = 'statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 1);
-            };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
-
-            var testavgvalue_test = function(post){
-              var mykey = 'stats.a_test_value';
-              return _.include(_.keys(post),mykey) && (post[mykey] == (testvalue/(me.myflush / 1000)));
-            };
-            test.ok(_.any(hashes,testavgvalue_test), 'stats.a_test_value should be ' + (testvalue/(me.myflush / 1000)));
-
-            var testcountvalue_test = function(post){
-              var mykey = 'stats_counts.a_test_value';
-              return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
-            };
-            test.ok(_.any(hashes,testcountvalue_test), 'stats_counts.a_test_value should be ' + testvalue);
-
-            test.done();
-          });
-      });
+          if(_.include(_.keys(post),'gauges') && _.include(_.keys(post['gauges']),'numStats') &&
+             _.include(_.keys(post['gauges']['numStats']),'value')){
+             test.equals(post['gauges']['numStats']['value'],0);
+          } else {
+            test.ok('false', 'API does not send numStats properly');
+          }
+          finish_protocol();
+        });
     });
   }
 }
