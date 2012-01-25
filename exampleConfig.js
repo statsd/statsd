@@ -13,6 +13,18 @@ Graphite Required Variables:
   graphiteHost:     hostname or IP of Graphite server
   graphitePort:     port of Graphite server
 
+Librato Required Variables:
+
+(Leave these unset to avoid sending stats to Librato.)
+  libratoUser:      email/user ID for a Metrics account
+  libratoApiKey:    API key associated with account
+
+Librato Optional Variables:
+
+  libratoSource:    provide a name for this data collection source
+  libratoSnap:      snap timestamp to intervals of this many seconds to make graphs
+                    stack better [s, default: 10]
+
 Optional Variables:
 
   debug:            debug flag [default: false]
@@ -29,6 +41,10 @@ Optional Variables:
     port: 8125
   , graphitePort: 2003
   , graphiteHost: "graphite.host.com"
+//, libratoUser: "<librato email>"
+//, libratoApiKey: "<librato api key>"
+//, libratoSource: "loadbalancer-statsd" // optional source
+//, libratoSnap: 10 // snap measurements to this interval
 //, debug: 1
 //, debugInterval: 10000
 //, dumpMessages: 1

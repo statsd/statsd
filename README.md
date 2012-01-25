@@ -1,7 +1,7 @@
 StatsD
 ======
 
-A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to graphing services such as [graphite][graphite].
+A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to graphing services such as [graphite][graphite] or [Librato Metrics][metrics].
 
 We ([Etsy][etsy]) [blogged][blog post] about how it works and why we created it.
 
@@ -64,10 +64,11 @@ Guts
 
 * [NodeJS][node]
 
-Statsd can submit data to multiple graphing services. Currently this includes:
+Statsd can submit data to multiple graphing services. Currently these include:
 
 * [Graphite][graphite]
 
+* [Librato Metrics][metrics]
 
 Graphing Services
 -----------------
@@ -87,6 +88,9 @@ That translates to:
 * 5 years of 10 minute data
 
 This has been a good tradeoff so far between size-of-file (round robin databases are fixed size) and data we care about. Each "stats" database is about 3.2 megs with these retentions.
+
+**Librato Metrics**
+Librato Metrics is a hosted graphing service that eliminates the need to set up and run your own graphing server. Submitting data to [Librato Metrics][metrics] requires a username and API token. You can find your API token in your [account settings](https://metrics.librato.com/account).
 
 TCP Stats Interface
 -------------------
@@ -152,6 +156,7 @@ fork StatsD from here: http://github.com/etsy/statsd
 We'll do our best to get your changes in!
 
 [graphite]: http://graphite.wikidot.com
+[metrics]: https://metrics.librato.com
 [etsy]: http://www.etsy.com
 [blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
 [node]: http://nodejs.org

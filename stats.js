@@ -1,3 +1,4 @@
+versionstring = "statsd/1.6"
 
 var dgram      = require('dgram')
   , sys        = require('util')
@@ -91,6 +92,9 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     switch(name){
       case "graphite":
         return (config.graphiteHost && config.graphitePort);
+        break;
+      case "librato-metrics":
+        return (config.libratoUser && config.libratoApiKey);
         break;
       default:
         throw ("'" + name + "' isn't a valid graphing service!");
@@ -314,9 +318,23 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
       function hash_postprocess(inhash,service){
         switch(service){
+          case "librato-metrics":
+            var hash = {};
+            hash["gauges"] = inhash["gauges"] || {};
+            if (_.include(_.keys(inhash),"counters")) {
+              _.each(_.keys(inhash["counters"]),function(metric){
+                  metric = metric.replace(/[^-.:_\w]+/, '_').substr(0,255)
+                  hash["gauges"][metric] = inhash["counters"][metric];
+                  });
+            }
+            snap = config.libratoSnap || 10;
+            hash["measure_time"] = (ts - (ts%snap));
+            if (config.libratoSource) { hash["source"] = config.libratoSource; }
+            return hash;
+            break;
           default:
-          return inhash;
-          break;
+            return inhash;
+            break;
         }
       }
 
@@ -324,6 +342,9 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           var stats_str ='';
 
           switch(service){
+            case "librato-metrics":
+              stats_str = JSON.stringify(hash);
+              break;
             case "graphite":
               for (key in hash[type]){
                 k =       key
@@ -370,6 +391,53 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         }
       }
 
+      var submit_to_librato = function(stats_str,retry){
+        var parsed_host = url_parse(config.libratoHost || 'https://metrics-api.librato.com');
+        var options = {
+          host: parsed_host["hostname"],
+          port: parsed_host["port"] || 443,
+          path: '/v1/metrics.json',
+          method: 'POST',
+          headers: {
+            "Authorization": 'Basic ' + new Buffer(config.libratoUser + ':' + config.libratoApiKey).toString('base64'),
+            "Content-Length": stats_str.length,
+            "Content-Type": "application/json",
+            "User-Agent" : versionstring
+          }
+        };
+
+        var proto = http;
+        if ((parsed_host["protocol"] || 'http:').match(/https/)){
+          proto = https;
+        }
+        var req = proto.request(options, function(res) {
+          if(res.statusCode != 204){
+            res.on('data', function(d){
+              var errdata = "HTTP " + res.statusCode + ": " + d;
+              if (retry){
+                if (config.debug) { console.log("received error " + res.statusCode + " connecting to Librato, retrying... "); }
+                setTimeout(function(){
+                  submit_to_librato(stats_str,false);
+                }, Math.floor(flushInterval/2) + 100);
+              } else {
+                logger("Error connecting to Librato!\n" + errdata,"crit");
+              }
+            });
+          }
+        });
+        req.write(stats_str);
+        req.end();
+        globalstats['graphite']['last_flush'] = Math.round(new Date().getTime() / 1000);
+        req.on('error', function(errdata) {
+            if (retry){
+              setTimeout(function(){
+                submit_to_librato(stats_str,false);
+              }, Math.floor(flushInterval/2) + 100);
+            } else {
+              logger("Error connecting to Librato!\n" + errdata,"crit");
+            }
+        });
+      }
 
       var concurrent_conns = config.maxConnections || 10;
       var submissionq = async.queue(function (task,cb){
@@ -378,7 +446,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           },concurrent_conns);
 
       // only send to what is enabled
-      var availableServices = ["graphite"];
+      var availableServices = ["graphite","librato-metrics"];
       var enabledServices = _.select(availableServices,graphServiceEnabled);
 
       _.each(combined_hashes,function(hash){
@@ -388,6 +456,15 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             var stats_str = build_string(hash_postprocess(hash,service),hashtype,service);
 
             switch(service){
+              case "librato-metrics":
+                submissionq.push(function(){
+                  if (config.debug) {
+                    logger(stats_str,"debug");
+                    logger(stats_str.length,"debug");
+                  }
+                  submit_to_librato(stats_str,true);
+                }, logerror);
+                break;
               case "graphite":
                 submissionq.push(function(){
                   if (config.debug) {
