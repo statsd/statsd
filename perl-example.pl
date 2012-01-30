@@ -1,5 +1,10 @@
 #! /usr/bin/perl
 
+# example perl code for Etsy StatsD
+# Steve Sanbeg http://www.buzzfeed.com/stv
+# host and port are passed in as command line options, default to 
+# localhost & 8125.
+
 use strict;
 use warnings;
 use Getopt::Long;
