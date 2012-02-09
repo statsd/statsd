@@ -2,10 +2,12 @@ var dgram  = require('dgram')
   , sys    = require('sys')
   , net    = require('net')
   , config = require('./config')
+  , fs     = require('fs')
 
+var keyCounter = {};
 var counters = {};
 var timers = {};
-var debugInt, flushInt, server, mgmtServer;
+var debugInt, flushInt, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 
 var stats = {
@@ -33,6 +35,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   }
 
   if (server === undefined) {
+
+    // key counting
+    var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
+
     server = dgram.createSocket('udp4', function (msg, rinfo) {
       if (config.dumpMessages) { sys.log(msg.toString()); }
       var bits = msg.toString().split(':');
@@ -40,6 +46,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
                     .replace(/\s+/g, '_')
                     .replace(/\//g, '-')
                     .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+
+      if (keyFlushInterval > 0) {
+        if (! keyCounter[key]) {
+          keyCounter[key] = 0;
+        }
+        keyCounter[key] += 1;
+      }
 
       if (bits.length == 0) {
         bits.push("1");
@@ -232,7 +245,38 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
     }, flushInterval);
-  }
 
+    if (keyFlushInterval > 0) {
+      var keyFlushPercent = Number((config.keyFlush && config.keyFlush.percent) || 100);
+      var keyFlushLog = (config.keyFlush && config.keyFlush.log) || "stdout";
+
+      keyFlushInt = setInterval(function () {
+        var key;
+        var sortedKeys = [];
+
+        for (key in keyCounter) {
+          sortedKeys.push([key, keyCounter[key]]);
+        }
+
+        sortedKeys.sort(function(a, b) { return b[1] - a[1]; });
+
+        var logMessage = "";
+        var timeString = (new Date()) + "";
+
+        // only show the top "keyFlushPercent" keys
+        for (var i = 0, e = sortedKeys.length * (keyFlushPercent / 100); i < e; i++) {
+          logMessage += timeString + " " + sortedKeys[i][1] + " " + sortedKeys[i][0] + "\n";
+        }
+
+        var logFile = fs.createWriteStream(keyFlushLog, {flags: 'a+'});
+        logFile.write(logMessage);
+        logFile.end();
+
+        // clear the counter
+        keyCounter = {};
+      }, keyFlushInterval);
+    }
+
+  }
 });
 
