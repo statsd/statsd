@@ -76,11 +76,12 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       stream.setEncoding('ascii');
 
       stream.on('data', function(data) {
-        var cmd = data.trim();
+        var cmdline = data.trim().split(" ");
+        var cmd = cmdline.shift();
 
         switch(cmd) {
           case "help":
-            stream.write("Commands: stats, counters, timers, quit\n\n");
+            stream.write("Commands: stats, counters, timers, delcounters, deltimers, quit\n\n");
             break;
 
           case "stats":
@@ -113,6 +114,22 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
           case "timers":
             stream.write(sys.inspect(timers) + "\n");
+            stream.write("END\n\n");
+            break;
+
+          case "delcounters":
+            for (index in cmdline) {
+              delete counters[cmdline[index]];
+              stream.write("deleted: " + cmdline[index] + "\n");
+            }
+            stream.write("END\n\n");
+            break;
+
+          case "deltimers":
+            for (index in cmdline) {
+              delete timers[cmdline[index]];
+              stream.write("deleted: " + cmdline[index] + "\n");
+            }
             stream.write("END\n\n");
             break;
 
