@@ -172,12 +172,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       var key;
 
       for (key in counters) {
-        var value = counters[key] / (flushInterval / 1000);
-        var message = 'stats.' + key + ' ' + value + ' ' + ts + "\n";
-        message += 'stats_counts.' + key + ' ' + counters[key] + ' ' + ts + "\n";
-        statString += message;
-        counters[key] = 0;
+        var value = counters[key];
+        var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
+        statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
+        statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+
+        counters[key] = 0;
         numStats += 1;
       }
 
