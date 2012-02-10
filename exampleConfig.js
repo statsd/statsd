@@ -21,10 +21,10 @@ Optional Variables:
   flushInterval:    interval (in ms) to flush to Graphite
   percentThreshold: for time information, calculate the Nth percentile
                     [%, default: 90]
-  keyFlush:         log the most frequently sent keys [default: false]
-  keyFlushPercent:  log the top N% of frequent keys [%, default: 100]
-  keyFlushInterval: how often to log frequent keys (in ms)
-  keyFlushLog:      location of log file for frequeent keys [default: STDOUT]
+  keyFlush:         log the most frequently sent keys [object, default: undefined]
+    interval:       how often to log frequent keys [ms, default: 0]
+    percent:        percentage of frequent keys to log [%, default: 100]
+    log:            location of log file for frequent keys [default: STDOUT]
 
 */
 {
