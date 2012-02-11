@@ -1,5 +1,5 @@
 var dgram  = require('dgram')
-  , sys    = require('sys')
+  , util    = require('util')
   , net    = require('net')
   , config = require('./config')
   , fs     = require('fs')
@@ -30,7 +30,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   if (config.debug) {
     if (debugInt !== undefined) { clearInterval(debugInt); }
     debugInt = setInterval(function () { 
-      sys.log("Counters:\n" + sys.inspect(counters) + "\nTimers:\n" + sys.inspect(timers));
+      util.log("Counters:\n" + util.inspect(counters) + "\nTimers:\n" + util.inspect(timers));
     }, config.debugInterval || 10000);
   }
 
@@ -40,7 +40,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
     server = dgram.createSocket('udp4', function (msg, rinfo) {
-      if (config.dumpMessages) { sys.log(msg.toString()); }
+      if (config.dumpMessages) { util.log(msg.toString()); }
       var bits = msg.toString().split(':');
       var key = bits.shift()
                     .replace(/\s+/g, '_')
@@ -62,7 +62,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var sampleRate = 1;
         var fields = bits[i].split("|");
         if (fields[1] === undefined) {
-            sys.log('Bad line: ' + fields);
+            util.log('Bad line: ' + fields);
             stats['messages']['bad_lines_seen']++;
             continue;
         }
@@ -121,12 +121,12 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             break;
 
           case "counters":
-            stream.write(sys.inspect(counters) + "\n");
+            stream.write(util.inspect(counters) + "\n");
             stream.write("END\n\n");
             break;
 
           case "timers":
-            stream.write(sys.inspect(timers) + "\n");
+            stream.write(util.inspect(timers) + "\n");
             stream.write("END\n\n");
             break;
 
@@ -161,7 +161,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     server.bind(config.port || 8125, config.address || undefined);
     mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
 
-    sys.log("server is up");
+    util.log("server is up");
 
     var flushInterval = Number(config.flushInterval || 10000);
 
@@ -229,7 +229,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
           graphite.addListener('error', function(connectionException){
             if (config.debug) {
-              sys.log(connectionException);
+              util.log(connectionException);
             }
           });
           graphite.on('connect', function() {
@@ -239,7 +239,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           });
         } catch(e){
           if (config.debug) {
-            sys.log(e);
+            util.log(e);
           }
           stats['graphite']['last_exception'] = Math.round(new Date().getTime() / 1000);
         }
