@@ -158,8 +158,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       });
     });
 
-    server.bind(config.port || 8125);
-    mgmtServer.listen(config.mgmt_port || 8126);
+    server.bind(config.port || 8125, config.address || undefined);
+    mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
 
     sys.log("server is up");
 
