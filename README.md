@@ -92,6 +92,8 @@ The stats output currently will give you:
 * messages.last_msg_seen: the number of elapsed seconds since statsd received a message
 * messages.bad_lines_seen: the number of bad lines seen since startup
 
+A simple nagios check can be found in the utils/ directory that can be used to check metric thresholds, for example the number of seconds since the last successful flush to graphite.
+
 Installation and Configuration
 ------------------------------
 
