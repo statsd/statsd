@@ -8,5 +8,5 @@ script
     # We found $HOME is needed. Without it, we ran into problems
     export HOME="/root"
 
-    exec sudo -u fabric /usr/share/statsd/scripts/start
+    exec sudo -u nobody /usr/share/statsd/scripts/start
 end script
