@@ -12,4 +12,8 @@ Here's a bunch of example code contributed by the communinty for interfacing wit
     ruby_example.rb   - Ruby
     statsd.erl        - Erlang
 
-Thankyou to all the contributors!
+Third Party StatsD Libraries
+============================
+
+   PERL: [Net::StatsD](https://github.com/cosimo/perl5-net-statsd/)
+
