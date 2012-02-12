@@ -1,3 +1,10 @@
+statsd (0.0.2) unstable; urgency=low
+
+  * merge of pull request #34 (from bruno@sologroup.gs)
+  * bump required version to 0.4.7
+
+ -- Erik Kastner <kastner@gmail.com>  Sun, 12 Feb 2012 14:48:29 -0500
+
 statsd (0.0.1-1) unstable; urgency=low
 
   * Initial rdio packaging.
