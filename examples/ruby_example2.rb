@@ -74,11 +74,10 @@ class Statsd
     end
   end
 
-  @@config = {}
   def self.config
-    return @@config if @@config
+    return @@config if self.class_variable_defined?(:@@config)
     begin 
-      config_path = File.join(File.dir(__FILE__), "statsd.yml")
+      config_path = File.join(File.dirname(__FILE__), "statsd.yml")
       # for Rails environments, check Rails.root/config/statsd.yml
       if defined? Rails
         config_path = File.join(Rails.root, "config", "statsd.yml")
