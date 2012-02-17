@@ -28,13 +28,13 @@
  * You know... the "Java way."
  */
 
-import java.util.Random;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 
@@ -42,19 +42,16 @@ public class StatsdClient {
 	private static Random RNG = new Random();
 	private static Logger log = Logger.getLogger(StatsdClient.class.getName());
 
-	private InetAddress _host;
-	private int _port;
-	
-	private DatagramSocket _sock;
+	private InetSocketAddress _address;
+	private DatagramChannel _channel;
 
-	public StatsdClient(String host, int port) throws UnknownHostException, SocketException {
+	public StatsdClient(String host, int port) throws UnknownHostException, IOException {
 		this(InetAddress.getByName(host), port);
 	}
 
-	public StatsdClient(InetAddress host, int port) throws SocketException {
-		_host = host;
-		_port = port;
-		_sock = new DatagramSocket();
+	public StatsdClient(InetAddress host, int port) throws IOException {
+		_address = new InetSocketAddress(host, port);
+		_channel = DatagramChannel.open();
 	}
 
 	public boolean timing(String key, int value) {
@@ -74,7 +71,7 @@ public class StatsdClient {
 	}
 
 	public boolean decrement(String key, int magnitude, double sampleRate) {
-		magnitude = magnitude < 0 ? magnitude: -magnitude;
+		magnitude = magnitude < 0 ? magnitude : -magnitude;
 		return increment(key, magnitude, sampleRate);
 	}
 
@@ -83,12 +80,12 @@ public class StatsdClient {
 	}
 
 	public boolean decrement(int magnitude, String... keys) {
-		magnitude = magnitude < 0 ? magnitude: -magnitude;
+		magnitude = magnitude < 0 ? magnitude : -magnitude;
 		return increment(magnitude, 1.0, keys);
 	}
 
 	public boolean decrement(int magnitude, double sampleRate, String... keys) {
-		magnitude = magnitude < 0 ? magnitude: -magnitude;
+		magnitude = magnitude < 0 ? magnitude : -magnitude;
 		return increment(magnitude, sampleRate, keys);
 	}
 
@@ -129,8 +126,7 @@ public class StatsdClient {
 					}
 				}
 			}
-		}
-		else {
+		} else {
 			for (String stat : stats) {
 				if (doSend(stat)) {
 					retval = true;
@@ -141,15 +137,26 @@ public class StatsdClient {
 		return retval;
 	}
 
-	private boolean doSend(String stat) {
+	private boolean doSend(final String stat) {
 		try {
-			byte[] data = stat.getBytes("utf-8");
-			_sock.send(new DatagramPacket(data, data.length, _host, _port));
-			return true;
+			final byte[] data = stat.getBytes("utf-8");
+			final ByteBuffer buff = ByteBuffer.wrap(data);
+			final int nbSentBytes = _channel.send(buff, _address);
+
+			if (data.length == nbSentBytes) {
+				return true;
+			} else {
+				log.error(String.format(
+						"Could not send entirely stat %s to host %s:%d. Only sent %i bytes out of %i bytes", stat,
+						_address.getHostName(), _address.getPort(), nbSentBytes, data.length));
+				return false;
+			}
+
+		} catch (IOException e) {
+			log.error(
+					String.format("Could not send stat %s to host %s:%d", stat, _address.getHostName(),
+							_address.getPort()), e);
+			return false;
 		}
-		catch (IOException e) {
-			log.error(String.format("Could not send stat %s to host %s:%d", stat, _host, _port), e);
-		}
-		return false;
 	}
 }
