@@ -16,6 +16,8 @@ Graphite Required Variables:
 Optional Variables:
 
   debug:            debug flag [default: false]
+  port:             port to listen for messages on over UDP [default: 8125]
+  mgmt_port:        port to run the management TCP interface on [default: 8126]
   debugInterval:    interval to print debug information [ms, default: 10000]
   dumpMessages:     log all incoming messages
   flushInterval:    interval (in ms) to flush to Graphite
