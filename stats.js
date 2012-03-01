@@ -241,7 +241,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       for (key in gauges) {
-        statString += 'stats.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
+        statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
         numStats += 1;
       }
 
