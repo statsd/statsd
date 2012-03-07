@@ -10,7 +10,7 @@ Concepts
 --------
 
 * *buckets*
-  Each stat is in it's own "bucket". They are not predefined anywhere. Buckets can be named anything that will translate to Graphite (periods make folders, etc)
+  Each stat is in its own "bucket". They are not predefined anywhere. Buckets can be named anything that will translate to Graphite (periods make folders, etc)
 
 * *values*
   Each stat will have a value. How it is interpreted depends on modifiers
@@ -23,7 +23,7 @@ Counting
 
     gorets:1|c
 
-This is a simple counter. Add 1 to the "gorets" bucket. It stays in memory until the flush interval.
+This is a simple counter. Add 1 to the "gorets" bucket. It stays in memory until the flush interval `config.flushInterval`.
 
 
 Timing
@@ -31,7 +31,7 @@ Timing
 
     glork:320|ms
 
-The glork took 320ms to complete this time. StatsD figures out 90th percentile, average (mean), lower and upper bounds for the flush interval.
+The glork took 320ms to complete this time. StatsD figures out 90th percentile, average (mean), lower and upper bounds for the flush interval.  The percentile threshold can be tweaked with `config.percentThreshold`.
 
 Sampling
 --------
@@ -40,6 +40,16 @@ Sampling
 
 Tells StatsD that this counter is being sent sampled every 1/10th of the time.
 
+Debugging
+---------
+
+There are additional config variables available for debugging:
+
+* `debug` - log exceptions and periodically print out information on counters and timers
+* `debugInterval` - interval for printing out information on counters and timers
+* `dumpMessages` - print debug info on incoming messages
+
+For more information, check the `exampleConfig.js`.
 
 Guts
 ----
@@ -65,6 +75,25 @@ That translates to:
 
 This has been a good tradeoff so far between size-of-file (round robin databases are fixed size) and data we care about. Each "stats" database is about 3.2 megs with these retentions.
 
+TCP Stats Interface
+-------------------
+
+A really simple TCP management interface is available by default on port 8126 or overriden in the configuration file. Inspired by the memcache stats approach this can be used to monitor a live statsd server.  You can interact with the management server by telnetting to port 8126, the following commands are available:
+
+* stats - some stats about the running server
+* counters - a dump of all the current counters
+* timers - a dump of the current timers
+
+The stats output currently will give you:
+
+* uptime: the number of seconds elapsed since statsd started
+* graphite.last_flush: the number of seconds elapsed since the last successful flush to graphite
+* graphite.last_exception: the number of seconds elapsed since the last exception thrown whilst flushing to graphite
+* messages.last_msg_seen: the number of elapsed seconds since statsd received a message
+* messages.bad_lines_seen: the number of bad lines seen since startup
+
+A simple nagios check can be found in the utils/ directory that can be used to check metric thresholds, for example the number of seconds since the last successful flush to graphite.
+
 Installation and Configuration
 ------------------------------
 
@@ -75,6 +104,12 @@ Installation and Configuration
 
     node stats.js /path/to/config
 
+Tests
+-----
+
+A test framework has been added using node-unit and some custom code to start and manipulate statsd. Please add tests under test/ for any new features or bug fixes encountered. Testing a live server can be tricky, attempts were made to eliminate race conditions but it may be possible to encounter a stuck state. If doing dev work, a `killall node` will kill any stray test servers in the background (don't do this on a production machine!).
+
+Tests can be executd with `./run_tests.sh`.
 
 Inspiration
 -----------

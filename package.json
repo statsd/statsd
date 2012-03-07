@@ -1,0 +1,24 @@
+{
+  "name": "statsd",
+  "description": "A simple, lightweight network daemon to collect metrics over UDP",
+  "author": "Etsy",
+  "scripts": {
+    "test": "./run_tests.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/etsy/statsd.git"
+  },
+  "version": "0.1.0",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "nodeunit": "0.6.x",
+    "async": "0.1.x",
+    "underscore": "1.2.x",
+    "temp": "0.4.x"
+  },
+  "engine": {
+    "node" : ">=0.4"
+  }
+}

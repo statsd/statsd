@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ "`stat -c %G /var/log/statsd`" != 'nogroup' ]; then
+    chown root.nogroup /var/log/statsd
+    chmod 770 /var/log/statsd
+fi
