@@ -165,6 +165,11 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
     var flushInterval = Number(config.flushInterval || 10000);
 
+    var pctThreshold = config.percentThreshold || 90;
+    if (!Array.isArray(pctThreshold)) {
+      pctThreshold = [ pctThreshold ]; // listify percentiles so single values work the same
+    }
+
     flushInt = setInterval(function () {
       var statString = '';
       var ts = Math.round(new Date().getTime() / 1000);
@@ -184,7 +189,6 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
       for (key in timers) {
         if (timers[key].length > 0) {
-          var pctThreshold = config.percentThreshold || 90;
           var values = timers[key].sort(function (a,b) { return a-b; });
           var count = values.length;
           var min = values[0];
@@ -193,28 +197,35 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           var mean = min;
           var maxAtThreshold = max;
 
-          if (count > 1) {
-            var thresholdIndex = Math.round(((100 - pctThreshold) / 100) * count);
-            var numInThreshold = count - thresholdIndex;
-            values = values.slice(0, numInThreshold);
-            maxAtThreshold = values[numInThreshold - 1];
+          var message = "";
 
-            // average the remaining timings
-            var sum = 0;
-            for (var i = 0; i < numInThreshold; i++) {
-              sum += values[i];
+          var key2;
+
+          for (key2 in pctThreshold) {
+            var pct = pctThreshold[key2];
+            if (count > 1) {
+              var thresholdIndex = Math.round(((100 - pct) / 100) * count);
+              var numInThreshold = count - thresholdIndex;
+              var pctValues = values.slice(0, numInThreshold);
+              maxAtThreshold = pctValues[numInThreshold - 1];
+
+              // average the remaining timings
+              var sum = 0;
+              for (var i = 0; i < numInThreshold; i++) {
+                sum += pctValues[i];
+              }
+
+              mean = sum / numInThreshold;
             }
 
-            mean = sum / numInThreshold;
+            message += 'stats.timers.' + key + '.mean_'  + pct + ' ' + mean           + ' ' + ts + "\n";
+            message += 'stats.timers.' + key + '.upper_' + pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
           }
 
           timers[key] = [];
 
-          var message = "";
-          message += 'stats.timers.' + key + '.mean ' + mean + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.upper ' + max + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.upper_' + pctThreshold + ' ' + maxAtThreshold + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.lower ' + min + ' ' + ts + "\n";
+          message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
+          message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
           message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
           statString += message;
 
