@@ -218,8 +218,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
               mean = sum / numInThreshold;
             }
 
-            message += 'stats.timers.' + key + '.mean_'  + pct + ' ' + mean           + ' ' + ts + "\n";
-            message += 'stats.timers.' + key + '.upper_' + pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+            var clean_pct = '' + pct;
+            clean_pct.replace('.', '_');
+            message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
+            message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
           }
 
           timers[key] = [];
