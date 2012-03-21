@@ -7,6 +7,7 @@ var dgram  = require('dgram')
 var keyCounter = {};
 var counters = {};
 var timers = {};
+var gauges = {};
 var debugInt, flushInt, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 
@@ -23,14 +24,16 @@ var stats = {
 
 config.configFile(process.argv[2], function (config, oldConfig) {
   if (! config.debug && debugInt) {
-    clearInterval(debugInt); 
+    clearInterval(debugInt);
     debugInt = false;
   }
 
   if (config.debug) {
     if (debugInt !== undefined) { clearInterval(debugInt); }
-    debugInt = setInterval(function () { 
-      util.log("Counters:\n" + util.inspect(counters) + "\nTimers:\n" + util.inspect(timers));
+    debugInt = setInterval(function () {
+      util.log("Counters:\n" + util.inspect(counters) +
+               "\nTimers:\n" + util.inspect(timers) +
+               "\nGauges:\n" + util.inspect(gauges));
     }, config.debugInterval || 10000);
   }
 
@@ -71,6 +74,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             timers[key] = [];
           }
           timers[key].push(Number(fields[0] || 0));
+        } else if (fields[1].trim() == "g") {
+          gauges[key] = Number(fields[0] || 0);
         } else {
           if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
             sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
@@ -94,7 +99,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
         switch(cmd) {
           case "help":
-            stream.write("Commands: stats, counters, timers, delcounters, deltimers, quit\n\n");
+            stream.write("Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, quit\n\n");
             break;
 
           case "stats":
@@ -130,6 +135,11 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             stream.write("END\n\n");
             break;
 
+          case "gauges":
+            stream.write(util.inspect(gauges) + "\n");
+            stream.write("END\n\n");
+            break;
+
           case "delcounters":
             for (index in cmdline) {
               delete counters[cmdline[index]];
@@ -141,6 +151,14 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           case "deltimers":
             for (index in cmdline) {
               delete timers[cmdline[index]];
+              stream.write("deleted: " + cmdline[index] + "\n");
+            }
+            stream.write("END\n\n");
+            break;
+
+          case "delgauges":
+            for (index in cmdline) {
+              delete gauges[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
             stream.write("END\n\n");
@@ -235,8 +253,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         }
       }
 
+      for (key in gauges) {
+        statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
+        numStats += 1;
+      }
+
       statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
-      
+
       if (config.graphiteHost) {
         try {
           var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
