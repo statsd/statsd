@@ -15,6 +15,9 @@ Graphite Required Variables:
 
 Optional Variables:
 
+  backends:         an array of backends to load. Each backend must exist
+                    by name in the directory backends/. If not specified,
+                    the default graphite backend will be loaded.
   debug:            debug flag [default: false]
   port:             port to listen for messages on over UDP [default: 8125]
   mgmt_port:        port to run the management TCP interface on [default: 8126]
