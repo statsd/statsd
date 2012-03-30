@@ -10,15 +10,34 @@ var timers = {};
 var gauges = {};
 var pctThreshold = null;
 var backends = [];
-var debugInt, keyFlushInt, server, mgmtServer;
+var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 
+// Load and init the backend from the backends/ directory.
 var loadBackend = function(config, name) {
   var backendmod = require("./backends/" + name);
-  backends.push({
+  var backend = {
     name: name,
     mod: backendmod
-  });
+  };
+
+  if (config.debug) {
+    util.log("Loading backend: " + name);
+  }
+
+  var flushCb = backendmod.init(startup_time, config);
+  if (!flushCb) {
+    util.log("Failed to load backend: " + name);
+    process.exit(1);
+  }
+
+  backend.flushCb = flushCb;
+  backends.push(backend);
+};
+
+// Flush metrics to each backend.
+var flushMetrics = function() {
+  var ts = Math.round(new Date().getTime() / 1000);
 
   var metrics = {
     counters: counters,
@@ -27,11 +46,19 @@ var loadBackend = function(config, name) {
     pctThreshold: pctThreshold
   }
 
-  if (config.debug) {
-    util.log("Loading backend: " + name);
+  for (var i = 0; i < backends.length; i++) {
+    backends[i].flushCb(ts, flushInterval, metrics);
   }
 
-  backendmod.init(startup_time, config, metrics);
+  // Clear the counters
+  for (key in counters) {
+    counters[key] = 0;
+  }
+
+  // Clear the timers
+  for (key in timers) {
+    timers[key] = [];
+  }
 };
 
 var stats = {
@@ -226,6 +253,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       // The default backend is graphite
       loadBackend(config, 'graphite');
     }
+
+    // Setup the flush timer
+    flushInterval = Number(config.flushInterval || 10000);
+    var flushInt = setInterval(flushMetrics, flushInterval);
 
     if (keyFlushInterval > 0) {
       var keyFlushPercent = Number((config.keyFlush && config.keyFlush.percent) || 100);

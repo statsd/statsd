@@ -6,7 +6,6 @@ var net = require('net'),
    util = require('util');
 
 var debug;
-var flushInterval;
 var graphiteHost;
 var graphitePort;
 
@@ -14,7 +13,6 @@ var graphiteStats = {};
 
 var post_stats = function(statString) {
   if (graphiteHost) {
-
     try {
       var graphite = net.createConnection(graphitePort, graphiteHost);
       graphite.addListener('error', function(connectionException){
@@ -36,9 +34,8 @@ var post_stats = function(statString) {
   }
 }
 
-var flush_stats = function(metrics) {
+var flush_stats = function(ts, flushInterval, metrics) {
   var statString = '';
-  var ts = Math.round(new Date().getTime() / 1000);
   var numStats = 0;
   var key;
 
@@ -54,7 +51,6 @@ var flush_stats = function(metrics) {
     statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
     statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
 
-    counters[key] = 0;
     numStats += 1;
   }
 
@@ -95,8 +91,6 @@ var flush_stats = function(metrics) {
         message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
       }
 
-      timers[key] = [];
-
       message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
       message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
       message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
@@ -121,18 +115,17 @@ var write_stats = function(writeCb) {
   }
 };
 
-var init_backend = function(startup_time, config, metrics) {
+var init_backend = function(startup_time, config) {
   debug = config.debug;
-  flushInterval = Number(config.flushInterval || 10000);
   graphiteHost = config.graphiteHost;
   graphitePort = config.graphitePort;
 
   graphiteStats.last_flush = startup_time;
   graphiteStats.last_exception = startup_time;
 
-  var flushInt = setInterval(function() {
-    flush_stats(metrics);
-  }, flushInterval);
+  return function(ts, flushInterval, metrics) {
+    flush_stats(ts, flushInterval, metrics);
+  };
 };
 
 exports.init = init_backend;
