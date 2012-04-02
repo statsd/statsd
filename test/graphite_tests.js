@@ -74,6 +74,7 @@ module.exports = {
     var configfile = "{graphService: \"graphite\"\n\
                ,  batch: 200 \n\
                ,  flushInterval: " + this.myflush + " \n\
+               ,  percentThreshold: 90\n\
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
                ,  debug: false\n\
@@ -175,7 +176,7 @@ module.exports = {
             test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
 
             var testtimervalue_test = function(post){
-              var mykey = 'stats.timers.a_test_value.mean';
+              var mykey = 'stats.timers.a_test_value.mean_90';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
             test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
