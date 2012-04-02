@@ -1,5 +1,15 @@
 /*
- * Flushes stats to graphite.
+ * Flush stats to graphite (http://graphite.wikidot.com/).
+ *
+ * To enable this backend, include 'graphite' in the backends
+ * configuration array:
+ *
+ *   backends: ['graphite']
+ *
+ * This backend supports the following config options:
+ *
+ *   graphiteHost: Hostname of graphite server.
+ *   graphitePort: Port to contact graphite server at.
  */
 
 var net = require('net'),
