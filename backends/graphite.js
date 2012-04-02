@@ -121,7 +121,7 @@ var flush_stats = function(ts, flushInterval, metrics) {
 
 var write_stats = function(writeCb) {
   for (stat in graphiteStats) {
-    writeCb(stat, graphiteStats[stat]);
+    writeCb(null, stat, graphiteStats[stat]);
   }
 };
 

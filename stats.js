@@ -176,8 +176,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
             // Retrieve stats from each backend
             for (var i = 0; i < backends.length; i++) {
-              backends[i].mod.write_stats(function(stat, val) {
-                stat_writer(backends[i].name, stat, val);
+              backends[i].mod.write_stats(function(err, stat, val) {
+                if (err) {
+                  util.log("Failed to read stats for backend " +
+                           backends[i].name + ": " + err);
+                } else {
+                  stat_writer(backends[i].name, stat, val);
+                }
               });
             }
 
