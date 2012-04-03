@@ -22,7 +22,7 @@ var graphitePort;
 
 var graphiteStats = {};
 
-var post_stats = function(statString) {
+var post_stats = function graphite_post_stats(statString) {
   if (graphiteHost) {
     try {
       var graphite = net.createConnection(graphitePort, graphiteHost);
@@ -45,7 +45,7 @@ var post_stats = function(statString) {
   }
 }
 
-var flush_stats = function(ts, metrics) {
+exports.flush = function graphite_flush(ts, metrics) {
   var statString = '';
   var numStats = 0;
   var key;
@@ -120,13 +120,13 @@ var flush_stats = function(ts, metrics) {
   post_stats(statString);
 };
 
-var backend_stats = function(writeCb) {
+exports.stats = function graphite_stats(writeCb) {
   for (stat in graphiteStats) {
     writeCb(null, stat, graphiteStats[stat]);
   }
 };
 
-var init_backend = function(startup_time, config) {
+exports.init = function graphite_init(startup_time, config) {
   debug = config.debug;
   graphiteHost = config.graphiteHost;
   graphitePort = config.graphitePort;
@@ -138,7 +138,3 @@ var init_backend = function(startup_time, config) {
 
   return true;
 };
-
-exports.init = init_backend;
-exports.flush = flush_stats;
-exports.stats = backend_stats;

@@ -14,7 +14,7 @@ var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 
 // Load and init the backend from the backends/ directory.
-var loadBackend = function(config, name) {
+function loadBackend(config, name) {
   var backendmod = require("./backends/" + name);
   var backend = {
     name: name,
@@ -35,7 +35,7 @@ var loadBackend = function(config, name) {
 };
 
 // Flush metrics to each backend.
-var flushMetrics = function() {
+function flushMetrics() {
   var ts = Math.round(new Date().getTime() / 1000);
 
   var metrics = {
