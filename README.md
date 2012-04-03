@@ -123,7 +123,6 @@ A really simple TCP management interface is available by default on port 8126 or
 The stats output currently will give you:
 
 * uptime: the number of seconds elapsed since statsd started
-n thrown whilst flushing to graphite
 * messages.last_msg_seen: the number of elapsed seconds since statsd received a message
 * messages.bad_lines_seen: the number of bad lines seen since startup
 
@@ -133,7 +132,7 @@ module name.
 Graphite:
 
 * graphite.last_flush: the number of seconds elapsed since the last successful flush to graphite
-* graphite.last_exception: the number of seconds elapsed since the last exceptio
+* graphite.last_exception: the number of seconds elapsed since the last exception thrown whilst flushing to graphite
 
 A simple nagios check can be found in the utils/ directory that can be used to check metric thresholds, for example the number of seconds since the last successful flush to graphite.
 
