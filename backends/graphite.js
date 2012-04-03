@@ -16,6 +16,7 @@ var net = require('net'),
    util = require('util');
 
 var debug;
+var flushInterval;
 var graphiteHost;
 var graphitePort;
 
@@ -44,7 +45,7 @@ var post_stats = function(statString) {
   }
 }
 
-var flush_stats = function(ts, flushInterval, metrics) {
+var flush_stats = function(ts, metrics) {
   var statString = '';
   var numStats = 0;
   var key;
@@ -119,7 +120,7 @@ var flush_stats = function(ts, flushInterval, metrics) {
   post_stats(statString);
 };
 
-var write_stats = function(writeCb) {
+var backend_stats = function(writeCb) {
   for (stat in graphiteStats) {
     writeCb(null, stat, graphiteStats[stat]);
   }
@@ -133,10 +134,11 @@ var init_backend = function(startup_time, config) {
   graphiteStats.last_flush = startup_time;
   graphiteStats.last_exception = startup_time;
 
-  return function(ts, flushInterval, metrics) {
-    flush_stats(ts, flushInterval, metrics);
-  };
+  flushInterval = config.flushInterval;
+
+  return true;
 };
 
 exports.init = init_backend;
-exports.write_stats = write_stats;
+exports.flush = flush_stats;
+exports.stats = backend_stats;

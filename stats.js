@@ -25,13 +25,12 @@ var loadBackend = function(config, name) {
     util.log("Loading backend: " + name);
   }
 
-  var flushCb = backendmod.init(startup_time, config);
-  if (!flushCb) {
+  var ret = backendmod.init(startup_time, config);
+  if (!ret) {
     util.log("Failed to load backend: " + name);
     process.exit(1);
   }
 
-  backend.flushCb = flushCb;
   backends.push(backend);
 };
 
@@ -47,7 +46,7 @@ var flushMetrics = function() {
   }
 
   for (var i = 0; i < backends.length; i++) {
-    backends[i].flushCb(ts, flushInterval, metrics);
+    backends[i].mod.flush(ts, metrics);
   }
 
   // Clear the counters
@@ -176,7 +175,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
             // Retrieve stats from each backend
             for (var i = 0; i < backends.length; i++) {
-              backends[i].mod.write_stats(function(err, stat, val) {
+              backends[i].mod.stats(function(err, stat, val) {
                 if (err) {
                   util.log("Failed to read stats for backend " +
                            backends[i].name + ": " + err);
@@ -250,6 +249,9 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       pctThreshold = [ pctThreshold ]; // listify percentiles so single values work the same
     }
 
+    flushInterval = Number(config.flushInterval || 10000);
+    config.flushInterval = flushInterval;
+
     if (config.backends) {
       for (var i = 0; i < config.backends.length; i++) {
         loadBackend(config, config.backends[i]);
@@ -260,7 +262,6 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     }
 
     // Setup the flush timer
-    flushInterval = Number(config.flushInterval || 10000);
     var flushInt = setInterval(flushMetrics, flushInterval);
 
     if (keyFlushInterval > 0) {
