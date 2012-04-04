@@ -3,61 +3,58 @@ var dgram  = require('dgram')
   , net    = require('net')
   , config = require('./config')
   , fs     = require('fs')
+  , events = require('events')
 
 var keyCounter = {};
 var counters = {};
 var timers = {};
 var gauges = {};
 var pctThreshold = null;
-var backends = [];
 var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
+var backendEvents = new events.EventEmitter();
 
 // Load and init the backend from the backends/ directory.
 function loadBackend(config, name) {
   var backendmod = require("./backends/" + name);
-  var backend = {
-    name: name,
-    mod: backendmod
-  };
 
   if (config.debug) {
     util.log("Loading backend: " + name);
   }
 
-  var ret = backendmod.init(startup_time, config);
+  var ret = backendmod.init(startup_time, config, backendEvents);
   if (!ret) {
     util.log("Failed to load backend: " + name);
     process.exit(1);
   }
-
-  backends.push(backend);
 };
 
 // Flush metrics to each backend.
 function flushMetrics() {
-  var ts = Math.round(new Date().getTime() / 1000);
+  var time_stamp = Math.round(new Date().getTime() / 1000);
 
-  var metrics = {
+  var metrics_hash = {
     counters: counters,
     gauges: gauges,
     timers: timers,
     pctThreshold: pctThreshold
   }
 
-  for (var i = 0; i < backends.length; i++) {
-    backends[i].mod.flush(ts, metrics);
-  }
+  // After all listeners, reset the stats
+  backendEvents.once('flush', function clear_metrics(ts, metrics) {
+    // Clear the counters
+    for (key in metrics.counters) {
+      metrics.counters[key] = 0;
+    }
 
-  // Clear the counters
-  for (key in counters) {
-    counters[key] = 0;
-  }
+    // Clear the timers
+    for (key in metrics.timers) {
+      metrics.timers[key] = [];
+    }
+  });
 
-  // Clear the timers
-  for (key in timers) {
-    timers[key] = [];
-  }
+  // Flush metrics to each backend.
+  backendEvents.emit('flush', time_stamp, metrics_hash);
 };
 
 var stats = {
@@ -173,19 +170,20 @@ config.configFile(process.argv[2], function (config, oldConfig) {
               }
             }
 
-            // Retrieve stats from each backend
-            for (var i = 0; i < backends.length; i++) {
-              backends[i].mod.stats(function(err, stat, val) {
-                if (err) {
-                  util.log("Failed to read stats for backend " +
-                           backends[i].name + ": " + err);
-                } else {
-                  stat_writer(backends[i].name, stat, val);
-                }
-              });
-            }
+            backendEvents.once('status', function(writeCb) {
+              stream.write("END\n\n");
+            });
 
-            stream.write("END\n\n");
+            // Let each backend contribute its status
+            backendEvents.emit('status', function(err, name, stat, val) {
+              if (err) {
+                util.log("Failed to read stats for backend " +
+                         name + ": " + err);
+              } else {
+                stat_writer(name, stat, val);
+              }
+            });
+
             break;
 
           case "counters":

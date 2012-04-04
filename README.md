@@ -156,23 +156,31 @@ Tests can be executd with `./run_tests.sh`.
 Backend Interface
 -----------------
 
-Backend modules are Node.js [modules][nodemods] that export the
-following methods:
+Backend modules are Node.js [modules][nodemods] that listen for a
+number of events emitted from StatsD. Each backend module should
+export the following initialization function:
 
-* `init(startup_time, config)`: This method is invoked from StatsD to
-  initialize the backend module. It accepts two parameters:
-  `startup_time` is the startup time of StatsD in epoch seconds, and
-  `config` is the parsed config file hash.
+* `init(startup_time, config, events)`: This method is invoked from StatsD to
+  initialize the backend module. It accepts three parameters:
+  `startup_time` is the startup time of StatsD in epoch seconds,
+  `config` is the parsed config file hash, and `events` is the event
+  emitter that backends can use to listen for events.
 
   The backend module should return `true` from init() to indicate
   success. A return of `false` indicates a failure to load the module
   (missing configuration?) and will cause StatsD to exit.
 
-* `flush(time_stamp, metrics)`: This function will be invoked by
-  StatsD on each flush interval to flush the current statistics to the
-  backend service. The function is passed two parameters: `time_stamp`
-  is the current time in epoch seconds and `metrics` is a hash
-  representing the StatsD statistics:
+Backends can listen for the following events emitted by StatsD from
+the `events` object:
+
+* Event: **'flush'**
+
+  Parameters: `(time_stamp, metrics)`
+
+  Emitted on each flush interval so that backends can push aggregate
+  metrics to their respective backend services. The event is passed
+  two parameters: `time_stamp` is the current time in epoch seconds
+  and `metrics` is a hash representing the StatsD statistics:
 
   ```
 metrics: {
@@ -184,23 +192,24 @@ metrics: {
   ```
 
   Each backend module is passed the same set of statistics, so a
-  backend module should handle the metrics as immutable
-  structures. StatsD will reset timers and counters after flushing
-  them to each backend module. StatsD flushes statistics to each
-  backend sequentially, so backends should use the appropriate
-  asynchronous methods to flush statistics to upstream services.
+  backend module should treat the metrics as immutable
+  structures. StatsD will reset timers and counters after each
+  listener has handled the event.
 
-* `stats(writeCb)`: This method is invoked from StatsD when a user
-  invokes a *stats* command on the management server port. It allows
-  the the backend module to dump backend-specific stats to the
-  management port.
+* Event: **'status'**
+
+  Parameters: `(writeCb)`
+
+  Emitted when a user invokes a *stats* command on the management
+  server port. It allows each backend module to dump backend-specific
+  status statistics to the management port.
 
   The `writeCb` callback function has a signature of `f(error,
-  stat_name, stat_value)`. The backend module should invoke this
-  method with each <stat_name, stat_value> tuple that should be sent to
-  the management port. StatsD will prefix the stat name with the
-  backend's module name. The backend should set `error` to *null*,
-  or, in the case of a failure, an appropriate error.
+  backend_name, stat_name, stat_value)`. The backend module should
+  invoke this method with each stat_name and stat_value that should be
+  sent to the management port. StatsD will prefix each stat name with
+  the `backend_name`. The backend should set `error` to *null*, or, in
+  the case of a failure, an appropriate error.
 
 Inspiration
 -----------
