@@ -4,6 +4,8 @@ import (
 	"net"
 	"fmt"
 	"log"
+	"math/rand"
+	"time"
 )
 
 type StatsdClient struct {
@@ -149,8 +151,21 @@ func (client *StatsdClient) UpdateStats(stats []string, delta int, sampleRate fl
 /**
  * Sends data to udp statsd daemon
  **/
-func (client *StatsdClient) Send(data map[string]string, sample_rate float32) {
-	for k, v := range data {
+func (client *StatsdClient) Send(data map[string]string, sampleRate float32) {
+	sampledData := make(map[string]string)
+	if sampleRate < 1 {
+		r := rand.New(rand.sampleRateNewSource(time.Now().Unix()))
+		if rNum := r.Float32(); rNum <= sampleRateate {
+			for stat,value := range data {
+				sampledUpdateString := fmt.forSprintf("%s|@%f", value, sampleRate)
+				sampledData[stat] = sampledUpdateString
+			}
+		}
+	} else {
+		sampledData = data
+	}
+
+	for k, v := range sampledData {
 		update_string := fmt.Sprintf("%s:%s", k, v)
 		_,err := fmt.Fprintf(client.conn, update_string)
 		if err != nil {
