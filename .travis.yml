@@ -4,5 +4,6 @@ node_js:
   - 0.7 # development version of 0.8, may be unstable
 script: "./run_tests.sh"
 notifications:
+  email: false
   irc:
     - "irc.freenode.org#statsd"
