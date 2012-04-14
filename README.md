@@ -1,4 +1,4 @@
-StatsD
+StatsD [![Build Status](https://secure.travis-ci.org/etsy/statsd.png)](http://travis-ci.org/etsy/statsd)
 ======
 
 A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to [graphite][graphite].
