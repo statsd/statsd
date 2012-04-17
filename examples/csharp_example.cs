@@ -14,6 +14,16 @@ namespace Statsd
         {
             udpClient = new UdpClient(host, port);
         }
+        
+        public bool Gauge(string key, int value)
+        {
+            return Gauge(key, value, 1.0);
+        }
+
+        public bool Gauge(string key, int value, double sampleRate)
+        {
+            return Send(sampleRate, String.Format("{0}:{1:d}|g", key, value));
+        }
 
         public bool Timing(string key, int value)
         {
