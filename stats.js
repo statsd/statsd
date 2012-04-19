@@ -198,7 +198,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var value = counters[key];
         var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
-        if (config.backend == "opentsdb") {
+        if (config.graphService == "opentsdb") {
           statString += 'put stats'        + ' ' + ts + ' ' + valuePerSecond + " key=" + key + "\n";
           statString += 'put stats_counts' + ' ' + ts + ' ' + value          + " key=" + key + "\n";
         }
@@ -244,7 +244,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
             var clean_pct = '' + pct;
             clean_pct.replace('.', '_');
-	    if (config.backend == "opentsdb") {
+	    if (config.graphService == "opentsdb") {
                 message += 'put stats.timers' + '.mean_'  + clean_pct + ' ' + ts + ' ' + mean           + " key=" + key + "\n";
                 message += 'put stats.timers' + '.upper_' + clean_pct + ' ' + ts + ' ' + maxAtThreshold + " key=" + key + "\n";
 	    }
@@ -257,10 +257,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
           timers[key] = [];
 
-	  if (config.backend == "opentsdb") {
-              message += 'put stats.timers.' + '.upper ' +  ts + ' ' + max   + " key=" + key + "\n";
-              message += 'put stats.timers.' + '.lower ' +  ts + ' ' + min   + " key=" + key + "\n";
-              message += 'put stats.timers.' + '.count ' +  ts + ' ' + count + " key=" + key + "\n";
+	  if (config.graphService == "opentsdb") {
+              message += 'put stats.timers.upper ' +  ts + ' ' + max   + " key=" + key + "\n";
+              message += 'put stats.timers.lower ' +  ts + ' ' + min   + " key=" + key + "\n";
+              message += 'put stats.timers.count ' +  ts + ' ' + count + " key=" + key + "\n";
 	  }
 	  else {
               message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
@@ -274,7 +274,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       for (key in gauges) {
-	if (config.backend == "opentsdb") {
+	if (config.graphService == "opentsdb") {
           statString += 'put stats.gauges.' + ' ' + ts + ' ' + gauges[key] + " key=" + key + "\n";
 	}
 	else {
@@ -283,14 +283,14 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         numStats += 1;
       }
 
-      if (config.backend == "opentsdb") {
+      if (config.graphService == "opentsdb") {
         statString += 'put statsd.numStats ' + ts + ' ' + numStats + " key=statsd\n";
       }
       else {
         statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
       }
 
-      if (config.backend == "graphite" && config.graphiteHost) {
+      if (config.graphService == "graphite" && config.graphiteHost) {
         try {
           var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
           graphite.addListener('error', function(connectionException){
@@ -312,7 +312,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         }
       }
 
-      if (config.backend == "opentsdb" && config.opentsdbHost) {
+      if (config.graphService == "opentsdb" && config.opentsdbHost) {
         try {
           var graphite = net.createConnection(config.opentsdbPort, config.opentsdbHost);
           graphite.addListener('error', function(connectionException){
