@@ -199,8 +199,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
         if (config.graphService == "opentsdb") {
-          statString += 'put stats'        + ' ' + ts + ' ' + valuePerSecond + " key=" + key + "\n";
-          statString += 'put stats_counts' + ' ' + ts + ' ' + value          + " key=" + key + "\n";
+          statString += 'put etsy.stats'        + ' ' + ts + ' ' + valuePerSecond + " key=" + key + "\n";
+          statString += 'put etsy.stats_counts' + ' ' + ts + ' ' + value          + " key=" + key + "\n";
         }
         else {
           statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
@@ -245,8 +245,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             var clean_pct = '' + pct;
             clean_pct.replace('.', '_');
 	    if (config.graphService == "opentsdb") {
-                message += 'put stats.timers' + '.mean_'  + clean_pct + ' ' + ts + ' ' + mean           + " key=" + key + "\n";
-                message += 'put stats.timers' + '.upper_' + clean_pct + ' ' + ts + ' ' + maxAtThreshold + " key=" + key + "\n";
+                message += 'put etsy.stats.timers' + '.mean_'  + clean_pct + ' ' + ts + ' ' + mean           + " key=" + key + "\n";
+                message += 'put etsy.stats.timers' + '.upper_' + clean_pct + ' ' + ts + ' ' + maxAtThreshold + " key=" + key + "\n";
 	    }
 	    else {
                 message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
@@ -258,9 +258,9 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           timers[key] = [];
 
 	  if (config.graphService == "opentsdb") {
-              message += 'put stats.timers.upper ' +  ts + ' ' + max   + " key=" + key + "\n";
-              message += 'put stats.timers.lower ' +  ts + ' ' + min   + " key=" + key + "\n";
-              message += 'put stats.timers.count ' +  ts + ' ' + count + " key=" + key + "\n";
+              message += 'put etsy.stats.timers.upper ' +  ts + ' ' + max   + " key=" + key + "\n";
+              message += 'put etsy.stats.timers.lower ' +  ts + ' ' + min   + " key=" + key + "\n";
+              message += 'put etsy.stats.timers.count ' +  ts + ' ' + count + " key=" + key + "\n";
 	  }
 	  else {
               message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
@@ -275,7 +275,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
       for (key in gauges) {
 	if (config.graphService == "opentsdb") {
-          statString += 'put stats.gauges.' + ' ' + ts + ' ' + gauges[key] + " key=" + key + "\n";
+          statString += 'put etsy.stats.gauges.' + ' ' + ts + ' ' + gauges[key] + " key=" + key + "\n";
 	}
 	else {
           statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
@@ -284,7 +284,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       if (config.graphService == "opentsdb") {
-        statString += 'put statsd.numStats ' + ts + ' ' + numStats + " key=statsd\n";
+        statString += 'put etsy.statsd.numStats ' + ts + ' ' + numStats + " key=statsd\n";
       }
       else {
         statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
