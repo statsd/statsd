@@ -42,7 +42,7 @@ var statsd_send = function(data,sock,host,port,cb){
 var collect_for = function(server,timeout,cb){
   var received = [];
   var in_flight = 0;
-  var start_time = new Date().getTime();
+  var timed_out = false;
   var collector = function(req,res){
     in_flight += 1;
     var body = '';
@@ -50,7 +50,7 @@ var collect_for = function(server,timeout,cb){
     req.on('end',function(){
       received = received.concat(body.split("\n"));
       in_flight -= 1;
-      if((in_flight < 1) && (new Date().getTime() > (start_time + timeout))){
+      if((in_flight < 1) && timed_out){
           server.removeListener('request',collector);
           cb(received);
       }
@@ -58,8 +58,9 @@ var collect_for = function(server,timeout,cb){
   }
 
   setTimeout(function (){
-    server.removeListener('connection',collector);
-    if((in_flight < 1)){
+    timed_out = true;
+    if((in_flight < 1)) {
+      server.removeListener('connection',collector);
       cb(received);
     }
   },timeout);
