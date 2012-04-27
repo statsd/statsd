@@ -1,5 +1,5 @@
 description "statsd"
-author      "rdio"
+author      "etsy"
 
 start on startup
 stop on shutdown

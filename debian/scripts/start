@@ -1,12 +1,11 @@
 #!/bin/sh
 
-if [ -x /usr/bin/nodejs ]; then
-	NODE_BIN=/usr/bin/nodejs
-elif [ -x /usr/bin/node ]; then
-	NODE_BIN=/usr/bin/node
-else
-	echo "Can't find /usr/bin/nodejs or /usr/bin/node"
-	exit 1
+PATH=$PATH:/usr/local/bin:/usr/bin:/bin
+NODE_BIN=$(which nodejs||which node)
+
+if [ ! -x "$NODE_BIN" ]; then
+  echo "Can't find executable nodejs or node in PATH=$PATH"
+  exit 1
 fi
 
-$NODE_BIN /usr/share/statsd/stats.js /etc/statsd/rdioConfig.js 2>&1 >> /var/log/statsd/statsd.log
+$NODE_BIN /usr/share/statsd/stats.js /etc/statsd/localConfig.js 2>&1 >> /var/log/statsd/statsd.log
