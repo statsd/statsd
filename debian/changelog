@@ -1,3 +1,10 @@
+statsd (0.0.3) unstable; urgency=low
+
+  * removed rdio references from init scripts and config
+  * improved searching for the nodejs binary
+
+ -- Stephen Koenig <heph@bittorrent.com>  Thu, 26 Apr 2012 18:24:00 -0800
+
 statsd (0.0.2) unstable; urgency=low
 
   * merge of pull request #34 (from bruno@sologroup.gs)
