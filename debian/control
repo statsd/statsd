@@ -1,7 +1,7 @@
 Source: statsd
 Section: devel
 Priority: optional
-Maintainer: Manish Singh <manish@rd.io>
+Maintainer: Stephen Koenig <heph@bittorrent.com>
 Standards-Version: 3.9.1
 
 Package: statsd
