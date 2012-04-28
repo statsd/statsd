@@ -36,7 +36,11 @@ class Statsd
   def self.decrement(stats, sample_rate=1)
     Statsd.update_stats(stats, -1, sample_rate)
   end
-  
+
+  def self.gauges(stats, value, sample_rate=1)
+    Statsd.update_stats(stats, value, sample_rate, 'g')
+  end
+
   def self.update_stats(stats, delta=1, sample_rate=1, metric='c')
     stats = [stats].flatten
 
