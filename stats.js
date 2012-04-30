@@ -42,7 +42,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     // key counting
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
-    server = dgram.createSocket('udp4', function (msg, rinfo) {
+     server = dgram.createSocket('udp4', function (msg, rinfo) {
       if (config.dumpMessages) { util.log(msg.toString()); }
       var bits = msg.toString().split(':');
       var key = bits.shift()
@@ -83,7 +83,11 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           if (! counters[key]) {
             counters[key] = 0;
           }
-          counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
+          if (key.indexOf(config.summarizedPrefix)) {
+              counters[key] = Number(fields[0]);
+          } else {
+              counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
+          }
         }
       }
 
@@ -198,8 +202,21 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var value = counters[key];
         var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
-        statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
-        statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+        // This config makes config.summarizedPrefix a required config variablee.
+        use_alt_prefix = false;
+        for (altprefixkey in config.altPrefixList) {
+            if(key.indexOf(config.summarizedPrefix) == 0)  {
+                use_alt_prefix = true;
+            }           
+        }
+        if (use_alt_prefix == true) {
+            statString += key + ' ' + valuePerSecond + ' ' + ts + "\n";
+            statString += key + '_count ' + value          + ' ' + ts + "\n";
+            
+        } else {
+            statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
+            statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+        }
 
         counters[key] = 0;
         numStats += 1;
