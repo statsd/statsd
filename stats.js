@@ -196,10 +196,12 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
       for (key in counters) {
         var value = counters[key];
-        var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
-
         statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
-        statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+
+        if (config.trackCounterRate || false) {
+          var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
+          statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+        }
 
         counters[key] = 0;
         numStats += 1;
