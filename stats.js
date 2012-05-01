@@ -18,7 +18,7 @@ var stats = {
   },
   messages: {
     last_msg_seen: startup_time,
-    bad_lines_seen: 0,
+    bad_lines_seen: 0
   }
 };
 
