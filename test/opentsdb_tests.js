@@ -147,8 +147,8 @@ module.exports = {
           data[chunks[1]] = chunks[3];
           return data;
         });
-        test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'statsd.numStats'),'graphite output includes numStats');
-        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'statsd.numStats' })['statsd.numStats'],0);
+        test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'etsy.statsd.numStats'),'graphite output includes numStats');
+        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'etsy.statsd.numStats' })['etsy.statsd.numStats'],0);
         test.done();
       });
     });
@@ -170,22 +170,22 @@ module.exports = {
               return data;
             });
             var numstat_test = function(post){
-              var mykey = 'statsd.numStats';
+              var mykey = 'etsy.statsd.numStats';
               return _.include(_.keys(post),mykey) && (post[mykey] == 1);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
+            test.ok(_.any(hashes,numstat_test), 'etsy.statsd.numStats should be 1');
 
             var testtimervalue_test = function(post){
-              var mykey = 'stats.timers.mean_90';
+              var mykey = 'etsy.stats.timers.mean_90';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
-            test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
+            test.ok(_.any(hashes,testtimervalue_test), 'etsy.stats.timers.a_test_value.mean should be ' + testvalue);
 
             var testtimervalue_test = function(post){
-              var mykey = 'stats.timers.lower';
+              var mykey = 'etsy.stats.timers.lower';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
-            test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.lower should be ' + testvalue);
+            test.ok(_.any(hashes,testtimervalue_test), 'etsy.stats.timers.lower should be ' + testvalue);
 
             test.done();
           });
@@ -209,16 +209,16 @@ module.exports = {
               return data;
             });
             var numstat_test = function(post){
-              var mykey = 'statsd.numStats';
+              var mykey = 'etsy.statsd.numStats';
               return _.include(_.keys(post),mykey) && (post[mykey] == "key=statsd");
             };
-            test.ok(_.any(hashes,numstat_test), 'key statsd.numStats should be statsd');
+            test.ok(_.any(hashes,numstat_test), 'key etsy.statsd.numStats should be statsd');
 
             var testtimervalue_test = function(post){
-              var mykey = 'stats.timers.mean_90';
+              var mykey = 'etsy.stats.timers.mean_90';
               return _.include(_.keys(post),mykey) && (post[mykey] == "key=a_test_value");
             };
-            test.ok(_.any(hashes,testtimervalue_test), 'key for stats.timers.mean should be a_test_value');
+            test.ok(_.any(hashes,testtimervalue_test), 'key for etsy.stats.timers.mean should be a_test_value');
 
             test.done();
           });
@@ -242,22 +242,22 @@ module.exports = {
               return data;
             });
             var numstat_test = function(post){
-              var mykey = 'statsd.numStats';
+              var mykey = 'etsy.statsd.numStats';
               return _.include(_.keys(post),mykey) && (post[mykey] == 1);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
+            test.ok(_.any(hashes,numstat_test), 'etsy.statsd.numStats should be 1');
 
             var testavgvalue_test = function(post){
-              var mykey = 'stats';
+              var mykey = 'etsy.stats';
               return _.include(_.keys(post),mykey) && (post[mykey] == (testvalue/(me.myflush / 1000)));
             };
-            test.ok(_.any(hashes,testavgvalue_test), 'stats.a_test_value should be ' + (testvalue/(me.myflush / 1000)));
+            test.ok(_.any(hashes,testavgvalue_test), 'etsy.stats.a_test_value should be ' + (testvalue/(me.myflush / 1000)));
 
             var testcountvalue_test = function(post){
-              var mykey = 'stats_counts';
+              var mykey = 'etsy.stats_counts';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
-            test.ok(_.any(hashes,testcountvalue_test), 'stats_counts.a_test_value should be ' + testvalue);
+            test.ok(_.any(hashes,testcountvalue_test), 'etsy.stats_counts.a_test_value should be ' + testvalue);
 
             test.done();
           });
