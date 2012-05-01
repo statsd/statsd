@@ -25,7 +25,7 @@ Optional Variables:
                     (can be a single value or list of floating-point values)
                     [%, default: 90]
   trackCounterRate: specify whether we want to be tracking counter rates in
-                    addition to counter values.
+                    addition to counter values [default: true].
   keyFlush:         log the most frequently sent keys [object, default: undefined]
     interval:       how often to log frequent keys [ms, default: 0]
     percent:        percentage of frequent keys to log [%, default: 100]
