@@ -42,7 +42,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     // key counting
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
-    server = dgram.createSocket('udp4', function (msg, rinfo) {
+     server = dgram.createSocket('udp4', function (msg, rinfo) {
       if (config.dumpMessages) { util.log(msg.toString()); }
       var bits = msg.toString().split(':');
       var key = bits.shift()
@@ -83,7 +83,11 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           if (! counters[key]) {
             counters[key] = 0;
           }
-          counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
+          if (key.indexOf(config.summarizedPrefix)) {
+              counters[key] = Number(fields[0]);
+          } else {
+              counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
+          }
         }
       }
 
@@ -188,6 +192,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       pctThreshold = [ pctThreshold ]; // listify percentiles so single values work the same
     }
 
+    util.log("config.altPrefixList is: " + config.altPrefixList + "\n\n")
+
     flushInt = setInterval(function () {
       var statString = '';
       var ts = Math.round(new Date().getTime() / 1000);
@@ -198,8 +204,23 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var value = counters[key];
         var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
-        statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
-        statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+        util.log("Keying on: " + key + "\n")
+
+        // This config makes config.summarizedPrefix a required config variablee.
+        var use_alt_prefix = false;
+        config.altPrefixList.map( function (item) {
+                                      util.log("The item is: " + item + "\n\n\n")
+                                      if(key.indexOf(item) == 0)  {
+                                          use_alt_prefix = true;
+                                      }           
+                                  })
+        if (use_alt_prefix == true) {
+            statString += key + ' ' + valuePerSecond + ' ' + ts + "\n";
+            statString += key + '_count ' + value          + ' ' + ts + "\n";
+        } else {
+            statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
+            statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+        }
 
         counters[key] = 0;
         numStats += 1;
@@ -218,6 +239,18 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           var message = "";
 
           var key2;
+
+          util.log("Keying on: " + key + "\n")
+  
+          // This config makes config.summarizedPrefix a required config variablee.
+          var use_alt_prefix = false
+
+          config.altPrefixList.map( function (item) {
+                                        util.log("The item is: " + item + "\n\n\n")
+                                        if(key.indexOf(item) == 0)  {
+                                            use_alt_prefix = true;
+                                        }           
+                                    })
 
           for (key2 in pctThreshold) {
             var pct = pctThreshold[key2];
@@ -238,15 +271,27 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
             var clean_pct = '' + pct;
             clean_pct.replace('.', '_');
-            message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
-            message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+            if (use_alt_prefix == true) {
+                message += key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
+                message += key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+            } else {
+                message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
+                message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+            }
           }
 
           timers[key] = [];
 
-          message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
+          if (use_alt_prefix == true) {
+              message += key + '.upper ' + max   + ' ' + ts + "\n";
+              message += key + '.lower ' + min   + ' ' + ts + "\n";
+              message += key + '.count ' + count + ' ' + ts + "\n";
+          } else {
+              message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
+              message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
+              message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
+          }
+
           statString += message;
 
           numStats += 1;
@@ -254,7 +299,20 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       for (key in gauges) {
-        statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
+        // This config makes config.summarizedPrefix a required config variablee.
+        var use_alt_prefix = false
+
+        config.altPrefixList.map( function (item) {
+                                      util.log("The item is: " + item + "\n\n\n")
+                                      if(key.indexOf(item) == 0)  {
+                                          use_alt_prefix = true;
+                                      }           
+                                  })
+        if (use_alt_prefix) {
+            statString += key + ' ' + gauges[key] + ' ' + ts + "\n";
+        } else {
+            statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
+        }
         numStats += 1;
       }
 
