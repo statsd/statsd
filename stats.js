@@ -200,7 +200,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
         if (config.trackCounterRate === undefined || config.trackCounterRate === true) {
           var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
-          statString += 'stats.counters.rate.' + key + ' ' + valuePerSecond + ' ' + ts + "\n";
+          statString += 'stats.counters.' + key + '.rate ' + valuePerSecond + ' ' + ts + "\n";
         }
 
         counters[key] = 0;
