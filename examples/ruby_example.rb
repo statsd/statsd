@@ -48,7 +48,7 @@ class Statsd
   def self.send(data, sample_rate=1)
     # Squirt the metrics over UDP
     if @@config[:host].nil? || @@config[:port].nil?
-      raise ArgumentError.new("No configuration was sepcified")
+      raise ArgumentError.new("No configuration was specified")
     end
 
     sampled_data = {}
