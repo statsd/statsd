@@ -10,6 +10,7 @@ var timers = {};
 var gauges = {};
 var debugInt, flushInt, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
+var special_prefixes = false;
 
 var stats = {
   graphite: {
@@ -23,6 +24,7 @@ var stats = {
 };
 
 config.configFile(process.argv[2], function (config, oldConfig) {
+
   if (! config.debug && debugInt) {
     clearInterval(debugInt);
     debugInt = false;
@@ -35,6 +37,24 @@ config.configFile(process.argv[2], function (config, oldConfig) {
                "\nTimers:\n" + util.inspect(timers) +
                "\nGauges:\n" + util.inspect(gauges));
     }, config.debugInterval || 10000);
+  }
+
+  if (config.hasOwnProperty('altPrefixList')) {
+      util.log("config.altPrefixList is: " + config.altPrefixList + "\n\n");
+      special_prefixes = true;
+  }
+  function matches_alt_prefix(key) {
+      use_alt_prefix = false
+      util.log("matches_alt_prefix: key: " + key + " and special_prefixes: " + special_prefixes);
+      if(special_prefixes) {
+          util.log("matches_alt_prefix: special_prefixes: " + special_prefixes);
+          config.altPrefixList.map( function (item) {
+                                        if(key.indexOf(item) == 0)  {
+                                            use_alt_prefix = true;
+                                        }           
+                                    });
+      }
+      return use_alt_prefix;
   }
 
   if (server === undefined) {
@@ -69,7 +89,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             stats['messages']['bad_lines_seen']++;
             continue;
         }
-        if (fields[1].trim() == "ms") {
+ if (fields[1].trim() == "ms") {
           if (! timers[key]) {
             timers[key] = [];
           }
@@ -202,17 +222,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var value = counters[key];
         var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
-        // This config makes config.summarizedPrefix a required config variablee.
-        use_alt_prefix = false;
-        for (altprefixkey in config.altPrefixList) {
-            if(key.indexOf(config.summarizedPrefix) == 0)  {
-                use_alt_prefix = true;
-            }           
-        }
-        if (use_alt_prefix == true) {
+        var use_alt_prefix = matches_alt_prefix(key)
+        if (use_alt_prefix) {
             statString += key + ' ' + valuePerSecond + ' ' + ts + "\n";
             statString += key + '_count ' + value          + ' ' + ts + "\n";
-            
         } else {
             statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
             statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
@@ -236,6 +249,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
           var key2;
 
+          var use_alt_prefix = matches_alt_prefix(key)
           for (key2 in pctThreshold) {
             var pct = pctThreshold[key2];
             if (count > 1) {
@@ -255,15 +269,27 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
             var clean_pct = '' + pct;
             clean_pct.replace('.', '_');
-            message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
-            message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+            if (use_alt_prefix) {
+                message += key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
+                message += key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+            } else {
+                message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
+                message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+            }
           }
 
           timers[key] = [];
 
-          message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
+          if (use_alt_prefix) {
+              message += key + '.upper ' + max   + ' ' + ts + "\n";
+              message += key + '.lower ' + min   + ' ' + ts + "\n";
+              message += key + '.count ' + count + ' ' + ts + "\n";
+          } else {
+              message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
+              message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
+              message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
+          }
+
           statString += message;
 
           numStats += 1;
@@ -271,7 +297,12 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       for (key in gauges) {
-        statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
+        var use_alt_prefix = matches_alt_prefix(key)
+        if (use_alt_prefix) {
+            statString += key + ' ' + gauges[key] + ' ' + ts + "\n";
+        } else {
+            statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
+        }
         numStats += 1;
       }
 
@@ -333,4 +364,5 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
   }
 });
+
 
