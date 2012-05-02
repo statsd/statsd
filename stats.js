@@ -18,7 +18,7 @@ var stats = {
   },
   messages: {
     last_msg_seen: startup_time,
-    bad_lines_seen: 0,
+    bad_lines_seen: 0
   }
 };
 
@@ -196,10 +196,12 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
       for (key in counters) {
         var value = counters[key];
-        var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
+        statString += 'stats.counters.' + key + ' ' + value + ' ' + ts + "\n";
 
-        statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
-        statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+        if (config.trackCounterRate === undefined || config.trackCounterRate === true) {
+          var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
+          statString += 'stats.counters.' + key + '.rate ' + valuePerSecond + ' ' + ts + "\n";
+        }
 
         counters[key] = 0;
         numStats += 1;
