@@ -7,6 +7,8 @@ var dgram  = require('dgram')
 var keyCounter = {};
 var counters = {};
 var timers = {};
+var raws = [];
+var averages = {};
 var gauges = {};
 var debugInt, flushInt, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
@@ -35,6 +37,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     debugInt = setInterval(function () {
       util.log("Counters:\n" + util.inspect(counters) +
                "\nTimers:\n" + util.inspect(timers) +
+               "\nRaws:\n" + sys.inspect(raws) + 
+               "\nAverages:\n" + sys.inspect(averages) + 
                "\nGauges:\n" + util.inspect(gauges));
     }, config.debugInterval || 10000);
   }
@@ -96,6 +100,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           timers[key].push(Number(fields[0] || 0));
         } else if (fields[1].trim() == "g") {
           gauges[key] = Number(fields[0] || 0);
+        } else if (fields[1].trim() == "r") {
+          raws.push([key, Number(fields[0] || 0), Math.round(new Date().getTime()/1000)]);
+        } else if (fields[1].trim() == "a") {
+          if (! averages[key]) {
+            averages[key] = [];
+          }
+          averages[key].push(Number(fields[0] || 0));
         } else {
           if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
             sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
@@ -233,6 +244,27 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
         counters[key] = 0;
         numStats += 1;
+      }
+
+      for (idx in raws) {
+        statString += 'stats.' + raws[idx][0] + ' ' + raws[idx][1] + ' ' + raws[idx][2] + "\n";
+        numStats += 1;
+      }
+      raws = [];
+
+      for (key in averages) {
+        var vals = averages[key],
+            valCount = averages[key].length,
+            valTotal = 0;
+        if (vals.length >= 1) {
+          for (idx in vals) {
+            valTotal += vals[idx];
+          }
+          var averageVal = valTotal / valCount;
+          averages[key] = [];
+          statString += 'stats.' + key + ' ' + averageVal + ' ' + ts + "\n";
+          numStats += 1;
+        }
       }
 
       for (key in timers) {
