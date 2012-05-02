@@ -13,7 +13,7 @@ use Etsy::StatsD;
 
 my %opt; 
 
-GetOptions(\%opt, 'host=s', 'port=s', 'sample=f', 'time=f', 'increment', 'decrement', 'update=i') or die;
+GetOptions(\%opt, 'host=s', 'port=s', 'rate=f', 'time=f', 'increment', 'decrement', 'update=i') or die;
 
 my $bucket = shift or die "Need to provide a bucket";
 

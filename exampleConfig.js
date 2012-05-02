@@ -10,8 +10,15 @@ Graphite Required Variables:
  Set debug flag and leave these unset to run in 'dry' debug mode -
  useful for testing statsd clients without a Graphite server.)
 
+  graphService:     which type of backend to use, set to either graphite or opentsdb
+
   graphiteHost:     hostname or IP of Graphite server
   graphitePort:     port of Graphite server
+
+or
+
+  opentsdbHost:     hostname or IP of OpenTSDB server
+  opentsdbPort:     port of OpenTSDB server
 
 Optional Variables:
 
@@ -29,8 +36,10 @@ Optional Variables:
     percent:        percentage of frequent keys to log [%, default: 100]
     log:            location of log file for frequent keys [default: STDOUT]
 
+
 */
 {
+  graphService: graphite
   graphitePort: 2003
 , graphiteHost: "graphite.host.com"
 , port: 8125

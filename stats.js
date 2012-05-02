@@ -198,8 +198,14 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var value = counters[key];
         var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
-        statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
-        statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+        if (config.graphService == "opentsdb") {
+          statString += 'put etsy.stats'        + ' ' + ts + ' ' + valuePerSecond + " key=" + key + "\n";
+          statString += 'put etsy.stats_counts' + ' ' + ts + ' ' + value          + " key=" + key + "\n";
+        }
+        else {
+          statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
+          statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+        }
 
         counters[key] = 0;
         numStats += 1;
@@ -238,15 +244,29 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
             var clean_pct = '' + pct;
             clean_pct.replace('.', '_');
-            message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
-            message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+	    if (config.graphService == "opentsdb") {
+                message += 'put etsy.stats.timers' + '.mean_'  + clean_pct + ' ' + ts + ' ' + mean           + " key=" + key + "\n";
+                message += 'put etsy.stats.timers' + '.upper_' + clean_pct + ' ' + ts + ' ' + maxAtThreshold + " key=" + key + "\n";
+	    }
+	    else {
+                message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
+                message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+	    }
+	    	
           }
 
           timers[key] = [];
 
-          message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
+	  if (config.graphService == "opentsdb") {
+              message += 'put etsy.stats.timers.upper ' +  ts + ' ' + max   + " key=" + key + "\n";
+              message += 'put etsy.stats.timers.lower ' +  ts + ' ' + min   + " key=" + key + "\n";
+              message += 'put etsy.stats.timers.count ' +  ts + ' ' + count + " key=" + key + "\n";
+	  }
+	  else {
+              message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
+              message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
+              message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
+	  }
           statString += message;
 
           numStats += 1;
@@ -254,13 +274,23 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       for (key in gauges) {
-        statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
+	if (config.graphService == "opentsdb") {
+          statString += 'put etsy.stats.gauges.' + ' ' + ts + ' ' + gauges[key] + " key=" + key + "\n";
+	}
+	else {
+          statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
+	}
         numStats += 1;
       }
 
-      statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
+      if (config.graphService == "opentsdb") {
+        statString += 'put etsy.statsd.numStats ' + ts + ' ' + numStats + " key=statsd\n";
+      }
+      else {
+        statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
+      }
 
-      if (config.graphiteHost) {
+      if (config.graphService == "graphite" && config.graphiteHost) {
         try {
           var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
           graphite.addListener('error', function(connectionException){
@@ -270,6 +300,29 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           });
           graphite.on('connect', function() {
             this.write(statString);
+	    util.log(statString);
+            this.end();
+            stats['graphite']['last_flush'] = Math.round(new Date().getTime() / 1000);
+          });
+        } catch(e){
+          if (config.debug) {
+            util.log(e);
+          }
+          stats['graphite']['last_exception'] = Math.round(new Date().getTime() / 1000);
+        }
+      }
+
+      if (config.graphService == "opentsdb" && config.opentsdbHost) {
+        try {
+          var graphite = net.createConnection(config.opentsdbPort, config.opentsdbHost);
+          graphite.addListener('error', function(connectionException){
+            if (config.debug) {
+              util.log(connectionException);
+            }
+          });
+          graphite.on('connect', function() {
+            this.write(statString);
+            util.log(statString);
             this.end();
             stats['graphite']['last_flush'] = Math.round(new Date().getTime() / 1000);
           });
@@ -282,6 +335,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
     }, flushInterval);
+
+
 
     if (keyFlushInterval > 0) {
       var keyFlushPercent = Number((config.keyFlush && config.keyFlush.percent) || 100);
