@@ -40,17 +40,21 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   }
 
   if (config.hasOwnProperty('altPrefixList')) {
-      util.log("config.altPrefixList is: " + config.altPrefixList + "\n\n")
-      special_prefixes = true
+      util.log("config.altPrefixList is: " + config.altPrefixList + "\n\n");
+      special_prefixes = true;
   }
   function matches_alt_prefix(key) {
       use_alt_prefix = false
-      config.altPrefixList.map( function (item) {
-                                    if(key.indexOf(item) == 0)  {
-                                        use_alt_prefix = true;
-                                    }           
-                                })
-      return use_alt_prefix
+      util.log("matches_alt_prefix: key: " + key + " and special_prefixes: " + special_prefixes);
+      if(special_prefixes) {
+          util.log("matches_alt_prefix: special_prefixes: " + special_prefixes);
+          config.altPrefixList.map( function (item) {
+                                        if(key.indexOf(item) == 0)  {
+                                            use_alt_prefix = true;
+                                        }           
+                                    });
+      }
+      return use_alt_prefix;
   }
 
   if (server === undefined) {
@@ -219,7 +223,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
         var use_alt_prefix = matches_alt_prefix(key)
-        if (use_alt_prefix == true) {
+        if (use_alt_prefix) {
             statString += key + ' ' + valuePerSecond + ' ' + ts + "\n";
             statString += key + '_count ' + value          + ' ' + ts + "\n";
         } else {
@@ -265,7 +269,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
             var clean_pct = '' + pct;
             clean_pct.replace('.', '_');
-            if (use_alt_prefix == true) {
+            if (use_alt_prefix) {
                 message += key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
                 message += key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
             } else {
@@ -276,7 +280,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
           timers[key] = [];
 
-          if (use_alt_prefix == true) {
+          if (use_alt_prefix) {
               message += key + '.upper ' + max   + ' ' + ts + "\n";
               message += key + '.lower ' + min   + ' ' + ts + "\n";
               message += key + '.count ' + count + ' ' + ts + "\n";
