@@ -21,6 +21,9 @@ Optional Variables:
   debugInterval:    interval to print debug information [ms, default: 10000]
   dumpMessages:     log all incoming messages
   flushInterval:    interval (in ms) to flush to Graphite
+  altPrefixList:    Prefixes in this list of prefixes will bypass the normal logic
+                    of separating messages to carbon into "Stats" and "timers" and
+                    will instead use the default hierarchy.
   percentThreshold: for time information, calculate the Nth percentile(s)
                     (can be a single value or list of floating-point values)
                     [%, default: 90]
