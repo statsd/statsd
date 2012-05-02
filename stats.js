@@ -10,6 +10,7 @@ var timers = {};
 var gauges = {};
 var debugInt, flushInt, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
+var special_prefixes = false;
 
 var stats = {
   graphite: {
@@ -23,6 +24,7 @@ var stats = {
 };
 
 config.configFile(process.argv[2], function (config, oldConfig) {
+
   if (! config.debug && debugInt) {
     clearInterval(debugInt);
     debugInt = false;
@@ -35,6 +37,20 @@ config.configFile(process.argv[2], function (config, oldConfig) {
                "\nTimers:\n" + util.inspect(timers) +
                "\nGauges:\n" + util.inspect(gauges));
     }, config.debugInterval || 10000);
+  }
+
+  if (config.hasOwnProperty('altPrefixList')) {
+      util.log("config.altPrefixList is: " + config.altPrefixList + "\n\n")
+      special_prefixes = true
+  }
+  function matches_alt_prefix(key) {
+      use_alt_prefix = false
+      config.altPrefixList.map( function (item) {
+                                    if(key.indexOf(item) == 0)  {
+                                        use_alt_prefix = true;
+                                    }           
+                                })
+      return use_alt_prefix
   }
 
   if (server === undefined) {
@@ -69,7 +85,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             stats['messages']['bad_lines_seen']++;
             continue;
         }
-        if (fields[1].trim() == "ms") {
+ if (fields[1].trim() == "ms") {
           if (! timers[key]) {
             timers[key] = [];
           }
@@ -192,8 +208,6 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       pctThreshold = [ pctThreshold ]; // listify percentiles so single values work the same
     }
 
-    util.log("config.altPrefixList is: " + config.altPrefixList + "\n\n")
-
     flushInt = setInterval(function () {
       var statString = '';
       var ts = Math.round(new Date().getTime() / 1000);
@@ -204,16 +218,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var value = counters[key];
         var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
-        util.log("Keying on: " + key + "\n")
-
-        // This config makes config.summarizedPrefix a required config variablee.
-        var use_alt_prefix = false;
-        config.altPrefixList.map( function (item) {
-                                      util.log("The item is: " + item + "\n\n\n")
-                                      if(key.indexOf(item) == 0)  {
-                                          use_alt_prefix = true;
-                                      }           
-                                  })
+        var use_alt_prefix = matches_alt_prefix(key)
         if (use_alt_prefix == true) {
             statString += key + ' ' + valuePerSecond + ' ' + ts + "\n";
             statString += key + '_count ' + value          + ' ' + ts + "\n";
@@ -240,18 +245,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
           var key2;
 
-          util.log("Keying on: " + key + "\n")
-  
-          // This config makes config.summarizedPrefix a required config variablee.
-          var use_alt_prefix = false
-
-          config.altPrefixList.map( function (item) {
-                                        util.log("The item is: " + item + "\n\n\n")
-                                        if(key.indexOf(item) == 0)  {
-                                            use_alt_prefix = true;
-                                        }           
-                                    })
-
+          var use_alt_prefix = matches_alt_prefix(key)
           for (key2 in pctThreshold) {
             var pct = pctThreshold[key2];
             if (count > 1) {
@@ -299,15 +293,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       for (key in gauges) {
-        // This config makes config.summarizedPrefix a required config variablee.
-        var use_alt_prefix = false
-
-        config.altPrefixList.map( function (item) {
-                                      util.log("The item is: " + item + "\n\n\n")
-                                      if(key.indexOf(item) == 0)  {
-                                          use_alt_prefix = true;
-                                      }           
-                                  })
+        var use_alt_prefix = matches_alt_prefix(key)
         if (use_alt_prefix) {
             statString += key + ' ' + gauges[key] + ' ' + ts + "\n";
         } else {
