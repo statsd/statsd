@@ -1,7 +1,10 @@
 StatsD [![Build Status](https://secure.travis-ci.org/etsy/statsd.png)](http://travis-ci.org/etsy/statsd)
 ======
 
-A network daemon for aggregating statistics (counters, timers, and gauges), rolling them up, then sending them to [graphite][graphite].
+A network daemon that runs on the [Node.js][node] platform and
+listens for statistics, like counters and timers, sent over [UDP][udp]
+and sends aggregates to one or more pluggable backend services (e.g.,
+[Graphite][graphite]).
 
 We ([Etsy][etsy]) [blogged][blog post] about how it works and why we created it.
 
@@ -16,7 +19,8 @@ Concepts
   Each stat will have a value. How it is interpreted depends on modifiers
 
 * *flush*
-  After the flush interval timeout (default 10 seconds), stats are munged and sent over to Graphite.
+  After the flush interval timeout (default 10 seconds), stats are
+  aggregated and sent to an upstream backend service.
 
 Counting
 --------
@@ -64,14 +68,33 @@ There are additional config variables available for debugging:
 
 For more information, check the `exampleConfig.js`.
 
-Guts
-----
+Supported Backends
+------------------
 
-* [UDP][udp]
-  Client libraries use UDP to send information to the StatsD daemon.
+StatsD supports multiple, pluggable, backend modules that can publish
+statistics from the local StatsD daemon to a backend service or data
+store. Backend services can retain statistics for
+longer durations in a time series data store, visualize statistics in
+graphs or tables, or generate alerts based on defined thresholds. A
+backend can also correlate statistics sent from StatsD daemons running
+across multiple hosts in an infrastructure.
 
-* [NodeJS][node]
-* [Graphite][graphite]
+StatsD supports the following backends:
+
+* [Graphite][graphite] (`graphite`): Graphite is an open-source
+  time-series data store that provides visualization through a
+  web-browser interface.
+
+By default, the `graphite` backend will be loaded automatically. To
+select which backends are loaded, set the `backends` configuration
+variable to the list of backend modules to load. Each backend module
+must exist by its name in the `backends/` top-level directory.
+
+To add a new backend, see the section *Backend Interface* below that
+describes the backend module interface.
+
+Graphite Schema
+---------------
 
 Graphite uses "schemas" to define the different round robin datasets it houses (analogous to RRAs in rrdtool). Here's what Etsy is using for the stats databases:
 
@@ -100,10 +123,16 @@ A really simple TCP management interface is available by default on port 8126 or
 The stats output currently will give you:
 
 * uptime: the number of seconds elapsed since statsd started
-* graphite.last_flush: the number of seconds elapsed since the last successful flush to graphite
-* graphite.last_exception: the number of seconds elapsed since the last exception thrown whilst flushing to graphite
 * messages.last_msg_seen: the number of elapsed seconds since statsd received a message
 * messages.bad_lines_seen: the number of bad lines seen since startup
+
+Each backend will also publish a set of statistics, prefixed by its
+module name.
+
+Graphite:
+
+* graphite.last_flush: the number of seconds elapsed since the last successful flush to graphite
+* graphite.last_exception: the number of seconds elapsed since the last exception thrown whilst flushing to graphite
 
 A simple nagios check can be found in the utils/ directory that can be used to check metric thresholds, for example the number of seconds since the last successful flush to graphite.
 
@@ -123,6 +152,64 @@ Tests
 A test framework has been added using node-unit and some custom code to start and manipulate statsd. Please add tests under test/ for any new features or bug fixes encountered. Testing a live server can be tricky, attempts were made to eliminate race conditions but it may be possible to encounter a stuck state. If doing dev work, a `killall node` will kill any stray test servers in the background (don't do this on a production machine!).
 
 Tests can be executd with `./run_tests.sh`.
+
+Backend Interface
+-----------------
+
+Backend modules are Node.js [modules][nodemods] that listen for a
+number of events emitted from StatsD. Each backend module should
+export the following initialization function:
+
+* `init(startup_time, config, events)`: This method is invoked from StatsD to
+  initialize the backend module. It accepts three parameters:
+  `startup_time` is the startup time of StatsD in epoch seconds,
+  `config` is the parsed config file hash, and `events` is the event
+  emitter that backends can use to listen for events.
+
+  The backend module should return `true` from init() to indicate
+  success. A return of `false` indicates a failure to load the module
+  (missing configuration?) and will cause StatsD to exit.
+
+Backends can listen for the following events emitted by StatsD from
+the `events` object:
+
+* Event: **'flush'**
+
+  Parameters: `(time_stamp, metrics)`
+
+  Emitted on each flush interval so that backends can push aggregate
+  metrics to their respective backend services. The event is passed
+  two parameters: `time_stamp` is the current time in epoch seconds
+  and `metrics` is a hash representing the StatsD statistics:
+
+  ```
+metrics: {
+    counters: counters,
+    gauges: gauges,
+    timers: timers,
+    pctThreshold: pctThreshold
+}
+  ```
+
+  Each backend module is passed the same set of statistics, so a
+  backend module should treat the metrics as immutable
+  structures. StatsD will reset timers and counters after each
+  listener has handled the event.
+
+* Event: **'status'**
+
+  Parameters: `(writeCb)`
+
+  Emitted when a user invokes a *stats* command on the management
+  server port. It allows each backend module to dump backend-specific
+  status statistics to the management port.
+
+  The `writeCb` callback function has a signature of `f(error,
+  backend_name, stat_name, stat_value)`. The backend module should
+  invoke this method with each stat_name and stat_value that should be
+  sent to the management port. StatsD will prefix each stat name with
+  the `backend_name`. The backend should set `error` to *null*, or, in
+  the case of a failure, an appropriate error.
 
 Inspiration
 -----------
@@ -151,7 +238,8 @@ We'll do our best to get your changes in!
 [etsy]: http://www.etsy.com
 [blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
 [node]: http://nodejs.org
-[udp]: http://enwp.org/udp
+[nodemods]: http://nodejs.org/api/modules.html
+[udp]: http://en.wikipedia.org/wiki/User_Datagram_Protocol
 
 
 Contributors
