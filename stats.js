@@ -11,6 +11,21 @@ var gauges = {};
 var debugInt, flushInt, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 
+// debug is set to true within exampleConfig.js or your permutation of it
+var setup = {};
+setup.Debug = function(){
+  this.debugEnabled = function(config, debugInt) {
+    if (debugInt !== undefined) { clearInterval(debugInt); }
+
+    debugInt = setInterval(function() {
+      util.log("Counters:\n" + util.inspect(counters) +
+      "\nTimers:\n" + util.inspect(timers) +
+      "\nGauges:\n" + util.inspect(gauges));
+    },
+    config.debugInterval || 10000);
+  }
+}
+
 var stats = {
   graphite: {
     last_flush: startup_time,
@@ -29,12 +44,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   }
 
   if (config.debug) {
-    if (debugInt !== undefined) { clearInterval(debugInt); }
-    debugInt = setInterval(function () {
-      util.log("Counters:\n" + util.inspect(counters) +
-               "\nTimers:\n" + util.inspect(timers) +
-               "\nGauges:\n" + util.inspect(gauges));
-    }, config.debugInterval || 10000);
+    var setupInst = new setup.Debug();
+    setupInst.debugEnabled(config, debugInt);
   }
 
   if (server === undefined) {
