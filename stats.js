@@ -57,6 +57,21 @@ function flushMetrics() {
   backendEvents.emit('flush', time_stamp, metrics_hash);
 };
 
+// debug is set to true within exampleConfig.js or your permutation of it
+var setup = {};
+setup.Debug = function(){
+  this.debugEnabled = function(config, debugInt) {
+    if (debugInt !== undefined) { clearInterval(debugInt); }
+
+    debugInt = setInterval(function() {
+      util.log("Counters:\n" + util.inspect(counters) +
+      "\nTimers:\n" + util.inspect(timers) +
+      "\nGauges:\n" + util.inspect(gauges));
+    },
+    config.debugInterval || 10000);
+  }
+}
+
 var stats = {
   messages: {
     last_msg_seen: startup_time,
@@ -71,12 +86,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   }
 
   if (config.debug) {
-    if (debugInt !== undefined) { clearInterval(debugInt); }
-    debugInt = setInterval(function () {
-      util.log("Counters:\n" + util.inspect(counters) +
-               "\nTimers:\n" + util.inspect(timers) +
-               "\nGauges:\n" + util.inspect(gauges));
-    }, config.debugInterval || 10000);
+    var setupInst = new setup.Debug();
+    setupInst.debugEnabled(config, debugInt);
   }
 
   if (server === undefined) {
