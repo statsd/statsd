@@ -37,6 +37,8 @@ function flushMetrics() {
 
   var metrics_hash = {
     counters: counters,
+    raws: raws,
+    averages: averages,
     gauges: gauges,
     timers: timers,
     pctThreshold: pctThreshold
@@ -53,6 +55,8 @@ function flushMetrics() {
     for (key in metrics.timers) {
       metrics.timers[key] = [];
     }
+    // Clear the raws
+    metrics.raws.length = 0
   });
 
   // Flush metrics to each backend.
@@ -207,6 +211,16 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             stream.write("END\n\n");
             break;
 
+          case "raws":
+            stream.write(util.inspect(raws) + "\n");
+            stream.write("END\n\n");
+            break;
+
+          case "averages":
+            stream.write(util.inspect(averages) + "\n");
+            stream.write("END\n\n");
+            break;
+
           case "gauges":
             stream.write(util.inspect(gauges) + "\n");
             stream.write("END\n\n");
@@ -223,6 +237,22 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           case "deltimers":
             for (index in cmdline) {
               delete timers[cmdline[index]];
+              stream.write("deleted: " + cmdline[index] + "\n");
+            }
+            stream.write("END\n\n");
+            break;
+
+          case "delraws":
+            for (index in cmdline) {
+              delete raws[cmdline[index]];
+              stream.write("deleted: " + cmdline[index] + "\n");
+            }
+            stream.write("END\n\n");
+            break;
+
+          case "delaverages":
+            for (index in cmdline) {
+              delete averages[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
             stream.write("END\n\n");
