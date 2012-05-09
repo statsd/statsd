@@ -63,7 +63,7 @@ There are additional config variables available for debugging:
 * `dumpMessages` - print debug info on incoming messages
 
 For more information, check the `exampleConfig.js`.
-=======
+
 Averaging
 --------
 

@@ -21,9 +21,22 @@ Optional Variables:
   debugInterval:    interval to print debug information [ms, default: 10000]
   dumpMessages:     log all incoming messages
   flushInterval:    interval (in ms) to flush to Graphite
+  altPrefixList:    Prefixes in this list of prefixes will bypass the normal logic
+                    of separating messages to carbon into "Stats" and "timers" and
+                    will instead use the default hierarchy.
   percentThreshold: for time information, calculate the Nth percentile(s)
                     (can be a single value or list of floating-point values)
                     [%, default: 90]
+  summarizedPrefix: A prefix that will be matched for receiving summaries of data
+                    instead of raw data.  The path after the prefix will be used
+                    to send data.  E.g. summarized.Plaform.foo.bar will indicate that 
+                    the stats being sent are already a summary, and will post those
+                    stats to Platform.foo.bar (and if 'Platform." is in the altPrefixList,
+                    then this will bypass the "stats" and "timers" categorization
+                    per the config there.
+  altPrefixList:    Prefixes in this list of prefixes will bypass the normal logic
+                    of separating messages to carbon into "Stats" and "timers" and
+                    will instead use the default hierarchy.
   keyFlush:         log the most frequently sent keys [object, default: undefined]
     interval:       how often to log frequent keys [ms, default: 0]
     percent:        percentage of frequent keys to log [%, default: 100]
@@ -34,4 +47,6 @@ Optional Variables:
   graphitePort: 2003
 , graphiteHost: "graphite.host.com"
 , port: 8125
+, summarizedPrefix: 'summarized.'
+, altPrefixList : ['Platform.'] 
 }
