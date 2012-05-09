@@ -65,6 +65,27 @@ var flush_stats = function graphite_flush(ts, metrics) {
     numStats += 1;
   }
 
+  for (idx in raws) {
+    statString += 'stats.' + raws[idx][0] + ' ' + raws[idx][1] + ' ' + raws[idx][2] + "\n";
+    numStats += 1;
+  }
+  raws = [];
+
+  for (key in averages) {
+    var vals = averages[key],
+        valCount = averages[key].length,
+        valTotal = 0;
+    if (vals.length >= 1) {
+      for (idx in vals) {
+        valTotal += vals[idx];
+      }
+      var averageVal = valTotal / valCount;
+      averages[key] = [];
+      statString += 'stats.' + key + ' ' + averageVal + ' ' + ts + "\n";
+      numStats += 1;
+    }
+  }
+
   for (key in timers) {
     if (timers[key].length > 0) {
       var values = timers[key].sort(function (a,b) { return a-b; });
