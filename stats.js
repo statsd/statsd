@@ -291,14 +291,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
-<<<<<<< HEAD
 
       if (config.graphiteHost) {
         try {
           var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
           graphite.addListener('error', function(connectionException){
             if (config.debug) {
-              sys.log(connectionException);
+              util.log(connectionException);
             }
           });
           graphite.on('connect', function() {
@@ -308,7 +307,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           });
         } catch(e){
           if (config.debug) {
-            sys.log(e);
+            util.log(e);
           }
           stats['graphite']['last_exception'] = Math.round(new Date().getTime() / 1000);
         }
