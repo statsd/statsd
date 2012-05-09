@@ -81,7 +81,6 @@ var flush_stats = function graphite_flush(ts, metrics) {
         valTotal += vals[idx];
       }
       var averageVal = valTotal / valCount;
-      averages[key] = [];
       statString += 'stats.' + key + ' ' + averageVal + ' ' + ts + "\n";
       numStats += 1;
     }
