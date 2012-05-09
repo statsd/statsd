@@ -127,7 +127,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         } else if (fields[1].trim() == "g") {
           gauges[key] = Number(fields[0] || 0);
         } else if (fields[1].trim() == "r") {
-          raws.push([key, Number(fields[0] || 0), Math.round(new Date().getTime()/1000)]);
+          var rdata = fields[0].split(' ');
+          // XXX: I'm not sure I should be dealing with adding a time stamp if it's not present.
+          var v = [key, Number(rdata[0] || 0), Number(rdata[1] || Math.round(new Date().getTime()/1000))];
+          raws.push(v);
         } else if (fields[1].trim() == "a") {
           if (! averages[key]) {
             averages[key] = [];
