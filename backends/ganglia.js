@@ -23,19 +23,20 @@ var debug;
 var flushInterval;
 var gangliaHost;
 var gangliaPort;
+var gangliaSpoof;
 
 var gangliaStats = {};
 
-var gmetric;
-if (gangliaHost) {
-  gmetric = new gm.gmetric( gangliaHost, gangliaPort, gangliaSpoof != null ? gangliaSpoof : null );
-}
+var gmetric = new gm.gmetric( gangliaHost, gangliaPort, gangliaSpoof != null ? gangliaSpoof : null );
 
 var post_stats = function ganglia_post_stats(rstats) {
   if (gangliaHost) {
     for (var k in rstats) {
       if (rstats.hasOwnProperty(k)) {
         try {
+          if (debug) {
+            util.log('gmetric.sendMetric ' + k + ' ' + rstats[k]);
+          }
           gmetric.sendMetric( gangliaUseHost, k, rstats[k], 'count', gm.VALUE_INT, gm.SLOPE_BOTH, 0, 0, 'stats' );
           gangliaStats.last_flush = Math.round(new Date().getTime() / 1000);
         } catch (e) {
