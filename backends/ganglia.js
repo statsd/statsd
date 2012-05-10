@@ -24,13 +24,19 @@ var flushInterval;
 var gangliaHost;
 var gangliaPort;
 var gangliaSpoof;
+var gmetric;
 
 var gangliaStats = {};
 
-var gmetric = new gm.gmetric( gangliaHost, gangliaPort, gangliaSpoof != null ? gangliaSpoof : null );
-
 var post_stats = function ganglia_post_stats(rstats) {
   if (gangliaHost) {
+    if (typeof gmetric == 'undefined') {
+      if (debug) {
+        util.log('Initializing gmetric with ' + gangliaHost + ':' + gangliaPort);
+      }
+      gmetric = new gm.gmetric( gangliaHost, gangliaPort, gangliaSpoof != null ? gangliaSpoof : null );
+    }
+
     for (var k in rstats) {
       if (rstats.hasOwnProperty(k)) {
         try {
@@ -41,7 +47,7 @@ var post_stats = function ganglia_post_stats(rstats) {
           gangliaStats.last_flush = Math.round(new Date().getTime() / 1000);
         } catch (e) {
           if (debug) {
-            util.log(e);
+            util.log("Exception: " + e);
           }
           gangliaStats.last_exception = Math.round(new Date().getTime() / 1000);
         } // end try/catch
