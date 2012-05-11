@@ -1,4 +1,5 @@
 stats.js	/usr/share/statsd
 config.js	/usr/share/statsd
+backends/graphite.js  /usr/share/statsd/backends
 debian/localConfig.js	/etc/statsd
 debian/scripts/start	/usr/share/statsd/scripts
