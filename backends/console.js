@@ -4,10 +4,10 @@ function ConsoleBackend(startupTime, config, emitter){
   var self = this;
   this.lastFlush = startupTime;
   this.lastException = startupTime;
+  this.config = config.console || {};
 
   this.statsCache = {
     counters: {},
-    gauges: {},
     timers: {}
   };
 
@@ -30,7 +30,19 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
     });
   });
 
-  console.log(util.inspect(self.statsCache, false, 5, true));
+  var out = {
+    counter: this.statsCache.counters,
+    timers: this.statsCache.timers,
+    gauges: metrics.gauges,
+    pctThreshold: metrics.pctThreshold
+  };
+
+  if(this.config.prettyprint) {
+    console.log(util.inspect(out, false, 5, true));
+  } else {
+    console.log(out);
+  }
+
 };
 
 ConsoleBackend.prototype.status = function(write) {
