@@ -6,12 +6,13 @@
  *
  *   backends: ['ganglia']
  *
- * This backend supports the following config options:
+ * This backend supports the following config options in the 'ganglia'
+ * config option:
  *
- *   gangliaHost:    Hostname of ganglia gmond server.
- *   gangliaPort:    Port to contact ganglia gmond server at.
- *   gangliaSpoof:   Ganglia "spoof" string.
- *   gangliaUseHost: Present as this hostname to gmond
+ *   host:    Hostname of ganglia gmond server.
+ *   port:    Port to contact ganglia gmond server at.
+ *   spoof:   Ganglia "spoof" string.
+ *   useHost: Present as this hostname to gmond
  *
  */
 
@@ -140,10 +141,10 @@ var backend_status = function ganglia_status(writeCb) {
 
 exports.init = function ganglia_init(startup_time, config, events) {
   debug = config.debug;
-  gangliaHost = config.gangliaHost;
-  gangliaPort = config.gangliaPort;
-  gangliaSpoof = config.gangliaSpoof;
-  gangliaUseHost = config.gangliaUseHost;
+  gangliaHost = config.ganglia.host;
+  gangliaPort = config.ganglia.port;
+  gangliaSpoof = config.ganglia.spoof;
+  gangliaUseHost = config.ganglia.useHost;
 
   gangliaStats.last_flush = startup_time;
   gangliaStats.last_exception = startup_time;
