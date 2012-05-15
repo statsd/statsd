@@ -281,7 +281,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
         // only show the top "keyFlushPercent" keys
         for (var i = 0, e = sortedKeys.length * (keyFlushPercent / 100); i < e; i++) {
-          logMessage += timeString + " " + sortedKeys[i][1] + " " + sortedKeys[i][0] + "\n";
+          logMessage += timeString + " count=" + sortedKeys[i][1] + " key=" + sortedKeys[i][0] + "\n";
         }
 
         var logFile = fs.createWriteStream(keyFlushLog, {flags: 'a+'});
