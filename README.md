@@ -79,7 +79,7 @@ graphs or tables, or generate alerts based on defined thresholds. A
 backend can also correlate statistics sent from StatsD daemons running
 across multiple hosts in an infrastructure.
 
-StatsD supports the following backends:
+StatsD includes the following backends:
 
 * [Graphite][graphite] (`graphite`): Graphite is an open-source
   time-series data store that provides visualization through a
@@ -87,11 +87,13 @@ StatsD supports the following backends:
 
 By default, the `graphite` backend will be loaded automatically. To
 select which backends are loaded, set the `backends` configuration
-variable to the list of backend modules to load. Each backend module
-must exist by its name in the `backends/` top-level directory.
+variable to the list of backend modules to load.
 
-To add a new backend, see the section *Backend Interface* below that
-describes the backend module interface.
+Backends are just npm modules which implement the interface described in
+section *Backend Interface*. In order to be able to load the backend, add the
+module name into the `backends` variable in your config. As the name is also
+used in the `require` directive, you can load one of the provided backends by
+giving the relative path (e.g. `./backends/graphite`).
 
 Graphite Schema
 ---------------
