@@ -16,7 +16,7 @@ var backendEvents = new events.EventEmitter();
 
 // Load and init the backend from the backends/ directory.
 function loadBackend(config, name) {
-  var backendmod = require("./backends/" + name);
+  var backendmod = require(name);
 
   if (config.debug) {
     util.log("Loading backend: " + name);
@@ -256,7 +256,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
     } else {
       // The default backend is graphite
-      loadBackend(config, 'graphite');
+      loadBackend(config, './backends/graphite');
     }
 
     // Setup the flush timer
@@ -293,7 +293,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }, keyFlushInterval);
     }
 
-  
+
   ;
 
   }
