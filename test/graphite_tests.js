@@ -13,7 +13,7 @@ var fs           = require('fs'),
 var writeconfig = function(text,worker,cb,obj){
   temp.open({suffix: '-statsdconf.js'}, function(err, info) {
     if (err) throw err;
-    fs.write(info.fd, text);
+    fs.writeSync(info.fd, text);
     fs.close(info.fd, function(err) {
       if (err) throw err;
       worker(info.path,cb,obj);
