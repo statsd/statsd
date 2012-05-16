@@ -16,6 +16,7 @@
     "nodeunit": "0.6.x",
     "async": "0.1.x",
     "underscore": "1.2.x",
+    "gmetric": "0.0.4",
     "temp": "0.4.x"
   },
   "engine": {
