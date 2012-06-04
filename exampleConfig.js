@@ -19,7 +19,10 @@ Optional Variables:
                     by name in the directory backends/. If not specified,
                     the default graphite backend will be loaded.
   debug:            debug flag [default: false]
+  address:          address to listen on over UDP [default: 0.0.0.0]
   port:             port to listen for messages on over UDP [default: 8125]
+  mgmt_address:     address to run the management TCP interface on
+                    [default: 0.0.0.0]
   mgmt_port:        port to run the management TCP interface on [default: 8126]
   debugInterval:    interval to print debug information [ms, default: 10000]
   dumpMessages:     log all incoming messages
