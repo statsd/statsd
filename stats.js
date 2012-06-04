@@ -85,8 +85,11 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
     server = dgram.createSocket('udp4', function (msg, rinfo) {
-      if (config.dumpMessages) { util.log(msg.toString()); }
-      var bits = msg.toString().split(':');
+      var metrics = msg.toString().split("\n");
+
+      for (midx in metrics) {
+        if (config.dumpMessages) { util.log(metrics[midx].toString()); }
+        var bits = metrics[midx].toString().split(':');
       var key = bits.shift()
                     .replace(/\s+/g, '_')
                     .replace(/\//g, '-')
@@ -127,6 +130,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           }
           counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
         }
+      }
       }
 
       stats['messages']['last_msg_seen'] = Math.round(new Date().getTime() / 1000);
