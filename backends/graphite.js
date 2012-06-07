@@ -120,7 +120,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
   statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
 
-  if ((ts - graphiteStats.last_flush) >= (postInterval)) {
+  if (!postInterval || ((ts - graphiteStats.last_flush) >= (postInterval))) {
     post_stats();
   }
 };
