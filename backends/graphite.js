@@ -17,12 +17,14 @@ var net = require('net'),
 
 var debug;
 var flushInterval;
+var postInterval;
 var graphiteHost;
 var graphitePort;
+var statString;
 
 var graphiteStats = {};
 
-var post_stats = function graphite_post_stats(statString) {
+var post_stats = function graphite_post_stats() {
   if (graphiteHost) {
     try {
       var graphite = net.createConnection(graphitePort, graphiteHost);
@@ -33,6 +35,7 @@ var post_stats = function graphite_post_stats(statString) {
       });
       graphite.on('connect', function() {
         this.write(statString);
+        statString = '';
         this.end();
         graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
       });
@@ -46,7 +49,6 @@ var post_stats = function graphite_post_stats(statString) {
 }
 
 var flush_stats = function graphite_flush(ts, metrics) {
-  var statString = '';
   var numStats = 0;
   var key;
 
@@ -117,7 +119,10 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
-  post_stats(statString);
+
+  if ((ts - graphiteStats.last_flush) >= (postInterval)) {
+    post_stats();
+  }
 };
 
 var backend_status = function graphite_status(writeCb) {
@@ -135,6 +140,9 @@ exports.init = function graphite_init(startup_time, config, events) {
   graphiteStats.last_exception = startup_time;
 
   flushInterval = config.flushInterval;
+  postInterval = config.postInterval;
+
+  statString = '';
 
   events.on('flush', flush_stats);
   events.on('status', backend_status);
