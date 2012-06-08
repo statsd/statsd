@@ -16,7 +16,8 @@ Concepts
   Each stat is in its own "bucket". They are not predefined anywhere. Buckets can be named anything that will translate to Graphite (periods make folders, etc)
 
 * *values*
-  Each stat will have a value. How it is interpreted depends on modifiers
+  Each stat will have a value. How it is interpreted depends on modifiers. In
+general values should be integer.
 
 * *flush*
   After the flush interval timeout (default 10 seconds), stats are
@@ -35,14 +36,17 @@ Timing
 
     glork:320|ms
 
-The glork took 320ms to complete this time. StatsD figures out 90th percentile, average (mean), lower and upper bounds for the flush interval.  The percentile threshold can be tweaked with `config.percentThreshold`.
+The glork took 320ms to complete this time. StatsD figures out 90th percentile,
+average (mean), lower and upper bounds for the flush interval.  The percentile
+threshold can be tweaked with `config.percentThreshold`.
 
-The percentile threshold can be a single value, or a list of values, and will generate the following list of stats for each threshold:
+The percentile threshold can be a single value, or a list of values, and will
+generate the following list of stats for each threshold:
 
-    stats.timers.$KEY.mean_$PCT
-    stats.timers.$KEY.upper_$PCT
+    stats.timers.$KEY.mean_$PCT stats.timers.$KEY.upper_$PCT
 
-Where `$KEY` is the key you stats key you specify when sending to statsd, and `$PCT` is the percentile threshold.
+Where `$KEY` is the key you stats key you specify when sending to statsd, and
+`$PCT` is the percentile threshold.
 
 Sampling
 --------
