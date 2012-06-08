@@ -84,6 +84,8 @@ StatsD includes the following backends:
 * [Graphite][graphite] (`graphite`): Graphite is an open-source
   time-series data store that provides visualization through a
   web-browser interface.
+* Console (`console`): The console backend outputs the received
+  metrics to stdout (e.g. for seeing what's going on during development).
 
 By default, the `graphite` backend will be loaded automatically. To
 select which backends are loaded, set the `backends` configuration
