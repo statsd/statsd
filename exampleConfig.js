@@ -35,6 +35,10 @@ Optional Variables:
     percent:        percentage of frequent keys to log [%, default: 100]
     log:            location of log file for frequent keys [default: STDOUT]
 
+  console:
+    prettyprint:    whether to prettyprint the console backend
+                    output [true or false, default: true]
+
 */
 {
   graphitePort: 2003
