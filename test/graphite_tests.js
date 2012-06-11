@@ -72,9 +72,11 @@ module.exports = {
   setUp: function (callback) {
     this.testport = 31337;
     this.myflush = 200;
+    this.mypost = 1;
     var configfile = "{graphService: \"graphite\"\n\
                ,  batch: 200 \n\
                ,  flushInterval: " + this.myflush + " \n\
+               ,  postInterval: " + this.mypost + " \n\
                ,  percentThreshold: 90\n\
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
@@ -162,7 +164,7 @@ module.exports = {
     var me = this;
     this.acceptor.once('connection',function(c){
       statsd_send('a_test_value:' + testvalue + '|ms',me.sock,'127.0.0.1',8125,function(){
-          collect_for(me.acceptor,me.myflush*2,function(strings){
+          collect_for(me.acceptor,me.mypost*2000,function(strings){
             test.ok(strings.length > 0,'should receive some data');
             var hashes = _.map(strings, function(x) {
               var chunks = x.split(' ');
@@ -195,7 +197,7 @@ module.exports = {
     var me = this;
     this.acceptor.once('connection',function(c){
       statsd_send('a_test_value:' + testvalue + '|c',me.sock,'127.0.0.1',8125,function(){
-          collect_for(me.acceptor,me.myflush*2,function(strings){
+          collect_for(me.acceptor,me.mypost*2000,function(strings){
             test.ok(strings.length > 0,'should receive some data');
             var hashes = _.map(strings, function(x) {
               var chunks = x.split(' ');

@@ -17,12 +17,14 @@ var net = require('net'),
 
 var debug;
 var flushInterval;
+var postInterval;
 var graphiteHost;
 var graphitePort;
+var statString;
 
 var graphiteStats = {};
 
-var post_stats = function graphite_post_stats(statString) {
+var post_stats = function graphite_post_stats() {
   if (graphiteHost) {
     try {
       var graphite = net.createConnection(graphitePort, graphiteHost);
@@ -33,6 +35,7 @@ var post_stats = function graphite_post_stats(statString) {
       });
       graphite.on('connect', function() {
         this.write(statString);
+        statString = '';
         this.end();
         graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
       });
@@ -46,7 +49,6 @@ var post_stats = function graphite_post_stats(statString) {
 }
 
 var flush_stats = function graphite_flush(ts, metrics) {
-  var statString = '';
   var numStats = 0;
   var key;
 
@@ -59,13 +61,24 @@ var flush_stats = function graphite_flush(ts, metrics) {
     var value = counters[key];
     var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
-    statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
-    statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+    // Split key into standard prefix and metric details
+    var preKey = key.match(/(^(?:production|staging)\.applications\.\w+)(.+)/)[1];
+    var endKey = key.match(/(^(?:production|staging)\.applications\.\w+)(.+)/)[2];
+
+    // Vitrue stats
+    statString += preKey + '.counters' + endKey + '.count_per_sec ' + valuePerSecond + ' ' + ts + "\n";
+    statString += preKey + '.counters' + endKey + '.count '         + value          + ' ' + ts + "\n";
 
     numStats += 1;
   }
 
   for (key in timers) {
+
+    // Split key into standard prefix and metric details
+    var preKey = key.match(/(^(?:production|staging)\.applications\.\w+)(.+)/)[1];
+    var endKey = key.match(/(^(?:production|staging)\.applications\.\w+)(.+)/)[2];
+    var customKey = preKey + '.timers' + endKey;
+
     if (timers[key].length > 0) {
       var values = timers[key].sort(function (a,b) { return a-b; });
       var count = values.length;
@@ -98,13 +111,17 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
         var clean_pct = '' + pct;
         clean_pct.replace('.', '_');
-        message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
-        message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+
+        // Vitrue Stats
+        message += customKey + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
+        message += customKey + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
       }
 
-      message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
-      message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
-      message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
+      // Vitrue Stats
+      message += customKey + '.upper ' + max   + ' ' + ts + "\n";
+      message += customKey + '.lower ' + min   + ' ' + ts + "\n";
+      message += customKey + '.count ' + count + ' ' + ts + "\n";
+
       statString += message;
 
       numStats += 1;
@@ -112,12 +129,23 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   for (key in gauges) {
-    statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
+
+    // Split key into standard prefix and metric details
+    var preKey = key.match(/(^(?:production|staging)\.applications\.\w+)(.+)/)[1];
+    var endKey = key.match(/(^(?:production|staging)\.applications\.\w+)(.+)/)[2];
+
+    // Vitrue Stats
+    statString += preKey + '.gauges' + endKey + ' ' + gauges[key] + ' ' + ts + "\n";
+
     numStats += 1;
   }
 
-  statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
-  post_stats(statString);
+  // Vitrue stats
+  statString += 'statsd.awsproxy.numStats ' + numStats + ' ' + ts + "\n";
+
+  if (!postInterval || ((ts - graphiteStats.last_flush) >= (postInterval))) {
+    post_stats();
+  }
 };
 
 var backend_status = function graphite_status(writeCb) {
@@ -135,6 +163,9 @@ exports.init = function graphite_init(startup_time, config, events) {
   graphiteStats.last_exception = startup_time;
 
   flushInterval = config.flushInterval;
+  postInterval = config.postInterval;
+
+  statString = '';
 
   events.on('flush', flush_stats);
   events.on('status', backend_status);
