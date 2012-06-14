@@ -18,15 +18,16 @@ var graphiteStats = {};
 
 var io = require('socket.io');
 
-var post_stats = function graphite_post_stats(statString) {
-    io.sockets.emit('statsd', {stats: statString});
-}
-
 
 var flush_stats = function graphite_flush(ts, metrics) {
-    var statString = '';
     var numStats = 0;
     var key;
+    var stats = {perSecond: {},
+                 counts: {},
+                 timers: {},
+                 gauges: {},
+                 statsd: {},
+                 timestamp: ts};
 
     var counters = metrics.counters;
     var gauges = metrics.gauges;
@@ -36,9 +37,8 @@ var flush_stats = function graphite_flush(ts, metrics) {
     for (key in counters) {
         var value = counters[key];
         var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
-
-        statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
-        statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+        stats.perSecond[key] = valuePerSecond;
+        stats.counts[key] = value;
 
         numStats += 1;
     }
@@ -56,6 +56,8 @@ var flush_stats = function graphite_flush(ts, metrics) {
             var message = "";
 
             var key2;
+
+            stats.timers[key] = {};
 
             for (key2 in pctThreshold) {
                 var pct = pctThreshold[key2];
@@ -76,26 +78,29 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
                 var clean_pct = '' + pct;
                 clean_pct.replace('.', '_');
-                message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
-                message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+
+                stats.timers[key]['mean_'+clean_pct] = mean;
+                stats.timers[key]['upper_'+clean_pct] = maxAtThreshold;
             }
 
-            message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
-            message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
-            message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
-            statString += message;
+            stats.timers[key].upper = max;
+            stats.timers[key].lower = min;
+            stats.timers[key].count = count;
 
             numStats += 1;
         }
     }
 
     for (key in gauges) {
-        statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
+        stats.gauges[key] = gauges[key];
+
         numStats += 1;
     }
 
-    statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
-    post_stats(statString);
+    stats.statsd.numStats = numStats;
+
+
+    io.sockets.emit('statsd', stats);
 };
 
 
