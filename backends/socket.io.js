@@ -100,7 +100,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
     stats.statsd.numStats = numStats;
 
 
-    io.sockets.emit('statsd', stats);
+    io.sockets.volatile.emit('statsd', stats);
     socketioStats.last_flush = Math.round(new Date().getTime() / 1000);
 };
 
