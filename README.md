@@ -30,6 +30,13 @@ Counting
 
 This is a simple counter. Add 1 to the "gorets" bucket. It stays in memory until the flush interval `config.flushInterval`.
 
+Averages
+--------
+
+    loadAverage:3.5|a
+
+Averages will be collected individually during the flush interval. At flush, they will be summed per unique key and then averaged and reported as a single metric. Flush intervals where there are no reported values for a given key will send no value to the backend.
+
 
 Timing
 ------

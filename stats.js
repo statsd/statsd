@@ -9,6 +9,7 @@ var keyCounter = {};
 var counters = {};
 var timers = {};
 var gauges = {};
+var averages = {};
 var pctThreshold = null;
 var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
@@ -36,13 +37,14 @@ function flushMetrics() {
   var metrics_hash = {
     counters: counters,
     gauges: gauges,
+    averages: averages,
     timers: timers,
     pctThreshold: pctThreshold
   }
 
   // After all listeners, reset the stats
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
-    // Clear the counters
+    // Zero the counters
     for (key in metrics.counters) {
       metrics.counters[key] = 0;
     }
@@ -50,6 +52,11 @@ function flushMetrics() {
     // Clear the timers
     for (key in metrics.timers) {
       metrics.timers[key] = [];
+    }
+
+    // Clear the averages
+    for (key in averages) {
+      averages[key] = [];
     }
   });
 
@@ -75,7 +82,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     debugInt = setInterval(function () {
       util.log("Counters:\n" + util.inspect(counters) +
                "\nTimers:\n" + util.inspect(timers) +
-               "\nGauges:\n" + util.inspect(gauges));
+               "\nGauges:\n" + util.inspect(gauges) +
+               "\nAverages:\n" + util.inspect(averages));
     }, config.debugInterval || 10000);
   }
 
@@ -118,6 +126,11 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           timers[key].push(Number(fields[0] || 0));
         } else if (fields[1].trim() == "g") {
           gauges[key] = Number(fields[0] || 0);
+        } else if (fields[1].trim() == "a") {
+          if (! averages[key]) {
+            averages[key] = [];
+          }
+          averages[key].push(Number(fields[0] || 0));
         } else {
           if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
             sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);

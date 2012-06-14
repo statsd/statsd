@@ -53,6 +53,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var counters = metrics.counters;
   var gauges = metrics.gauges;
   var timers = metrics.timers;
+  var averages = metrics.averages;
   var pctThreshold = metrics.pctThreshold;
 
   for (key in counters) {
@@ -114,6 +115,33 @@ var flush_stats = function graphite_flush(ts, metrics) {
   for (key in gauges) {
     statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
     numStats += 1;
+  }
+
+  // Averages:
+  //
+  // This metric method is IMMENSELY useful if you track something like server
+  // load, and you report the metric, let's say, every second. If your flush
+  // interval is 10 seconds, what do you do with the 9 other metrics? With
+  // guages you only get the most recent one. With counters you get some weird
+  // summation of load (which is wrong). What you truly want is the average of
+  // the reported metric over the since the last flush. Finally, averages will
+  // not report a "0" value if you haven't sent anything to statsd, you will
+  // see "null"s in graphite, instead.
+  //
+  // Average all the reported values per given "average key" and send the result to graphite as the metric
+  // This will not submit "0" value to keys for average metrics which have not been reported
+  for (key in averages) {
+    var vals = averages[key],
+        valCount = averages[key].length,
+        valTotal = 0;
+    if (valCount >= 1) {
+      for (idx in vals) {
+        valTotal += vals[idx];
+      }
+      var averageVal = valTotal / valCount;
+      statString += 'stats.' + key + ' ' + averageVal + ' ' + ts + "\n";
+      numStats += 1;
+    }
   }
 
   statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
