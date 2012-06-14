@@ -14,7 +14,7 @@
 
 var flushInterval;
 
-var graphiteStats = {};
+var socketioStats = {};
 
 var io = require('socket.io');
 
@@ -101,20 +101,28 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
 
     io.sockets.emit('statsd', stats);
+    socketioStats.last_flush = Math.round(new Date().getTime() / 1000);
+};
+
+var backend_status = function socketio_status(writeCb) {
+    for (var stat in socketioStats) {
+        writeCb(null, 'socketio', stat, socketioStats[stat]);
+    }
+
+    writeCb(null, 'socketio', 'sockets', io.sockets.length);
 };
 
 
-exports.init = function graphite_init(startup_time, config, events) {
+exports.init = function socketio_init(startup_time, config, events) {
 
     io = io.listen(config.socketioPort);
 
-    graphiteStats.last_flush = startup_time;
-    graphiteStats.last_exception = startup_time;
+    socketioStats.last_flush = startup_time;
 
     flushInterval = config.flushInterval;
 
     events.on('flush', flush_stats);
-    //events.on('status', backend_status);
+    events.on('status', backend_status);
 
     return true;
 };
