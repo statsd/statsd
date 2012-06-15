@@ -57,7 +57,7 @@ function flushMetrics() {
     }
 
     // Clear the raws
-    metrics.raws = [];
+    metrics.raws.length = 0;
 
     // Clear the averages
     for (key in averages) {
