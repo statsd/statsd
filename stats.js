@@ -8,6 +8,8 @@ var dgram  = require('dgram')
 var keyCounter = {};
 var counters = {};
 var timers = {};
+var raws = [];
+var averages = {};
 var gauges = {};
 var pctThreshold = null;
 var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
@@ -35,6 +37,8 @@ function flushMetrics() {
 
   var metrics_hash = {
     counters: counters,
+    raws: raws,
+    averages: averages,
     gauges: gauges,
     timers: timers,
     pctThreshold: pctThreshold
@@ -42,7 +46,7 @@ function flushMetrics() {
 
   // After all listeners, reset the stats
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
-    // Clear the counters
+    // Zero the counters
     for (key in metrics.counters) {
       metrics.counters[key] = 0;
     }
@@ -50,6 +54,14 @@ function flushMetrics() {
     // Clear the timers
     for (key in metrics.timers) {
       metrics.timers[key] = [];
+    }
+
+    // Clear the raws
+    metrics.raws.length = 0;
+
+    // Clear the averages
+    for (key in averages) {
+      metrics.averages[key] = [];
     }
   });
 
@@ -72,11 +84,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
   if (config.debug) {
     if (debugInt !== undefined) { clearInterval(debugInt); }
-    debugInt = setInterval(function () {
-      util.log("Counters:\n" + util.inspect(counters) +
-               "\nTimers:\n" + util.inspect(timers) +
-               "\nGauges:\n" + util.inspect(gauges));
-    }, config.debugInterval || 10000);
+      debugInt = setInterval(function () {
+        util.log("Counters:\n" + util.inspect(counters) +
+                 "\nTimers:\n" + util.inspect(timers) +
+                 "\nRaws:\n" + util.inspect(raws) +
+                 "\nAverages:\n" + util.inspect(averages) +
+                 "\nGauges:\n" + util.inspect(gauges));
+      }, config.debugInterval || 10000);
   }
 
   if (server === undefined) {
@@ -118,6 +132,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           timers[key].push(Number(fields[0] || 0));
         } else if (fields[1].trim() == "g") {
           gauges[key] = Number(fields[0] || 0);
+        } else if (fields[1].trim() == "r") {
+          raws.push([key, Number(fields[0] || 0), Number(fields[2] || Math.round(new Date().getTime()/1000))]);
+        } else if (fields[1].trim() == "a") {
+          if (! averages[key]) {
+            averages[key] = [];
+          }
+          averages[key].push(Number(fields[0] || 0));
         } else {
           if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
             sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
@@ -196,6 +217,16 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             stream.write("END\n\n");
             break;
 
+          case "raws":
+            stream.write(util.inspect(raws) + "\n");
+            stream.write("END\n\n");
+            break;
+
+          case "averages":
+            stream.write(util.inspect(averages) + "\n");
+            stream.write("END\n\n");
+            break;
+
           case "gauges":
             stream.write(util.inspect(gauges) + "\n");
             stream.write("END\n\n");
@@ -212,6 +243,22 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           case "deltimers":
             for (index in cmdline) {
               delete timers[cmdline[index]];
+              stream.write("deleted: " + cmdline[index] + "\n");
+            }
+            stream.write("END\n\n");
+            break;
+
+          case "delraws":
+            for (index in cmdline) {
+              delete raws[cmdline[index]];
+              stream.write("deleted: " + cmdline[index] + "\n");
+            }
+            stream.write("END\n\n");
+            break;
+
+          case "delaverages":
+            for (index in cmdline) {
+              delete averages[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
             stream.write("END\n\n");

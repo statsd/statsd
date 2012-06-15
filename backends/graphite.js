@@ -51,8 +51,10 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var key;
 
   var counters = metrics.counters;
-  var gauges = metrics.gauges;
   var timers = metrics.timers;
+  var gauges = metrics.gauges;
+  var raws = metrics.raws;
+  var averages = metrics.averages;
   var pctThreshold = metrics.pctThreshold;
 
   for (key in counters) {
@@ -114,6 +116,25 @@ var flush_stats = function graphite_flush(ts, metrics) {
   for (key in gauges) {
     statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
     numStats += 1;
+  }
+
+  for (key in raws) {
+    statString += 'stats.' + raws[key][0] + ' ' + raws[key][1] + ' ' + raws[key][2] + "\n";
+    numStats += 1;
+  }
+
+  for (key in averages) {
+    var vals = averages[key],
+        valCount = averages[key].length,
+        valTotal = 0;
+    if (vals.length >= 1) {
+      for (idx in vals) {
+        valTotal += vals[idx];
+      }
+      var averageVal = valTotal / valCount;
+      statString += 'stats.' + key + ' ' + averageVal + ' ' + ts + "\n";
+      numStats += 1;
+    }
   }
 
   statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";

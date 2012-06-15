@@ -23,43 +23,54 @@ general values should be integer.
   After the flush interval timeout (default 10 seconds), stats are
   aggregated and sent to an upstream backend service.
 
-Counting
---------
+Collection Methods
+------------------
 
-    gorets:1|c
+ *  **Counting**
 
-This is a simple counter. Add 1 to the "gorets" bucket. It stays in memory until the flush interval `config.flushInterval`.
+        gorets:1|c
+        regals:-2|c
+
+    *Add 1 to the gorest bucket and subtract 2 from the regals bucket.* Counters add the reported value to the provided bucket. Counters stay in memory until the flush interval `config.flushInterval` and are zeroed after each flush. This also means that counters, once used, will always report a 0 value to the backend.
 
 
-Timing
-------
+ * **Timing**
 
-    glork:320|ms
+        glork:320|ms
 
-The glork took 320ms to complete this time. StatsD figures out 90th percentile,
-average (mean), lower and upper bounds for the flush interval.  The percentile
-threshold can be tweaked with `config.percentThreshold`.
+    *The glork took 320ms to complete this time.* StatsD figures out 90th percentile, average (mean), lower and upper bounds for the flush interval.  The percentile threshold can be tweaked with `config.percentThreshold`.
 
-The percentile threshold can be a single value, or a list of values, and will
-generate the following list of stats for each threshold:
+    The percentile threshold can be a single value, or a list of values, and will generate the following list of stats for each threshold:
 
-    stats.timers.$KEY.mean_$PCT stats.timers.$KEY.upper_$PCT
+        stats.timers.$KEY.mean_$PCT
+        stats.timers.$KEY.upper_$PCT
 
-Where `$KEY` is the key you stats key you specify when sending to statsd, and
-`$PCT` is the percentile threshold.
+    Where `$KEY` is the key you stats key you specify when sending to statsd, and `$PCT` is the percentile threshold.
 
-Sampling
---------
+ * **Sampling**
 
-    gorets:1|c|@0.1
+        gorets:1|c|@0.1
 
-Tells StatsD that this counter is being sent sampled every 1/10th of the time.
+    Tells StatsD that this counter is being sent sampled every 1/10th of the time.
 
-Gauges
-------
-StatsD now also supports gauges, arbitrary values, which can be recorded.
+ * **Gauges**
 
-    gaugor:333|g
+        gaugor:333|g
+
+    *Set the gaugor bucket to 333.* Gauges store a single value per bucket and always pass that the most recently reported value to the backend at flush. For example, if you send a Guage to Statsd 12 times within your flush window, Statsd will only pass the most recent value to the backend and will continue to report that value until another is sent to Statsd.
+
+ * **Averaging**
+
+        load_5min:2.3|a
+
+    Average are collected individually during the flush interval. At flush, the individual values will be averaged and sent to the backend as a single value.
+
+ * **Raw Data**
+
+        population:45344|r
+        population:45344|r|123456789
+
+    Will buffer a set of metrics to send to the backend without any preprocessing. You can also specify the timestamp for the metric, or it will be added accordingly to when the metric is submitted.
 
 Debugging
 ---------
