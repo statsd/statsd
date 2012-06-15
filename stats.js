@@ -46,7 +46,7 @@ function flushMetrics() {
 
   // After all listeners, reset the stats
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
-    // Clear the counters
+    // Zero the counters
     for (key in metrics.counters) {
       metrics.counters[key] = 0;
     }
