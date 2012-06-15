@@ -55,8 +55,14 @@ function flushMetrics() {
     for (key in metrics.timers) {
       metrics.timers[key] = [];
     }
+
     // Clear the raws
-    metrics.raws.length = 0
+    metrics.raws = [];
+
+    // Clear the averages
+    for (key in averages) {
+      metrics.averages[key] = [];
+    }
   });
 
   // Flush metrics to each backend.
@@ -127,10 +133,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         } else if (fields[1].trim() == "g") {
           gauges[key] = Number(fields[0] || 0);
         } else if (fields[1].trim() == "r") {
-          var rdata = fields[0].split(' ');
-          // XXX: I'm not sure I should be dealing with adding a time stamp if it's not present.
-          var v = [key, Number(rdata[0] || 0), Number(rdata[1] || Math.round(new Date().getTime()/1000))];
-          raws.push(v);
+          raws.push([key, Number(fields[0] || 0), Number(fields[2] || Math.round(new Date().getTime()/1000))]);
         } else if (fields[1].trim() == "a") {
           if (! averages[key]) {
             averages[key] = [];
