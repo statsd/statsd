@@ -62,7 +62,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     // key counting
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
-     server = dgram.createSocket('udp4', function (msg, rinfo) {
+    server = dgram.createSocket('udp4', function (msg, rinfo) {
       if (config.dumpMessages) { util.log(msg.toString()); }
       var bits = msg.toString().split(':');
       var key = bits.shift()
@@ -85,23 +85,23 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var sampleRate = 1;
         var fields = bits[i].split("|");
         if (fields[1] === undefined) {
-            util.log('Bad line: ' + fields);
-            stats['messages']['bad_lines_seen']++;
-            continue;
+          util.log('Bad line: ' + fields);
+          stats['messages']['bad_lines_seen']++;
+          continue;
         }
- if (fields[1].trim() == "ms") {
+        if (fields[1].trim() == "ms") {
           if (! timers[key]) {
-            timers[key] = [];
+              timers[key] = [];
           }
           timers[key].push(Number(fields[0] || 0));
         } else if (fields[1].trim() == "g") {
           gauges[key] = Number(fields[0] || 0);
         } else {
           if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
-            sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+              sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
           }
           if (! counters[key]) {
-            counters[key] = 0;
+              counters[key] = 0;
           }
           if (key.indexOf(config.summarizedPrefix)) {
               counters[key] = Number(fields[0]);
