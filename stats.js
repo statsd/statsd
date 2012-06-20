@@ -103,11 +103,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           if (! counters[key]) {
               counters[key] = 0;
           }
-          if (key.indexOf(config.summarizedPrefix)) {
-              counters[key] = Number(fields[0]);
-          } else {
-              counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
-          }
+          counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
         }
       }
 
