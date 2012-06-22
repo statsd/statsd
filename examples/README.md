@@ -11,6 +11,7 @@ Here's a bunch of example code contributed by the communinty for interfacing wit
     python_example.py - Python
     ruby_example.rb   - Ruby
     statsd.erl        - Erlang
+    statsd-client.sh  - Bash
 
 Third Party StatsD Libraries
 ============================

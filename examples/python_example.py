@@ -72,7 +72,7 @@ class Statsd(object):
             import random
             if random.random() <= sample_rate:
                 for stat in data.keys():
-                    value = sampled_data[stat]
+                    value = data[stat]
                     sampled_data[stat] = "%s|@%s" %(value, sample_rate)
         else:
             sampled_data=data
@@ -81,7 +81,7 @@ class Statsd(object):
         udp_sock = socket(AF_INET, SOCK_DGRAM)
         try:
             for stat in sampled_data.keys():
-                value = data[stat]
+                value = sampled_data[stat]
                 send_data = "%s:%s" % (stat, value)
                 udp_sock.sendto(send_data, addr)
         except:

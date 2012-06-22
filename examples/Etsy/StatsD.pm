@@ -99,7 +99,7 @@ sub send {
 
 	my $sampled_data;
 	if ( defined($sample_rate) and $sample_rate < 1 ){
-		while (my($stat,$value) = each %$sampled_data) {
+		while (my($stat,$value) = each %$data) {
 			$sampled_data->{$stat} = "$value|\@$sample_rate" if rand() <= $sample_rate;
 		}
 	} else {
