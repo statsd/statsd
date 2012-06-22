@@ -225,6 +225,11 @@ Inspiration
 StatsD was inspired (heavily) by the project (of the same name) at Flickr. Here's a post where Cal Henderson described it in depth:
 [Counting and timing](http://code.flickr.com/blog/2008/10/27/counting-timing/). Cal re-released the code recently: [Perl StatsD](https://github.com/iamcal/Flickr-StatsD)
 
+Meta
+---------
+- IRC channel: `#statsd` on freenode
+- Mailing list: `statsd@librelist.com`
+
 
 Contribute
 ---------------------
@@ -242,6 +247,7 @@ fork StatsD from here: http://github.com/etsy/statsd
 
 We'll do our best to get your changes in!
 
+
 [graphite]: http://graphite.wikidot.com
 [etsy]: http://www.etsy.com
 [blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
@@ -254,4 +260,4 @@ Contributors
 -----------------
 
 In lieu of a list of contributors, check out the commit history for the project:
-http://github.com/etsy/statsd/commits/master
+https://github.com/etsy/statsd/graphs/contributors
