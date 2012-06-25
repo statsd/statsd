@@ -72,6 +72,12 @@ var flush_stats = function graphite_flush(ts, metrics) {
       var min = values[0];
       var max = values[count - 1];
 
+      var cumulativeValues = [min];
+      for (var i = 1; i < count; i++) {
+          cumulativeValues.push(values[i] + cumulativeValues[i-1]);
+      }
+
+      var sum = min;
       var mean = min;
       var maxAtThreshold = max;
 
@@ -84,15 +90,9 @@ var flush_stats = function graphite_flush(ts, metrics) {
         if (count > 1) {
           var thresholdIndex = Math.round(((100 - pct) / 100) * count);
           var numInThreshold = count - thresholdIndex;
-          var pctValues = values.slice(0, numInThreshold);
-          maxAtThreshold = pctValues[numInThreshold - 1];
 
-          // average the remaining timings
-          var sum = 0;
-          for (var i = 0; i < numInThreshold; i++) {
-            sum += pctValues[i];
-          }
-
+          maxAtThreshold = values[numInThreshold - 1];
+          sum = cumulativeValues[numInThreshold - 1];
           mean = sum / numInThreshold;
         }
 
@@ -100,11 +100,17 @@ var flush_stats = function graphite_flush(ts, metrics) {
         clean_pct.replace('.', '_');
         message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
         message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+        message += 'stats.timers.' + key + '.sum_' + clean_pct + ' ' + sum + ' ' + ts + "\n";
       }
+
+      sum = cumulativeValues[count-1];
+      mean = sum / count;
 
       message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
       message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
       message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
+      message += 'stats.timers.' + key + '.sum ' + sum  + ' ' + ts + "\n";
+      message += 'stats.timers.' + key + '.mean ' + mean + ' ' + ts + "\n";
       statString += message;
 
       numStats += 1;
