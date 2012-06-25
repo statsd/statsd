@@ -85,47 +85,51 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
     server = dgram.createSocket('udp4', function (msg, rinfo) {
-      if (config.dumpMessages) { util.log(msg.toString()); }
-      var bits = msg.toString().split(':');
-      var key = bits.shift()
-                    .replace(/\s+/g, '_')
-                    .replace(/\//g, '-')
-                    .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+      var metrics = msg.toString().split("\n");
 
-      if (keyFlushInterval > 0) {
-        if (! keyCounter[key]) {
-          keyCounter[key] = 0;
+      for (midx in metrics) {
+        if (config.dumpMessages) { util.log(metrics[midx].toString()); }
+        var bits = metrics[midx].toString().split(':');
+        var key = bits.shift()
+                      .replace(/\s+/g, '_')
+                      .replace(/\//g, '-')
+                      .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+
+        if (keyFlushInterval > 0) {
+          if (! keyCounter[key]) {
+            keyCounter[key] = 0;
+          }
+          keyCounter[key] += 1;
         }
-        keyCounter[key] += 1;
-      }
 
-      if (bits.length == 0) {
-        bits.push("1");
-      }
-
-      for (var i = 0; i < bits.length; i++) {
-        var sampleRate = 1;
-        var fields = bits[i].split("|");
-        if (fields[1] === undefined) {
-            util.log('Bad line: ' + fields);
-            stats['messages']['bad_lines_seen']++;
-            continue;
+        if (bits.length == 0) {
+          bits.push("1");
         }
-        if (fields[1].trim() == "ms") {
-          if (! timers[key]) {
-            timers[key] = [];
+
+        for (var i = 0; i < bits.length; i++) {
+          var sampleRate = 1;
+          var fields = bits[i].split("|");
+          if (fields[1] === undefined) {
+              util.log('Bad line: ' + fields);
+              stats['messages']['bad_lines_seen']++;
+              continue;
           }
-          timers[key].push(Number(fields[0] || 0));
-        } else if (fields[1].trim() == "g") {
-          gauges[key] = Number(fields[0] || 0);
-        } else {
-          if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
-            sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+          if (fields[1].trim() == "ms") {
+            if (! timers[key]) {
+              timers[key] = [];
+            }
+            timers[key].push(Number(fields[0] || 0));
+          } else if (fields[1].trim() == "g") {
+            gauges[key] = Number(fields[0] || 0);
+          } else {
+            if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
+              sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+            }
+            if (! counters[key]) {
+              counters[key] = 0;
+            }
+            counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
           }
-          if (! counters[key]) {
-            counters[key] = 0;
-          }
-          counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
         }
       }
 
