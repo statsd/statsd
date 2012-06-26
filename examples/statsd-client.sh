@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Very simple bash client to send gauge metrics to a statsd client
-# Example: ./statsd-client.sh 'my_metric:100'
+# Very simple bash client to send metrics to a statsd server
+# Example with gauge:  ./statsd-client.sh 'my_metric:100|g'
 #
 # Alexander Fortin <alexander.fortin@gmail.com>
 #
@@ -18,7 +18,7 @@ fi
 exec 3<> /dev/udp/${STATSD}/${PORT}
 
 # Send data
-echo "$1|g" >&3
+echo "$1" >&3
 
 # Close UDP socket
 exec 3<&-
