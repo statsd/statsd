@@ -104,7 +104,7 @@ giving the relative path (e.g. `./backends/graphite`).
 Graphite Schema
 ---------------
 
-Graphite uses "schemas" to define the different round robin datasets it houses (analogous to RRAs in rrdtool). Here's what Etsy is using for the stats databases:
+Graphite uses "schemas" to define the different round robin datasets it houses (analogous to RRAs in rrdtool). Here's an example schema:
 
     [stats]
     pattern = ^stats\..*
