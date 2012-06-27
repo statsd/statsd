@@ -107,17 +107,23 @@ Graphite Schema
 Graphite uses "schemas" to define the different round robin datasets it houses (analogous to RRAs in rrdtool). Here's what Etsy is using for the stats databases:
 
     [stats]
-    priority = 110
     pattern = ^stats\..*
-    retentions = 10:2160,60:10080,600:262974
+    retentions = 10s:6h,1min:7d,10min:5y
+    xFilesFactor = 0.0
 
 That translates to:
 
+* The name of the metric must start with 'stats.' (regular expression) 
 * 6 hours of 10 second data (what we consider "near-realtime")
 * 1 week of 1 minute data
 * 5 years of 10 minute data
+* Keep all the data during roll up from one retention rate to another. (By default if more than half are None, a None is stored during roll up. This saves everything.) 
+
+Storage schemas are processed in the order they are written to the config file, and the first pattern to match is used. (There was a priority based system but it's no longer used.) 
 
 This has been a good tradeoff so far between size-of-file (round robin databases are fixed size) and data we care about. Each "stats" database is about 3.2 megs with these retentions.
+
+You may want to also enable sum instead of average aggregation by moving the storage-aggregation.conf.example file to storage-aggregation.conf. This will make any database with 'count' in the name sum values instead of average values during roll up from one retention rate to another. 
 
 TCP Stats Interface
 -------------------
