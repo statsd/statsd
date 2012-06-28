@@ -20,5 +20,6 @@
   },
   "engine": {
     "node" : ">=0.4"
-  }
+  },
+  "bin": { "statsd": "./bin/statsd" }
 }
