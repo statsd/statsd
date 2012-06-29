@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.4.0 (06/29/2012)
+- add bin/statsd
+- Add CLI bash client example
+- documentation updates
+- bug fixing, sample_data and data got swapped in Perl client
+- fix sampling in the python client
+- added sum to all metrics and mean to the total
+- changed the way we calculate some metrics by using a cumulative sum as it is more efficient for multiple percentile thresholds
+- update README mentioning to preferably use ints as values
+- Allow multiple metrics to be passed in one UDP packet delimited by a newline character.
+- added console backend
+- reformat topkeys log to feature sane key/value pairs
+
 ## v0.3.0 (05/16/2012)
 - support backends installed from npm
 - fix test suite failures
