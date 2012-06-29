@@ -61,6 +61,9 @@ StatsD now also supports gauges, arbitrary values, which can be recorded.
 
     gaugor:333|g
 
+All metrics can also be batch send in a single UDP packet, separated by a
+newline character.
+
 Debugging
 ---------
 
