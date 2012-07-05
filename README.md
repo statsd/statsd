@@ -107,11 +107,13 @@ Graphite Schema
 Graphite uses "schemas" to define the different round robin datasets it houses (analogous to RRAs in rrdtool). Here's an example for the stats databases:
 
 In conf/storage-schemas.conf:
+ 
     [stats]
     pattern = ^stats\..*
     retentions = 10:2160,60:10080,600:262974
 
 In conf/storage-aggregation.conf: 
+
     [min]
     pattern = \.min$
     xFilesFactor = 0.1 
@@ -131,7 +133,6 @@ In conf/storage-aggregation.conf:
     pattern = .*
     xFilesFactor = 0.3 
     aggregationMethod = average
- 
 
 This translates to:
 
@@ -143,7 +144,6 @@ This translates to:
 * For all other databases, average the values (mean) when rolling up data, and store a None if less than 30% of the datapoints were received 
 
 (Note: Newer versions of Graphite can take human readable time formats like 10s:6h,1min:7d,10min:5y)
-
 
 Retentions and aggregations are read from the file in order, the first pattern that matches is used.  This is set when the database is first created, changing these config files will not change databases that have already been created.  To view or alter the settings on existing files, use whisper-info.py and whisper-resize.py included with the Whisper package. 
 
@@ -229,7 +229,6 @@ metrics: {
     timers: timers,
     pctThreshold: pctThreshold
 }
-    priority = 110
   ```
 
   Each backend module is passed the same set of statistics, so a
