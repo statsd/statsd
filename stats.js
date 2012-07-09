@@ -5,9 +5,15 @@ var dgram  = require('dgram')
   , fs     = require('fs')
   , events = require('events')
 
+// initialize data structures with defaults for statsd stats
 var keyCounter = {};
-var counters = {};
-var timers = {};
+var counters = {
+  "statsd.packets_received": 0,
+  "statsd.bad_lines_seen": 0
+};
+var timers = {
+  "statsd.packet_process_time": []
+};
 var gauges = {};
 var pctThreshold = null;
 var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
@@ -85,6 +91,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
     server = dgram.createSocket('udp4', function (msg, rinfo) {
+      counters["statsd.packets_received"]++;
       var metrics = msg.toString().split("\n");
 
       for (midx in metrics) {
@@ -111,6 +118,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           var fields = bits[i].split("|");
           if (fields[1] === undefined) {
               util.log('Bad line: ' + fields);
+              counters["statsd.bad_lines_seen"]++;
               stats['messages']['bad_lines_seen']++;
               continue;
           }
