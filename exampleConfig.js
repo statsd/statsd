@@ -13,6 +13,12 @@ Graphite Required Variables:
   graphiteHost:     hostname or IP of Graphite server
   graphitePort:     port of Graphite server
 
+Graphite Optional Settings:
+
+  graphiteSimpleTimers        (boolean) (Default false) Record only the mean for timers and skip all the extra types of timer aggregations (percentiles, mins, max, etc)
+  graphiteRecordNumStats      (boolean) (Default true)  Record the number of stats aggregated with each update
+  graphiteRecordCounterTotals (boolean) (Default true)  Record the stat_count metrics for counters
+
 Optional Variables:
 
   backends:         an array of backends to load. Each backend must exist

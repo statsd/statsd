@@ -10,6 +10,9 @@
  *
  *   graphiteHost: Hostname of graphite server.
  *   graphitePort: Port to contact graphite server at.
+ *   graphiteSimpleTimers: Record only the mean value for timers. (Default false)
+ *   graphiteRecordNumStats: Record the total number of stats written. (Default true)
+ *   graphiteRecordCounterTotals: Record the stats_count values for counters. (Default true)
  */
 
 var net = require('net'),
@@ -19,6 +22,9 @@ var debug;
 var flushInterval;
 var graphiteHost;
 var graphitePort;
+var graphiteSimpleTimers;
+var graphiteRecordNumStats;
+var graphiteRecordCounterTotals;
 
 var graphiteStats = {};
 
@@ -60,13 +66,33 @@ var flush_stats = function graphite_flush(ts, metrics) {
     var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
     statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
-    statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+
+    if (graphiteRecordCounterTotals) {
+      statString += 'stats_counts.' + key + ' ' + value + ' ' + ts + "\n";
+    }
 
     numStats += 1;
   }
 
   for (key in timers) {
-    if (timers[key].length > 0) {
+
+    if (timers[key].length == 0) {
+      continue;
+    }
+
+    if (graphiteSimpleTimers) {
+
+      var sum = 0;
+      for (var i in timers[key]) {
+        sum += timers[key][i];
+      }
+      var mean = sum / timers[key].length;
+
+      statString += 'stats.timers.' + key + '.mean' + ' ' + mean + ' ' + ts + "\n";
+      numStats += 1;
+
+    } else {
+
       var values = timers[key].sort(function (a,b) { return a-b; });
       var count = values.length;
       var min = values[0];
@@ -114,6 +140,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
       statString += message;
 
       numStats += 1;
+
     }
   }
 
@@ -122,7 +149,10 @@ var flush_stats = function graphite_flush(ts, metrics) {
     numStats += 1;
   }
 
-  statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
+  if (graphiteRecordNumStats == true) {
+    statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
+  }
+
   post_stats(statString);
 };
 
@@ -134,8 +164,13 @@ var backend_status = function graphite_status(writeCb) {
 
 exports.init = function graphite_init(startup_time, config, events) {
   debug = config.debug;
+
   graphiteHost = config.graphiteHost;
   graphitePort = config.graphitePort;
+
+  graphiteSimpleTimers        = typeof config.graphiteSimpleTimers === 'boolean'        ? config.graphiteSimpleTimers        : false;
+  graphiteRecordNumStats      = typeof config.graphiteRecordNumStats === 'boolean'      ? config.graphiteRecordNumStats      : true;
+  graphiteRecordCounterTotals = typeof config.graphiteRecordCounterTotals === 'boolean' ? config.graphiteRecordCounterTotals : true;
 
   graphiteStats.last_flush = startup_time;
   graphiteStats.last_exception = startup_time;
