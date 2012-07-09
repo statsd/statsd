@@ -23,6 +23,8 @@ var graphitePort;
 var graphiteStats = {};
 
 var post_stats = function graphite_post_stats(statString) {
+  var last_flush = graphiteStats.last_flush || 0;
+  var last_exception = graphiteStats.last_exception || 0;
   if (graphiteHost) {
     try {
       var graphite = net.createConnection(graphitePort, graphiteHost);
@@ -32,6 +34,8 @@ var post_stats = function graphite_post_stats(statString) {
         }
       });
       graphite.on('connect', function() {
+        statString += 'statsd.graphiteStats.last_exception ' + last_exception + ' ' + ts + "\n";
+        statString += 'statsd.graphiteStats.last_flush ' + last_flush + ' ' + ts + "\n";
         this.write(statString);
         this.end();
         graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
