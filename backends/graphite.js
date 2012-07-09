@@ -35,8 +35,8 @@ var post_stats = function graphite_post_stats(statString) {
       });
       graphite.on('connect', function() {
         var ts = Math.round(new Date().getTime() / 1000);
-        statString += 'statsd.graphiteStats.last_exception ' + last_exception + ' ' + ts + "\n";
-        statString += 'statsd.graphiteStats.last_flush ' + last_flush + ' ' + ts + "\n";
+        statString += 'stats.statsd.graphiteStats.last_exception ' + last_exception + ' ' + ts + "\n";
+        statString += 'stats.statsd.graphiteStats.last_flush ' + last_flush + ' ' + ts + "\n";
         this.write(statString);
         this.end();
         graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
