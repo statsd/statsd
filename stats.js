@@ -4,7 +4,6 @@ var dgram  = require('dgram')
   , config = require('./config')
   , fs     = require('fs')
   , events = require('events')
-  , microtime = require('microtime');
 
 // initialize data structures with defaults for statsd stats
 var keyCounter = {};
@@ -93,7 +92,6 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
     server = dgram.createSocket('udp4', function (msg, rinfo) {
       counters["statsd.packets_received"]++;
-      var starttime = microtime.now();
       var metrics = msg.toString().split("\n");
 
       for (midx in metrics) {
@@ -144,7 +142,6 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       stats['messages']['last_msg_seen'] = Math.round(new Date().getTime() / 1000);
-      timers["statsd.packet_process_time"].push(microtime.now() - starttime);
     });
 
     mgmtServer = net.createServer(function(stream) {
