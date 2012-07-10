@@ -51,6 +51,7 @@ var post_stats = function graphite_post_stats(statString) {
 }
 
 var flush_stats = function graphite_flush(ts, metrics) {
+  var starttime = Date.now();
   var statString = '';
   var numStats = 0;
   var key;
@@ -128,6 +129,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
+  statString += 'stats.statsd.graphiteStats.calculationtime ' + (Date.now() - starttime) + ' ' + ts + "\n";
   post_stats(statString);
 };
 
