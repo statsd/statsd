@@ -99,7 +99,7 @@ public class StatsdClient {
 
 	public boolean increment(String key, int magnitude, double sampleRate) {
 		String stat = String.format("%s:%s|c", key, magnitude);
-		return send(stat, sampleRate);
+		return send(sampleRate, stat);
 	}
 
 	public boolean increment(int magnitude, double sampleRate, String... keys) {
