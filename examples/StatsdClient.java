@@ -110,10 +110,6 @@ public class StatsdClient {
 		return send(sampleRate, stats);
 	}
 
-	private boolean send(String stat, double sampleRate) {
-		return send(sampleRate, stat);
-	}
-
 	private boolean send(double sampleRate, String... stats) {
 
 		boolean retval = false; // didn't send anything
