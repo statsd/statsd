@@ -39,11 +39,11 @@ import java.util.Random;
 import org.apache.log4j.Logger;
 
 public class StatsdClient {
-	private static Random RNG = new Random();
-	private static Logger log = Logger.getLogger(StatsdClient.class.getName());
+	private static final Random RNG = new Random();
+	private static final Logger log = Logger.getLogger(StatsdClient.class.getName());
 
-	private InetSocketAddress _address;
-	private DatagramChannel _channel;
+	private final InetSocketAddress _address;
+	private final DatagramChannel _channel;
 
 	public StatsdClient(String host, int port) throws UnknownHostException, IOException {
 		this(InetAddress.getByName(host), port);
@@ -99,7 +99,7 @@ public class StatsdClient {
 
 	public boolean increment(String key, int magnitude, double sampleRate) {
 		String stat = String.format("%s:%s|c", key, magnitude);
-		return send(stat, sampleRate);
+		return send(sampleRate, stat);
 	}
 
 	public boolean increment(int magnitude, double sampleRate, String... keys) {
@@ -108,10 +108,6 @@ public class StatsdClient {
 			stats[i] = String.format("%s:%s|c", keys[i], magnitude);
 		}
 		return send(sampleRate, stats);
-	}
-
-	private boolean send(String stat, double sampleRate) {
-		return send(sampleRate, stat);
 	}
 
 	private boolean send(double sampleRate, String... stats) {
@@ -147,7 +143,7 @@ public class StatsdClient {
 				return true;
 			} else {
 				log.error(String.format(
-						"Could not send entirely stat %s to host %s:%d. Only sent %i bytes out of %i bytes", stat,
+						"Could not send entirely stat %s to host %s:%d. Only sent %d bytes out of %d bytes", stat,
 						_address.getHostName(), _address.getPort(), nbSentBytes, data.length));
 				return false;
 			}
