@@ -41,6 +41,7 @@ Optional Variables:
 
   log:              log settings [object, default: undefined]
     backend:        where to log: stdout or syslog [default: stdout]
+    application:    name of the application for syslog [default: statsd]
 
 */
 {

@@ -26,7 +26,7 @@ function loadBackend(config, name) {
   var backendmod = require(name);
 
   if (config.debug) {
-    l.log("Loading backend: " + name);
+    l.log("Loading backend: " + name, 'debug');
   }
 
   var ret = backendmod.init(startup_time, config, backendEvents);
@@ -83,11 +83,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   l = new logger.Logger(config.log || {});
 
   if (config.debug) {
-    if (debugInt !== undefined) { clearInterval(debugInt); }
+    if (debugInt !== undefined) {
+      clearInterval(debugInt);
+    }
     debugInt = setInterval(function () {
       l.log("Counters:\n" + util.inspect(counters) +
                "\nTimers:\n" + util.inspect(timers) +
-               "\nGauges:\n" + util.inspect(gauges));
+               "\nGauges:\n" + util.inspect(gauges), 'debug');
     }, config.debugInterval || 10000);
   }
 
