@@ -39,11 +39,11 @@ import java.util.Random;
 import org.apache.log4j.Logger;
 
 public class StatsdClient {
-	private static Random RNG = new Random();
-	private static Logger log = Logger.getLogger(StatsdClient.class.getName());
+	private static final Random RNG = new Random();
+	private static final Logger log = Logger.getLogger(StatsdClient.class.getName());
 
-	private InetSocketAddress _address;
-	private DatagramChannel _channel;
+	private final InetSocketAddress _address;
+	private final DatagramChannel _channel;
 
 	public StatsdClient(String host, int port) throws UnknownHostException, IOException {
 		this(InetAddress.getByName(host), port);
