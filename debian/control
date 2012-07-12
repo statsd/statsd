@@ -2,7 +2,7 @@ Source: statsd
 Section: devel
 Priority: optional
 Maintainer: Stephen Koenig <heph@bittorrent.com>
-Standards-Version: 3.9.1
+Standards-Version: 3.9.3
 Build-Depends: debhelper (>= 8.0.0)
 
 Package: statsd
