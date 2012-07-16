@@ -42,7 +42,7 @@ Optional Variables:
   log:              log settings [object, default: undefined]
     backend:        where to log: stdout or syslog [string, default: stdout]
     application:    name of the application for syslog [string, default: statsd]
-    level:          log level for syslog [string, default: LOG_INFO]
+    level:          log level for [node-]syslog [string, default: LOG_INFO]
 
 */
 {
