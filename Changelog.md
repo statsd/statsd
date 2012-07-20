@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.5.0 (07/20/2012)
+- add support for logging to syslog
+- add basic metrics gathering for StatsD and Graphite backend itself
+- several fixes and enhancements for the debian resources
+- fixed locale bug in Java client.
+- multiple fixes for the Java client
+
 ## v0.4.0 (06/29/2012)
 - add bin/statsd
 - Add CLI bash client example
