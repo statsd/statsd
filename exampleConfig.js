@@ -39,6 +39,11 @@ Optional Variables:
     prettyprint:    whether to prettyprint the console backend
                     output [true or false, default: true]
 
+  log:              log settings [object, default: undefined]
+    backend:        where to log: stdout or syslog [string, default: stdout]
+    application:    name of the application for syslog [string, default: statsd]
+    level:          log level for [node-]syslog [string, default: LOG_INFO]
+
 */
 {
   graphitePort: 2003
