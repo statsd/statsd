@@ -5,7 +5,7 @@
 #
 # Alexander Fortin <alexander.fortin@gmail.com>
 #
-STATSD="statsd-ip-address"
+STATSD="127.0.0.1"
 PORT="8125"
 
 if [ $# -ne 1 ]
