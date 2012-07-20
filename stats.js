@@ -4,6 +4,7 @@ var dgram  = require('dgram')
   , config = require('./config')
   , fs     = require('fs')
   , events = require('events')
+  , logger = require('./lib/logger')
 
 // initialize data structures with defaults for statsd stats
 var keyCounter = {};
@@ -25,12 +26,12 @@ function loadBackend(config, name) {
   var backendmod = require(name);
 
   if (config.debug) {
-    util.log("Loading backend: " + name);
+    l.log("Loading backend: " + name, 'debug');
   }
 
   var ret = backendmod.init(startup_time, config, backendEvents);
   if (!ret) {
-    util.log("Failed to load backend: " + name);
+    l.log("Failed to load backend: " + name);
     process.exit(1);
   }
 };
@@ -70,18 +71,25 @@ var stats = {
   }
 };
 
+// Global for the logger
+var l;
+
 config.configFile(process.argv[2], function (config, oldConfig) {
   if (! config.debug && debugInt) {
     clearInterval(debugInt);
     debugInt = false;
   }
 
+  l = new logger.Logger(config.log || {});
+
   if (config.debug) {
-    if (debugInt !== undefined) { clearInterval(debugInt); }
+    if (debugInt !== undefined) {
+      clearInterval(debugInt);
+    }
     debugInt = setInterval(function () {
-      util.log("Counters:\n" + util.inspect(counters) +
+      l.log("Counters:\n" + util.inspect(counters) +
                "\nTimers:\n" + util.inspect(timers) +
-               "\nGauges:\n" + util.inspect(gauges));
+               "\nGauges:\n" + util.inspect(gauges), 'debug');
     }, config.debugInterval || 10000);
   }
 
@@ -95,7 +103,9 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       var metrics = msg.toString().split("\n");
 
       for (midx in metrics) {
-        if (config.dumpMessages) { util.log(metrics[midx].toString()); }
+        if (config.dumpMessages) {
+          l.log(metrics[midx].toString());
+        }
         var bits = metrics[midx].toString().split(':');
         var key = bits.shift()
                       .replace(/\s+/g, '_')
@@ -117,7 +127,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           var sampleRate = 1;
           var fields = bits[i].split("|");
           if (fields[1] === undefined) {
-              util.log('Bad line: ' + fields);
+              l.log('Bad line: ' + fields);
               counters["statsd.bad_lines_seen"]++;
               stats['messages']['bad_lines_seen']++;
               continue;
@@ -189,7 +199,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             // Let each backend contribute its status
             backendEvents.emit('status', function(err, name, stat, val) {
               if (err) {
-                util.log("Failed to read stats for backend " +
+                l.log("Failed to read stats for backend " +
                          name + ": " + err);
               } else {
                 stat_writer(name, stat, val);
