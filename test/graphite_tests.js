@@ -178,10 +178,10 @@ module.exports = {
             test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
 
             var testtimervalue_test = function(post){
-              var mykey = 'stats.timers.a_test_value.mean_90';
+              var mykey = 'stats.a_test_value.mean_90';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
-            test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
+            test.ok(_.any(hashes,testtimervalue_test), 'stats.a_test_value.mean should be ' + testvalue);
 
             test.done();
           });
