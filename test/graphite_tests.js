@@ -210,16 +210,16 @@ module.exports = {
             test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
 
             var testavgvalue_test = function(post){
-              var mykey = 'stats.a_test_value';
+              var mykey = 'stats.a_test_value.rate';
               return _.include(_.keys(post),mykey) && (post[mykey] == (testvalue/(me.myflush / 1000)));
             };
-            test.ok(_.any(hashes,testavgvalue_test), 'stats.a_test_value should be ' + (testvalue/(me.myflush / 1000)));
+            test.ok(_.any(hashes,testavgvalue_test), 'stats.a_test_value.rate should be ' + (testvalue/(me.myflush / 1000)));
 
             var testcountvalue_test = function(post){
-              var mykey = 'stats_counts.a_test_value';
+              var mykey = 'stats.a_test_value.count';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
-            test.ok(_.any(hashes,testcountvalue_test), 'stats_counts.a_test_value should be ' + testvalue);
+            test.ok(_.any(hashes,testcountvalue_test), 'stats.a_test_value.rate should be ' + testvalue);
 
             test.done();
           });
