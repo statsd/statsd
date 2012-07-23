@@ -65,8 +65,8 @@ var flush_stats = function graphite_flush(ts, metrics) {
     var value = counters[key];
     var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
-    statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
-    statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+    statString += 'stats.' + key + '.rate '  + valuePerSecond + ' ' + ts + "\n";
+    statString += 'stats.' + key + '.count ' + value          + ' ' + ts + "\n";
 
     numStats += 1;
   }
@@ -104,19 +104,26 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
         var clean_pct = '' + pct;
         clean_pct.replace('.', '_');
-        message += 'stats.timers.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
-        message += 'stats.timers.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
-        message += 'stats.timers.' + key + '.sum_' + clean_pct + ' ' + sum + ' ' + ts + "\n";
+        message += 'stats.' + key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
+        message += 'stats.' + key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
+        message += 'stats.' + key + '.sum_' + clean_pct + ' ' + sum + ' ' + ts + "\n";
       }
 
       sum = cumulativeValues[count-1];
       mean = sum / count;
 
-      message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
-      message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
-      message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
-      message += 'stats.timers.' + key + '.sum ' + sum  + ' ' + ts + "\n";
-      message += 'stats.timers.' + key + '.mean ' + mean + ' ' + ts + "\n";
+      var sumOfDiffs = 0;
+      for (var i = 1; i < count; i++) {
+         sumOfDiffs += (values[i] - mean) * (values[i] - mean);
+      }
+      var stddev = Math.sqrt(sumOfDiffs / count);
+
+      message += 'stats.' + key + '.std ' + stddev  + ' ' + ts + "\n";
+      message += 'stats.' + key + '.upper ' + max   + ' ' + ts + "\n";
+      message += 'stats.' + key + '.lower ' + min   + ' ' + ts + "\n";
+      message += 'stats.' + key + '.count ' + count + ' ' + ts + "\n";
+      message += 'stats.' + key + '.sum ' + sum  + ' ' + ts + "\n";
+      message += 'stats.' + key + '.mean ' + mean + ' ' + ts + "\n";
       statString += message;
 
       numStats += 1;

@@ -74,9 +74,10 @@ module.exports = {
     this.myflush = 200;
     var configfile = "{graphService: \"graphite\"\n\
                ,  batch: 200 \n\
+               ,  mgmt_port: 4534\n\
                ,  flushInterval: " + this.myflush + " \n\
                ,  percentThreshold: 90\n\
-               ,  port: 8125\n\
+               ,  port: 18125\n\
                ,  dumpMessages: false \n\
                ,  debug: false\n\
                ,  graphitePort: " + this.testport + "\n\
@@ -177,10 +178,10 @@ module.exports = {
             test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
 
             var testtimervalue_test = function(post){
-              var mykey = 'stats.timers.a_test_value.mean_90';
+              var mykey = 'stats.a_test_value.mean_90';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
-            test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
+            test.ok(_.any(hashes,testtimervalue_test), 'stats.a_test_value.mean should be ' + testvalue);
 
             test.done();
           });
@@ -210,16 +211,16 @@ module.exports = {
             test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
 
             var testavgvalue_test = function(post){
-              var mykey = 'stats.a_test_value';
+              var mykey = 'stats.a_test_value.rate';
               return _.include(_.keys(post),mykey) && (post[mykey] == (testvalue/(me.myflush / 1000)));
             };
-            test.ok(_.any(hashes,testavgvalue_test), 'stats.a_test_value should be ' + (testvalue/(me.myflush / 1000)));
+            test.ok(_.any(hashes,testavgvalue_test), 'stats.a_test_value.rate should be ' + (testvalue/(me.myflush / 1000)));
 
             var testcountvalue_test = function(post){
-              var mykey = 'stats_counts.a_test_value';
+              var mykey = 'stats.a_test_value.count';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
-            test.ok(_.any(hashes,testcountvalue_test), 'stats_counts.a_test_value should be ' + testvalue);
+            test.ok(_.any(hashes,testcountvalue_test), 'stats.a_test_value.rate should be ' + testvalue);
 
             test.done();
           });
