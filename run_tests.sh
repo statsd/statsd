@@ -9,4 +9,6 @@ catch(e) {
 }
 
 process.chdir(__dirname);
-reporter.run(['test/']);
+reporter.run(['test/'], null, function(failure) {
+   process.exit(failure ? 1 : 0)
+});
