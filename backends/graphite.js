@@ -113,7 +113,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
       mean = sum / count;
 
       var sumOfDiffs = 0;
-      for (var i = 1; i < count; i++) {
+      for (var i = 0; i < count; i++) {
          sumOfDiffs += (values[i] - mean) * (values[i] - mean);
       }
       var stddev = Math.sqrt(sumOfDiffs / count);
