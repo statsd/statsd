@@ -112,6 +112,13 @@ var flush_stats = function graphite_flush(ts, metrics) {
       sum = cumulativeValues[count-1];
       mean = sum / count;
 
+      var sumOfDiffs = 0;
+      for (var i = 0; i < count; i++) {
+         sumOfDiffs += (values[i] - mean) * (values[i] - mean);
+      }
+      var stddev = Math.sqrt(sumOfDiffs / count);
+
+      message += 'stats.timers.' + key + '.std ' + stddev  + ' ' + ts + "\n";
       message += 'stats.timers.' + key + '.upper ' + max   + ' ' + ts + "\n";
       message += 'stats.timers.' + key + '.lower ' + min   + ' ' + ts + "\n";
       message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
