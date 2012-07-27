@@ -1,7 +1,7 @@
 language: node_js
 node_js:
   - 0.6
-  - 0.7 # development version of 0.8, may be unstable
+  - 0.8
 script: "./run_tests.sh"
 notifications:
   email: false
