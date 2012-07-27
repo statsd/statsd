@@ -111,6 +111,15 @@ public class StatsdClient {
 		return send(sampleRate, stats);
 	}
 
+	public boolean gauge(String key, int magnitude){
+		return gauge(key, magnitude, 1.0);
+	}
+	
+	public boolean gauge(String key, int magnitude, double sampleRate){
+		final String stat = String.format(Locale.ENGLISH, "%s:%s|g", key, magnitude);
+		return send(sampleRate, stat);
+	}
+
 	private boolean send(double sampleRate, String... stats) {
 
 		boolean retval = false; // didn't send anything
