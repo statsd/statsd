@@ -8,7 +8,17 @@ namespace Statsd
     public class StatsdPipe : IDisposable
     {
         private readonly UdpClient udpClient;
-        private readonly Random random = new Random();
+
+        [ThreadStatic]
+        private static Random random;
+
+        private static Random Random
+        {
+            get
+            {
+                return random ?? (random = new Random());
+            }
+        }
 
         public StatsdPipe(string host, int port)
         {
@@ -101,7 +111,7 @@ namespace Statsd
             {
                 foreach (var stat in stats)
                 {
-                    if (random.NextDouble() <= sampleRate)
+                    if (Random.NextDouble() <= sampleRate)
                     {
                         var statFormatted = String.Format("{0}|@{1:f}", stat, sampleRate);
                         if (DoSend(statFormatted))
