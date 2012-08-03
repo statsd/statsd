@@ -111,11 +111,11 @@ public class StatsdClient {
 		return send(sampleRate, stats);
 	}
 
-	public boolean gauge(String key, int magnitude){
+	public boolean gauge(String key, double magnitude){
 		return gauge(key, magnitude, 1.0);
 	}
 	
-	public boolean gauge(String key, int magnitude, double sampleRate){
+	public boolean gauge(String key, double magnitude, double sampleRate){
 		final String stat = String.format(Locale.ENGLISH, "%s:%s|g", key, magnitude);
 		return send(sampleRate, stat);
 	}
