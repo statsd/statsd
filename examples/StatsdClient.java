@@ -4,7 +4,7 @@
  * (C) 2011 Meetup, Inc.
  * Author: Andrew Gwozdziewycz <andrew@meetup.com>, @apgwoz
  *
- * 
+ *
  *
  * Example usage:
  *
@@ -22,7 +22,7 @@
  *    // multiple keys with a sample rate
  *    client.increment(10, .1, "foo.bar.baz", "foo.bar.boo", "foo.baz.bar");
  *
- * Note: For best results, and greater availability, you'll probably want to 
+ * Note: For best results, and greater availability, you'll probably want to
  * create a wrapper class which creates a static client and proxies to it.
  *
  * You know... the "Java way."
@@ -111,11 +111,11 @@ public class StatsdClient {
 		return send(sampleRate, stats);
 	}
 
-	public boolean gauge(String key, int magnitude){
+	public boolean gauge(String key, double magnitude){
 		return gauge(key, magnitude, 1.0);
 	}
-	
-	public boolean gauge(String key, int magnitude, double sampleRate){
+
+	public boolean gauge(String key, double magnitude, double sampleRate){
 		final String stat = String.format(Locale.ENGLISH, "%s:%s|g", key, magnitude);
 		return send(sampleRate, stat);
 	}
