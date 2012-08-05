@@ -135,7 +135,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
     numStats += 1;
   }
 
-  statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
+  statString += 'stats.statsd.numStats ' + numStats + ' ' + ts + "\n";
   statString += 'stats.statsd.graphiteStats.calculationtime ' + (Date.now() - starttime) + ' ' + ts + "\n";
   post_stats(statString);
 };
