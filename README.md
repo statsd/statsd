@@ -30,6 +30,11 @@ Counting
 
 This is a simple counter. Add 1 to the "gorets" bucket. It stays in memory until the flush interval `config.flushInterval`.
 
+### Sampling
+
+    gorets:1|c|@0.1
+
+Tells StatsD that this counter is being sent sampled every 1/10th of the time.
 
 Timing
 ------
@@ -47,13 +52,6 @@ generate the following list of stats for each threshold:
 
 Where `$KEY` is the key you stats key you specify when sending to statsd, and
 `$PCT` is the percentile threshold.
-
-Sampling
---------
-
-    gorets:1|c|@0.1
-
-Tells StatsD that this counter is being sent sampled every 1/10th of the time.
 
 Gauges
 ------
