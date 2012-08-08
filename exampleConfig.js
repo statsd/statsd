@@ -44,10 +44,11 @@ Optional Variables:
     application:    name of the application for syslog [string, default: statsd]
     level:          log level for [node-]syslog [string, default: LOG_INFO]
 
-  prefixPersecond:  graphite prefix for counter per second metrics [default: "statsd."]
-  prefixCount:      graphite prefix for count metrics [default: "stats_counts."]
-  prefixTimer:      graphite prefix for timer metrics [default: "stats.timers."]
-  prefixGauge:      graphite prefix for gauge metrics [default: "stats.gauges."]
+  graphite:
+    globalPrefix:     global prefix to use for sending stats to graphite [default: "stats"]
+    prefixCounter:    graphite prefix for counter metrics [default: "counters"]
+    prefixTimer:      graphite prefix for timer metrics [default: "timers"]
+    prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
 */
 {
   graphitePort: 2003
