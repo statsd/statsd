@@ -5,6 +5,7 @@ var dgram  = require('dgram')
   , fs     = require('fs')
   , events = require('events')
   , logger = require('./lib/logger')
+  , set = require('./lib/set')
 
 // initialize data structures with defaults for statsd stats
 var keyCounter = {};
@@ -16,6 +17,8 @@ var timers = {
   "statsd.packet_process_time": []
 };
 var gauges = {};
+var sets = {
+};
 var pctThreshold = null;
 var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
@@ -44,6 +47,7 @@ function flushMetrics() {
     counters: counters,
     gauges: gauges,
     timers: timers,
+    sets: sets,
     pctThreshold: pctThreshold
   }
 
@@ -57,6 +61,11 @@ function flushMetrics() {
     // Clear the timers
     for (key in metrics.timers) {
       metrics.timers[key] = [];
+    }
+
+    // Clear the sets
+    for (key in metrics.sets) {
+      metrics.sets[key] = new set.Set();
     }
   });
 
@@ -139,6 +148,11 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             timers[key].push(Number(fields[0] || 0));
           } else if (fields[1].trim() == "g") {
             gauges[key] = Number(fields[0] || 0);
+          } else if (fields[1].trim() == "s") {
+            if (! sets[key]) {
+              sets[key] = new set.Set();
+            }
+            sets[key].insert(fields[0] || '0');
           } else {
             if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
               sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
