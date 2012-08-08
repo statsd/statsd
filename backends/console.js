@@ -34,6 +34,13 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
     counter: this.statsCache.counters,
     timers: this.statsCache.timers,
     gauges: metrics.gauges,
+    sets: function (vals) {
+      var ret = {};
+      for (val in vals) {
+        ret[val] = vals[val].values();
+      }
+      return ret;
+    }(metrics.sets),
     pctThreshold: metrics.pctThreshold
   };
 
