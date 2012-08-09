@@ -19,7 +19,7 @@ type StatsdClient struct {
  * Usage:
  *
  * import "statsd"
- * client := statsd.Net('localhost', 8125)
+ * client := statsd.New('localhost', 8125)
  **/
 func New(host string, port int) *StatsdClient {
 	client := StatsdClient{Host: host, Port: port}
