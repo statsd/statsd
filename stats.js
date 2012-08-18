@@ -127,7 +127,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           var sampleRate = 1;
           var fields = bits[i].split("|");
           if (fields[1] === undefined) {
-              l.log('Bad line: ' + fields);
+              l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
               counters["statsd.bad_lines_seen"]++;
               stats['messages']['bad_lines_seen']++;
               continue;
