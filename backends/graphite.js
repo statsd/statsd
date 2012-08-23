@@ -19,6 +19,7 @@ var debug;
 var flushInterval;
 var graphiteHost;
 var graphitePort;
+var flush_counts;
 
 var graphiteStats = {};
 
@@ -66,7 +67,10 @@ var flush_stats = function graphite_flush(ts, metrics) {
     var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
     statString += 'stats.'        + key + ' ' + valuePerSecond + ' ' + ts + "\n";
-    statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+    if (flush_counts) {
+      statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+    }
+
 
     numStats += 1;
   }
@@ -155,6 +159,8 @@ exports.init = function graphite_init(startup_time, config, events) {
   graphiteStats.last_exception = startup_time;
 
   flushInterval = config.flushInterval;
+
+  flush_counts = typeof(config.flush_counts) === "undefined" ? true : config.flush_counts;
 
   events.on('flush', flush_stats);
   events.on('status', backend_status);
