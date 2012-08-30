@@ -63,7 +63,7 @@ class Statsd(object):
             host = settings.statsd_host
             port = settings.statsd_port
             addr=(host, port)
-        except Error:
+        except:
             exit(1)
         
         sampled_data = {}
