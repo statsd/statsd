@@ -44,9 +44,16 @@ Optional Variables:
     application:    name of the application for syslog [string, default: statsd]
     level:          log level for [node-]syslog [string, default: LOG_INFO]
 
+  repeater:         an array of hashes of the for host: and port:
+                    that details other statsd servers to which the received
+                    packets should be "repeated" (duplicated to).
+                    e.g. [ { host: '10.10.10.10', port: 8125 },
+                           { host: 'observer', port: 88125 } ]
 */
 {
   graphitePort: 2003
 , graphiteHost: "graphite.host.com"
 , port: 8125
+, backends: [ "./backends/repeater" ]
+, repeater: [ { host: "10.8.3.214", port: 8125 } ]
 }
