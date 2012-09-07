@@ -99,6 +99,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
     server = dgram.createSocket('udp4', function (msg, rinfo) {
+      backendEvents.emit('packet', msg, rinfo);
       counters["statsd.packets_received"]++;
       var metrics = msg.toString().split("\n");
 
