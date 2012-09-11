@@ -103,6 +103,8 @@ StatsD includes the following backends:
   web-browser interface.
 * Console (`console`): The console backend outputs the received
   metrics to stdout (e.g. for seeing what's going on during development).
+* Repeater (`repeater`): The repeater backend utilizes the `packet` emit API to
+  forward raw packets retrieved by StatsD to multiple backend StatsD instances.
 
 By default, the `graphite` backend will be loaded automatically. To
 select which backends are loaded, set the `backends` configuration
@@ -292,6 +294,14 @@ metrics: {
   sent to the management port. StatsD will prefix each stat name with
   the `backend_name`. The backend should set `error` to *null*, or, in
   the case of a failure, an appropriate error.
+
+* Event: **'packet'**
+
+  Parameters: `(packet, rinfo)`
+
+  This is emitted for every incoming packet. The `packet` parameter contains
+  the raw received message string and the `rinfo` paramter contains remote
+  address information from the UDP socket.
 
 Inspiration
 -----------
