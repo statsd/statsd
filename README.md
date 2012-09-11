@@ -13,7 +13,9 @@ Concepts
 --------
 
 * *buckets*
-  Each stat is in its own "bucket". They are not predefined anywhere. Buckets can be named anything that will translate to Graphite (periods make folders, etc)
+  Each stat is in its own "bucket". They are not predefined anywhere. Buckets
+can be named anything that will translate to Graphite (periods make folders,
+etc)
 
 * *values*
   Each stat will have a value. How it is interpreted depends on modifiers. In
@@ -28,7 +30,8 @@ Counting
 
     gorets:1|c
 
-This is a simple counter. Add 1 to the "gorets" bucket. It stays in memory until the flush interval `config.flushInterval`.
+This is a simple counter. Add 1 to the "gorets" bucket. It stays in memory
+until the flush interval `config.flushInterval`.
 
 
 Timing
@@ -114,34 +117,35 @@ giving the relative path (e.g. `./backends/graphite`).
 Graphite Schema
 ---------------
 
-Graphite uses "schemas" to define the different round robin datasets it houses (analogous to RRAs in rrdtool). Here's an example for the stats databases:
+Graphite uses "schemas" to define the different round robin datasets it houses
+(analogous to RRAs in rrdtool). Here's an example for the stats databases:
 
 In conf/storage-schemas.conf:
- 
+
     [stats]
     pattern = ^stats\..*
     retentions = 10:2160,60:10080,600:262974
 
-In conf/storage-aggregation.conf: 
+In conf/storage-aggregation.conf:
 
     [min]
     pattern = \.min$
-    xFilesFactor = 0.1 
-    aggregationMethod = min 
+    xFilesFactor = 0.1
+    aggregationMethod = min
 
     [max]
     pattern = \.max$
-    xFilesFactor = 0.1 
-    aggregationMethod = max 
+    xFilesFactor = 0.1
+    aggregationMethod = max
 
     [sum]
     pattern = \.count$
-    xFilesFactor = 0 
-    aggregationMethod = sum 
+    xFilesFactor = 0
+    aggregationMethod = sum
 
     [default_average]
     pattern = .*
-    xFilesFactor = 0.3 
+    xFilesFactor = 0.3
     aggregationMethod = average
 
 This translates to:
@@ -149,22 +153,40 @@ This translates to:
 * 6 hours of 10 second data (what we consider "near-realtime")
 * 1 week of 1 minute data
 * 5 years of 10 minute data
-* For databases with 'min' or 'max' in the name, keep only the minimum and maximum value when rolling up data and store a None if less than 10% of the datapoints were received
-* For databases with 'count' in the name, add all the values together, and store only a None if none of the datapoints were received
-* For all other databases, average the values (mean) when rolling up data, and store a None if less than 30% of the datapoints were received 
+* For databases with 'min' or 'max' in the name, keep only the minimum and
+  maximum value when rolling up data and store a None if less than 10% of the
+  datapoints were received
+* For databases with 'count' in the name, add all the values together, and
+  store only a None if none of the datapoints were received
+* For all other databases, average the values (mean) when rolling up data, and
+  store a None if less than 30% of the datapoints were received
 
-(Note: Newer versions of Graphite can take human readable time formats like 10s:6h,1min:7d,10min:5y)
+(Note: Newer versions of Graphite can take human readable time formats like
+10s:6h,1min:7d,10min:5y)
 
-Retentions and aggregations are read from the file in order, the first pattern that matches is used.  This is set when the database is first created, changing these config files will not change databases that have already been created.  To view or alter the settings on existing files, use whisper-info.py and whisper-resize.py included with the Whisper package. 
+Retentions and aggregations are read from the file in order, the first pattern
+that matches is used.  This is set when the database is first created, changing
+these config files will not change databases that have already been created.
+To view or alter the settings on existing files, use whisper-info.py and
+whisper-resize.py included with the Whisper package.
 
-These settings have been a good tradeoff so far between size-of-file (round robin databases are fixed size) and data we care about. Each "stats" database is about 3.2 megs with these retentions.  
+These settings have been a good tradeoff so far between size-of-file (round
+robin databases are fixed size) and data we care about. Each "stats" database
+is about 3.2 megs with these retentions.
 
-Many users have been confused to see their hit counts averaged, missing when the data is intermittent, or never stored when statsd is sending at a different interval than graphite expects.  Storage aggregation settings will help you control this and understand what Graphite is doing internally with your data. 
+Many users have been confused to see their hit counts averaged, missing when
+the data is intermittent, or never stored when statsd is sending at a different
+interval than graphite expects.  Storage aggregation settings will help you
+control this and understand what Graphite is doing internally with your data.
 
 TCP Stats Interface
 -------------------
 
-A really simple TCP management interface is available by default on port 8126 or overriden in the configuration file. Inspired by the memcache stats approach this can be used to monitor a live statsd server.  You can interact with the management server by telnetting to port 8126, the following commands are available:
+A really simple TCP management interface is available by default on port 8126
+or overriden in the configuration file. Inspired by the memcache stats approach
+this can be used to monitor a live statsd server.  You can interact with the
+management server by telnetting to port 8126, the following commands are
+available:
 
 * stats - some stats about the running server
 * counters - a dump of all the current counters
@@ -173,7 +195,8 @@ A really simple TCP management interface is available by default on port 8126 or
 The stats output currently will give you:
 
 * uptime: the number of seconds elapsed since statsd started
-* messages.last_msg_seen: the number of elapsed seconds since statsd received a message
+* messages.last_msg_seen: the number of elapsed seconds since statsd received a
+  message
 * messages.bad_lines_seen: the number of bad lines seen since startup
 
 Each backend will also publish a set of statistics, prefixed by its
@@ -181,10 +204,14 @@ module name.
 
 Graphite:
 
-* graphite.last_flush: the number of seconds elapsed since the last successful flush to graphite
-* graphite.last_exception: the number of seconds elapsed since the last exception thrown whilst flushing to graphite
+* graphite.last_flush: the number of seconds elapsed since the last successful
+  flush to graphite
+* graphite.last_exception: the number of seconds elapsed since the last
+  exception thrown whilst flushing to graphite
 
-A simple nagios check can be found in the utils/ directory that can be used to check metric thresholds, for example the number of seconds since the last successful flush to graphite.
+A simple nagios check can be found in the utils/ directory that can be used to
+check metric thresholds, for example the number of seconds since the last
+successful flush to graphite.
 
 Installation and Configuration
 ------------------------------
@@ -199,7 +226,12 @@ Installation and Configuration
 Tests
 -----
 
-A test framework has been added using node-unit and some custom code to start and manipulate statsd. Please add tests under test/ for any new features or bug fixes encountered. Testing a live server can be tricky, attempts were made to eliminate race conditions but it may be possible to encounter a stuck state. If doing dev work, a `killall node` will kill any stray test servers in the background (don't do this on a production machine!).
+A test framework has been added using node-unit and some custom code to start
+and manipulate statsd. Please add tests under test/ for any new features or bug
+fixes encountered. Testing a live server can be tricky, attempts were made to
+eliminate race conditions but it may be possible to encounter a stuck state. If
+doing dev work, a `killall node` will kill any stray test servers in the
+background (don't do this on a production machine!).
 
 Tests can be executd with `./run_tests.sh`.
 
@@ -264,8 +296,11 @@ metrics: {
 Inspiration
 -----------
 
-StatsD was inspired (heavily) by the project (of the same name) at Flickr. Here's a post where Cal Henderson described it in depth:
-[Counting and timing](http://code.flickr.com/blog/2008/10/27/counting-timing/). Cal re-released the code recently: [Perl StatsD](https://github.com/iamcal/Flickr-StatsD)
+StatsD was inspired (heavily) by the project (of the same name) at Flickr.
+Here's a post where Cal Henderson described it in depth:
+[Counting and timing](http://code.flickr.com/blog/2008/10/27/counting-timing/).
+Cal re-released the code recently:
+[Perl StatsD](https://github.com/iamcal/Flickr-StatsD)
 
 Meta
 ---------
