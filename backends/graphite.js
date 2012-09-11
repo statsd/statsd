@@ -59,6 +59,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var counters = metrics.counters;
   var gauges = metrics.gauges;
   var timers = metrics.timers;
+  var sets = metrics.sets;
   var pctThreshold = metrics.pctThreshold;
 
   for (key in counters) {
@@ -132,6 +133,11 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
   for (key in gauges) {
     statString += 'stats.gauges.' + key + ' ' + gauges[key] + ' ' + ts + "\n";
+    numStats += 1;
+  }
+
+  for (key in sets) {
+    statString += 'stats.sets.' + key + '.count ' + sets[key].values().length + ' ' + ts + "\n";
     numStats += 1;
   }
 
