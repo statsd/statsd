@@ -18,7 +18,7 @@ fi
 exec 3<> /dev/udp/${STATSD}/${PORT}
 
 # Send data
-echo -n "$1" >&3
+printf "$1" >&3
 
 # Close UDP socket
 exec 3<&-
