@@ -61,6 +61,13 @@ StatsD now also supports gauges, arbitrary values, which can be recorded.
 
     gaugor:333|g
 
+Sets
+----
+StatsD supports counting unique occurences of events between flushes,
+using a Set to store all occuring events.
+
+    uniques:765|s
+
 All metrics can also be batch send in a single UDP packet, separated by a
 newline character.
 
