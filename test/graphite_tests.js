@@ -358,5 +358,24 @@ module.exports = {
         });
       });
     });
+  },
+
+  metric_names_are_sanitized: function(test) {
+    var me = this;
+    this.acceptor.once('connection', function(c) {
+      statsd_send('fo/o:250|c',me.sock,'127.0.0.1',8125,function(){
+        statsd_send('b ar:250|c',me.sock,'127.0.0.1',8125,function(){
+          statsd_send('foo+bar:250|c',me.sock,'127.0.0.1',8125,function(){
+            collect_for(me.acceptor, me.myflush, function(strings){
+              var str = strings.join();
+              test.ok(str.indexOf('fo-o') !== -1, "Did not map 'fo/o' => 'fo-o'");
+              test.ok(str.indexOf('b_ar') !== -1, "Did not map 'b ar' => 'b_ar'");
+              test.ok(str.indexOf('foobar') !== -1, "Did not map 'foo+bar' => 'foobar'");
+              test.done();
+            });
+          });
+        });
+      });
+    });
   }
 }
