@@ -50,6 +50,7 @@ Optional Variables:
     prefixCounter:    graphite prefix for counter metrics [default: "counters"]
     prefixTimer:      graphite prefix for timer metrics [default: "timers"]
     prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
+    prefixSet:        graphite prefix for set metrics [default: "sets"]
 
   repeater:         an array of hashes of the for host: and port:
                     that details other statsd servers to which the received

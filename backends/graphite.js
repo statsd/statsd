@@ -26,6 +26,7 @@ var prefixPersecond;
 var prefixCounter;
 var prefixTimer;
 var prefixGauge;
+var prefixSet;
 
 // set up namespaces
 var legacyNamespace = true;
@@ -33,6 +34,7 @@ var globalNamespace  = [];
 var counterNamespace = [];
 var timerNamespace   = [];
 var gaugesNamespace  = [];
+var setsNamespace     = [];
 
 var graphiteStats = {};
 
@@ -163,7 +165,8 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   for (key in sets) {
-    statString += 'stats.sets.' + key + '.count ' + sets[key].values().length + ' ' + ts + "\n";
+    var namespace = setsNamespace.concat(key);
+    statString += namespace.join(".") + '.count ' + sets[key].values().length + ' ' + ts + "\n";
     numStats += 1;
   }
 
@@ -193,6 +196,7 @@ exports.init = function graphite_init(startup_time, config, events) {
   prefixCounter   = config.graphite.prefixCounter;
   prefixTimer     = config.graphite.prefixTimer;
   prefixGauge     = config.graphite.prefixGauge;
+  prefixSet       = config.graphite.prefixSet;
   legacyNamespace = config.graphite.legacyNamespace;
 
   // set defaults for prefixes
@@ -200,6 +204,7 @@ exports.init = function graphite_init(startup_time, config, events) {
   prefixCounter = prefixCounter !== undefined ? prefixCounter : "counters";
   prefixTimer   = prefixTimer !== undefined ? prefixTimer : "timers";
   prefixGauge   = prefixGauge !== undefined ? prefixGauge : "gauges";
+  prefixSet     = prefixSet !== undefined ? prefixSet : "sets";
   legacyNamespace = legacyNamespace !== undefined ? legacyNamespace : true;
 
 
@@ -209,6 +214,7 @@ exports.init = function graphite_init(startup_time, config, events) {
       counterNamespace.push(globalPrefix);
       timerNamespace.push(globalPrefix);
       gaugesNamespace.push(globalPrefix);
+      setsNamespace.push(globalPrefix);
     }
 
     if (prefixCounter !== "") {
@@ -220,11 +226,15 @@ exports.init = function graphite_init(startup_time, config, events) {
     if (prefixGauge !== "") {
       gaugesNamespace.push(prefixGauge);
     }
+    if (prefixSet !== "") {
+      setsNamespace.push(prefixSet);
+    }
   } else {
       globalNamespace = ['stats'];
       counterNamespace = ['stats'];
       timerNamespace = ['stats', 'timers'];
       gaugesNamespace = ['stats', 'gauges'];
+      setsNamespace = ['stats', 'sets'];
   }
 
   graphiteStats.last_flush = startup_time;
