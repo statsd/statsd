@@ -49,9 +49,17 @@ Optional Variables:
     prefixCounter:    graphite prefix for counter metrics [default: "counters"]
     prefixTimer:      graphite prefix for timer metrics [default: "timers"]
     prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
+
+  repeater:         an array of hashes of the for host: and port:
+                    that details other statsd servers to which the received
+                    packets should be "repeated" (duplicated to).
+                    e.g. [ { host: '10.10.10.10', port: 8125 },
+                           { host: 'observer', port: 88125 } ]
 */
 {
   graphitePort: 2003
 , graphiteHost: "graphite.host.com"
 , port: 8125
+, backends: [ "./backends/repeater" ]
+, repeater: [ { host: "10.8.3.214", port: 8125 } ]
 }

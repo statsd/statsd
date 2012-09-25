@@ -16,6 +16,6 @@ Here's a bunch of example code contributed by the communinty for interfacing wit
 Third Party StatsD Libraries
 ============================
 
-   PERL: [Net::StatsD](https://github.com/cosimo/perl5-net-statsd/)
+Client libraries have been written for various languages, and are listed on the [Wiki](https://github.com/etsy/statsd/wiki).
 
 Thankyou to all the contributors!
