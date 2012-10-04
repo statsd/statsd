@@ -235,7 +235,7 @@ eliminate race conditions but it may be possible to encounter a stuck state. If
 doing dev work, a `killall node` will kill any stray test servers in the
 background (don't do this on a production machine!).
 
-Tests can be executd with `./run_tests.sh`.
+Tests can be executed with `./run_tests.sh`.
 
 Backend Interface
 -----------------
