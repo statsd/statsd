@@ -55,8 +55,11 @@ If `config.histogram` is set to a non-zero array, statsd will also
 maintain frequencies for each bin as specified by the (non-inclusive)
 upper limits in the array. (`'inf'` can be used to denote infinity,
 which is highly recommended, as high outliers will not be accounted for if
-your last upper limit is too low).
-a lower limit of 0 is assumed.
+your last upper limit is too low).  A lower limit of 0 is assumed.
+Note that this is actually more powerful than real histograms, as you can
+make your bins arbitrarily wide if you want to.   Though if you want to
+view real histograms, you should make your bins equally wide
+(equally sized class intervals).
 
 Sampling
 --------
