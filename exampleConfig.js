@@ -27,9 +27,6 @@ Optional Variables:
   debugInterval:    interval to print debug information [ms, default: 10000]
   dumpMessages:     log all incoming messages
   flushInterval:    interval (in ms) to flush to Graphite
-  percentThreshold: for time information, calculate the Nth percentile(s)
-                    (can be a single value or list of floating-point values)
-                    [%, default: 90]
   keyFlush:         log the most frequently sent keys [object, default: undefined]
     interval:       how often to log frequent keys [ms, default: 0]
     percent:        percentage of frequent keys to log [%, default: 100]
@@ -49,6 +46,15 @@ Optional Variables:
                     packets should be "repeated" (duplicated to).
                     e.g. [ { host: '10.10.10.10', port: 8125 },
                            { host: 'observer', port: 88125 } ]
+  timer:
+    percentThreshold: calculate the Nth percentile(s)
+                    (can be a single value or list of floating-point values)
+                    [%, default: 90]
+    histogram:      an array of ordered non-inclusive upper limits of bins for
+                    histogram (in ms).  'inf' means infinity. (default: [])
+                    if non-empty, histograms are enabled and frequencies
+                    for each bin are written.
+                    e.g. [ 25, 50, 100, 150, 200, 'inf' ]
 */
 {
   graphitePort: 2003

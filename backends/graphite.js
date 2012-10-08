@@ -15,6 +15,7 @@
 var net = require('net'),
    util = require('util');
 
+var config;
 var debug;
 var flushInterval;
 var graphiteHost;
@@ -125,6 +126,18 @@ var flush_stats = function graphite_flush(ts, metrics) {
       message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
       message += 'stats.timers.' + key + '.sum ' + sum  + ' ' + ts + "\n";
       message += 'stats.timers.' + key + '.mean ' + mean + ' ' + ts + "\n";
+
+      // note: values bigger than the upper limit of the last bin are ignored, by design
+      num_bins = (config.histogram || []).length
+      var i = 0;
+      for (var bin_i = 0; bin_i < num_bins; bin_i++) {
+        var freq = 0;
+        for (; i < count && (config.histogram[bin_i] == 'inf' || values[i] < config.histogram[bin_i]); i++) {
+          freq += 1;
+        }
+        message += 'stats.timers.' + key + '.bin_' + config.histogram[bin_i] + ' ' + freq  + ' ' + ts + "\n";
+      }
+
       statString += message;
 
       numStats += 1;
@@ -152,7 +165,8 @@ var backend_status = function graphite_status(writeCb) {
   }
 };
 
-exports.init = function graphite_init(startup_time, config, events) {
+exports.init = function graphite_init(startup_time, conf, events) {
+  config = conf
   debug = config.debug;
   graphiteHost = config.graphiteHost;
   graphitePort = config.graphitePort;

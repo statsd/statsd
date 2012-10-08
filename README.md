@@ -51,6 +51,13 @@ generate the following list of stats for each threshold:
 Where `$KEY` is the key you stats key you specify when sending to statsd, and
 `$PCT` is the percentile threshold.
 
+If `config.histogram` is set to a non-zero array, statsd will also
+maintain frequencies for each bin as specified by the (non-inclusive)
+upper limits in the array. (`'inf'` can be used to denote infinity,
+which is highly recommended, as high outliers will not be accounted for if
+your last upper limit is too low).
+a lower limit of 0 is assumed.
+
 Sampling
 --------
 
