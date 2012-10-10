@@ -125,7 +125,7 @@ Graphite uses "schemas" to define the different round robin datasets it houses
 In conf/storage-schemas.conf:
 
     [stats]
-    pattern = ^stats\..*
+    pattern = ^stats.*
     retentions = 10:2160,60:10080,600:262974
 
 In conf/storage-aggregation.conf:
