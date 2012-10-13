@@ -64,14 +64,14 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var timer_data = metrics.timer_data;
 
   for (key in counters) {
-    statString += 'stats.' + key + ' ' + counter_rates[key] + ' ' + ts + "\n";
-    statString += 'stats_counts.' + key + ' ' + counters[key] + ' ' + ts + "\n";
+    statString += 'stats.'        + key + ' ' + counter_rates[key] + ' ' + ts + "\n";
+    statString += 'stats_counts.' + key + ' ' + counters[key]      + ' ' + ts + "\n";
 
     numStats += 1;
   }
 
-  for (key in timers) {
-    if (timers[key].length > 0) {
+  for (key in timer_data) {
+    if (Object.keys(timer_data).length > 0) {
       for (timer_data_key in timer_data[key]) {
          statString += 'stats.timers.' + key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ' ' + ts + "\n";
       }

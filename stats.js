@@ -6,7 +6,7 @@ var dgram  = require('dgram')
   , events = require('events')
   , logger = require('./lib/logger')
   , set = require('./lib/set')
-  , pm = require('./lib/processedmetrics')
+  , pm = require('./lib/process_metrics')
 
 // initialize data structures with defaults for statsd stats
 var keyCounter = {};
@@ -71,7 +71,7 @@ function flushMetrics() {
     }
   });
 
-  metrics_hash = pm.ProcessedMetrics(metrics_hash, flushInterval)
+  metrics_hash = pm.process_metrics(metrics_hash, flushInterval)
 
   // Flush metrics to each backend.
   backendEvents.emit('flush', time_stamp, metrics_hash);
