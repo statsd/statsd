@@ -13,12 +13,9 @@ var counters = {
   "statsd.packets_received": 0,
   "statsd.bad_lines_seen": 0
 };
-var timers = {
-  "statsd.packet_process_time": []
-};
+var timers = {};
 var gauges = {};
-var sets = {
-};
+var sets = {};
 var pctThreshold = null;
 var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
