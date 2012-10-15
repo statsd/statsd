@@ -71,10 +71,11 @@ function flushMetrics() {
     }
   });
 
-  metrics_hash = pm.process_metrics(metrics_hash, flushInterval)
+  pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush() {
+    // Flush metrics to each backend.
+    backendEvents.emit('flush', time_stamp, metrics_hash);
+  });
 
-  // Flush metrics to each backend.
-  backendEvents.emit('flush', time_stamp, metrics_hash);
 };
 
 var stats = {
