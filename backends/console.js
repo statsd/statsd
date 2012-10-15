@@ -31,7 +31,7 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
   });
 
   var out = {
-    counter: this.statsCache.counters,
+    counters: this.statsCache.counters,
     timers: this.statsCache.timers,
     gauges: metrics.gauges,
     timer_data: metrics.timer_data,
