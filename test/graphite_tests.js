@@ -79,8 +79,7 @@ module.exports = {
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
                ,  debug: false\n\
-               ,  graphitePort: " + this.testport + "\n\
-               ,  graphiteHost: \"127.0.0.1\"}";
+               ,  graphite: [{host: \"127.0.0.1\", port: " + this.testport + "}]}";
 
     this.acceptor = net.createServer();
     this.acceptor.listen(this.testport);

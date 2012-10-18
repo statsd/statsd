@@ -17,35 +17,39 @@ var net = require('net'),
 
 var debug;
 var flushInterval;
-var graphiteHost;
-var graphitePort;
-
+var graphiteConfig;
 var graphiteStats = {};
 
 var post_stats = function graphite_post_stats(statString) {
   var last_flush = graphiteStats.last_flush || 0;
   var last_exception = graphiteStats.last_exception || 0;
-  if (graphiteHost) {
-    try {
-      var graphite = net.createConnection(graphitePort, graphiteHost);
-      graphite.addListener('error', function(connectionException){
-        if (debug) {
-          util.log(connectionException);
+  if (graphiteConfig != undefined && graphiteConfig.length > 0) {
+    for(i = 0; i < graphiteConfig.length; i++) {
+      try {
+        if (i >= 1) {
+          util.log("Currently only supports 1 graphite backend");
+        } else {
+          var graphite = net.createConnection(graphiteConfig[0].port, graphiteConfig[0].host);
+          graphite.addListener('error', function(connectionException){
+            if (debug) {
+              util.log(connectionException);
+            }
+          });
+          graphite.on('connect', function() {
+            var ts = Math.round(new Date().getTime() / 1000);
+            statString += 'stats.statsd.graphiteStats.last_exception ' + last_exception + ' ' + ts + "\n";
+            statString += 'stats.statsd.graphiteStats.last_flush ' + last_flush + ' ' + ts + "\n";
+            this.write(statString);
+            this.end();
+            graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
+          });
         }
-      });
-      graphite.on('connect', function() {
-        var ts = Math.round(new Date().getTime() / 1000);
-        statString += 'stats.statsd.graphiteStats.last_exception ' + last_exception + ' ' + ts + "\n";
-        statString += 'stats.statsd.graphiteStats.last_flush ' + last_flush + ' ' + ts + "\n";
-        this.write(statString);
-        this.end();
-        graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
-      });
-    } catch(e){
-      if (debug) {
-        util.log(e);
+      } catch(e){
+        if (debug) {
+          util.log(e);
+        }
+        graphiteStats.last_exception = Math.round(new Date().getTime() / 1000);
       }
-      graphiteStats.last_exception = Math.round(new Date().getTime() / 1000);
     }
   }
 }
@@ -154,8 +158,15 @@ var backend_status = function graphite_status(writeCb) {
 
 exports.init = function graphite_init(startup_time, config, events) {
   debug = config.debug;
-  graphiteHost = config.graphiteHost;
-  graphitePort = config.graphitePort;
+
+  if (config.graphiteHost) {
+    // Support Legacy Config settings for now
+    var graphitePort = config.graphitePort || 8125;
+    graphiteConfig = [{ host: config.graphiteHost, port: graphitePort }];
+
+  } else if (config.graphite != undefined && config.graphite.length > 0)  {
+    graphiteConfig = config.graphite;
+  }
 
   graphiteStats.last_flush = startup_time;
   graphiteStats.last_exception = startup_time;

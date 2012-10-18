@@ -4,20 +4,25 @@ Required Variables:
 
   port:             StatsD listening port [default: 8125]
 
-Graphite Required Variables:
-
-(Leave these unset to avoid sending stats to Graphite.
- Set debug flag and leave these unset to run in 'dry' debug mode -
- useful for testing statsd clients without a Graphite server.)
-
-  graphiteHost:     hostname or IP of Graphite server
-  graphitePort:     port of Graphite server
-
-Optional Variables:
-
   backends:         an array of backends to load. Each backend must exist
                     by name in the directory backends/. If not specified,
                     the default graphite backend will be loaded.
+
+Backend Required Variables:
+
+ graphite :         an array of hashes of the host: and port:
+                    that details the graphite servers to which StatsD
+                    should send data to.
+                    e.g. [ { host: '10.10.10.10', port: 2003 }]
+
+ repeater:          an array of hashes of the host: and port:
+                    that details other statsd servers to which the received
+                    packets should be "repeated" (duplicated to).
+                    e.g. [ { host: '10.10.10.10', port: 8125 },
+                           { host: 'observer', port: 88125 } ]
+
+Optional Variables:
+
   debug:            debug flag [default: false]
   address:          address to listen on over UDP [default: 0.0.0.0]
   port:             port to listen for messages on over UDP [default: 8125]
@@ -44,16 +49,14 @@ Optional Variables:
     application:    name of the application for syslog [string, default: statsd]
     level:          log level for [node-]syslog [string, default: LOG_INFO]
 
-  repeater:         an array of hashes of the for host: and port:
-                    that details other statsd servers to which the received
-                    packets should be "repeated" (duplicated to).
-                    e.g. [ { host: '10.10.10.10', port: 8125 },
-                           { host: 'observer', port: 88125 } ]
+Sample :
+{
+  port: 8125
+, backends: [ "./backends/graphite", "./backends/repeeater" ]
+, repeater: [ { host: "10.8.3.214",        port: 8125 } ]
+, graphite: [ { host: "graphite.host.com", port: 2003 } ]
+}
 */
 {
-  graphitePort: 2003
-, graphiteHost: "graphite.host.com"
-, port: 8125
-, backends: [ "./backends/repeater" ]
-, repeater: [ { host: "10.8.3.214", port: 8125 } ]
+  port: 8125
 }
