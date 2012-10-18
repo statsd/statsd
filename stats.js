@@ -8,6 +8,7 @@ var dgram  = require('dgram')
   , set = require('./lib/set')
   , pm = require('./lib/process_metrics')
 
+
 // initialize data structures with defaults for statsd stats
 var keyCounter = {};
 var counters = {
@@ -71,9 +72,12 @@ function flushMetrics() {
     }
   });
 
-  pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush() {
+  pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(err, metrics) {
     // Flush metrics to each backend.
-    backendEvents.emit('flush', time_stamp, metrics_hash);
+    if (err) {
+      l.log("Errored processing metrics with: " + err, 'debug');
+    }
+    backendEvents.emit('flush', time_stamp, metrics);
   });
 
 };
