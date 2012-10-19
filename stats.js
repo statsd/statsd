@@ -1,7 +1,7 @@
 var dgram  = require('dgram')
   , util    = require('util')
   , net    = require('net')
-  , config = require('./config')
+  , config = require('./lib/config')
   , fs     = require('fs')
   , events = require('events')
   , logger = require('./lib/logger')
