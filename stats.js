@@ -298,7 +298,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
     if (keyFlushInterval > 0) {
       var keyFlushPercent = Number((config.keyFlush && config.keyFlush.percent) || 100);
-      var keyFlushLog = (config.keyFlush && config.keyFlush.log) || "stdout";
+      var keyFlushLog = config.keyFlush && config.keyFlush.log;
 
       keyFlushInt = setInterval(function () {
         var key;
@@ -318,9 +318,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           logMessage += timeString + " count=" + sortedKeys[i][1] + " key=" + sortedKeys[i][0] + "\n";
         }
 
-        var logFile = fs.createWriteStream(keyFlushLog, {flags: 'a+'});
-        logFile.write(logMessage);
-        logFile.end();
+        if (keyFlushLog) {
+          var logFile = fs.createWriteStream(keyFlushLog, {flags: 'a+'});
+          logFile.write(logMessage);
+          logFile.end();
+        } else {
+          process.stdout.write(logMessage);
+        }
 
         // clear the counter
         keyCounter = {};
