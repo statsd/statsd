@@ -15,6 +15,7 @@ class StatsD {
      * @param float|1 $sampleRate the rate (0-1) for sampling.
      **/
     public static function timing($stat, $time, $sampleRate=1) {
+        $time = number_format($time, 4, '.', '');
         StatsD::send(array($stat => "$time|ms"), $sampleRate);
     }
 
