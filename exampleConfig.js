@@ -21,6 +21,12 @@ Optional Variables:
   debug:            debug flag [default: false]
   address:          address to listen on over UDP [default: 0.0.0.0]
   port:             port to listen for messages on over UDP [default: 8125]
+
+  relaxMetricNameSanitation:
+                    allow '/' characters in metric names to pass through to the
+                    backend [default: false] - may cause undesirable behavior in
+                    the graphite backend
+
   mgmt_address:     address to run the management TCP interface on
                     [default: 0.0.0.0]
   mgmt_port:        port to run the management TCP interface on [default: 8126]
