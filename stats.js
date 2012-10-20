@@ -152,8 +152,15 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             }
             sets[key].insert(fields[0] || '0');
           } else {
-            if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
-              sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+            if (fields[2]) {
+              if (fields[2].match(/^@([\d\.]+)/)) {
+                sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+              } else {
+                l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"; has invalid sample rate');
+                counters["statsd.bad_lines_seen"]++;
+                stats['messages']['bad_lines_seen']++;
+                continue;
+              }
             }
             if (! counters[key]) {
               counters[key] = 0;
