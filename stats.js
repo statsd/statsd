@@ -73,11 +73,18 @@ function flushMetrics() {
   });
 
   pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(err, metrics) {
-    // Flush metrics to each backend.
+    // Flush metrics to each backend only if the metrics processing was sucessful.
+    // Add  processing_errors counter to allow for monitoring
     if (err) {
-      l.log("Errored processing metrics with: " + err, 'debug');
+      l.log("Exiting due to error processing metrics with: " + err);
+      // Send metrics to backends for any last minute processing
+      // and give backends a chance to cleanup before exiting.
+      backendEvents.emit('error', time_stamp, metrics, err);
+      // Only needed if other backends override the standard stacktrace/exit functionality
+      process.exit(1);
+    } else {
+      backendEvents.emit('flush', time_stamp, metrics);
     }
-    backendEvents.emit('flush', time_stamp, metrics);
   });
 
 };
