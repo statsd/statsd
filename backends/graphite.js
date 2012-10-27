@@ -95,8 +95,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
       for (key2 in pctThreshold) {
         var pct = pctThreshold[key2];
         if (count > 1) {
-          var thresholdIndex = Math.round(((100 - pct) / 100) * count);
-          var numInThreshold = count - thresholdIndex;
+          var numInThreshold = Math.round(pct / 100 * count);
 
           maxAtThreshold = values[numInThreshold - 1];
           sum = cumulativeValues[numInThreshold - 1];
