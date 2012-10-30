@@ -52,7 +52,7 @@ function flushMetrics() {
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
     // Clear the counters
     for (key in metrics.counters) {
-      delete(metrics.counters[key]);
+      metrics.counters[key] = undefined;
     }
 
     // Clear the timers
