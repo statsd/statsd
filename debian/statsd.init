@@ -25,6 +25,7 @@ DAEMON=$NODE_BIN
 DAEMON_ARGS="/usr/share/statsd/stats.js /etc/statsd/localConfig.js 2>&1 >> /var/log/statsd/statsd.log "
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
+CHDIR="/usr/share/statsd"
 
 # Exit if the package is not installed
 # [ -x "$DAEMON" ] || exit 0
@@ -50,7 +51,7 @@ do_start()
 	#   2 if daemon could not be started
 	start-stop-daemon --start --quiet -m --pidfile $PIDFILE --startas $DAEMON --background --test > /dev/null \
 		|| return 1
-	start-stop-daemon --start --quiet -m --pidfile $PIDFILE --startas $DAEMON --background -- \
+	start-stop-daemon --start --quiet -m --pidfile $PIDFILE --startas $DAEMON --background --chdir $CHDIR -- \
 		$DAEMON_ARGS > /dev/null 2> /var/log/$NAME-stderr.log \
 		|| return 2
 	# Add code here, if necessary, that waits for the process to be ready
