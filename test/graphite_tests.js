@@ -178,7 +178,7 @@ module.exports = {
 
             var bad_lines_seen_value_test = function(post){
               var mykey = 'stats_counts.statsd.bad_lines_seen';
-              return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
+              return _.include(_.keys(post),mykey) && isNaN(post[mykey]);
             };
             test.ok(_.any(hashes,bad_lines_seen_value_test), 'stats_counts.statsd.bad_lines_seen should be ' + testvalue);
 
