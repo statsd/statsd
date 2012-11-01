@@ -51,8 +51,13 @@ function flushMetrics() {
   // After all listeners, reset the stats
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
     // Clear the counters
+    config.delete_counters = config.delete_counters || false;
     for (key in metrics.counters) {
-      metrics.counters[key] = undefined;
+      if (config.delete_counters) {
+        metrics.counters[key] = undefined;
+      } else {
+        metrics.counters[key] = 0;
+      }
     }
 
     // Clear the timers
