@@ -13,8 +13,7 @@ var dgram  = require('dgram')
 var keyCounter = {};
 var counters = {
   "statsd.packets_received": 0,
-  "statsd.bad_lines_seen": 0,
-  "statsd.calculation_error": 0
+  "statsd.bad_lines_seen": 0
 };
 var timers = {};
 var gauges = {};
@@ -73,12 +72,7 @@ function flushMetrics() {
     }
   });
 
-  pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(err, metrics) {
-    if (err) {
-      l.log("Calculation Error: " + err);
-      counters["statsd.calculation_error"]++;
-      stats['messages']['calculation_error']++;
-    }
+  pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(metrics) {
     backendEvents.emit('flush', time_stamp, metrics);
   });
 
@@ -87,8 +81,7 @@ function flushMetrics() {
 var stats = {
   messages: {
     last_msg_seen: startup_time,
-    bad_lines_seen: 0,
-    calculation_error: 0
+    bad_lines_seen: 0
   }
 };
 
