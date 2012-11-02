@@ -13,7 +13,8 @@ var dgram  = require('dgram')
 var keyCounter = {};
 var counters = {
   "statsd.packets_received": 0,
-  "statsd.bad_lines_seen": 0
+  "statsd.bad_lines_seen": 0,
+  "statsd.calculation_error": 0
 };
 var timers = {};
 var gauges = {};
@@ -73,18 +74,12 @@ function flushMetrics() {
   });
 
   pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(err, metrics) {
-    // Flush metrics to each backend only if the metrics processing was sucessful.
-    // Add  processing_errors counter to allow for monitoring
     if (err) {
-      l.log("Exiting due to error processing metrics with: " + err);
-      // Send metrics to backends for any last minute processing
-      // and give backends a chance to cleanup before exiting.
-      backendEvents.emit('error', time_stamp, metrics, err);
-      // Only needed if other backends override the standard stacktrace/exit functionality
-      process.exit(1);
-    } else {
-      backendEvents.emit('flush', time_stamp, metrics);
+      l.log("Calculation Error: " + err);
+      counters["statsd.calculation_error"]++;
+      stats['messages']['calculation_error']++;
     }
+    backendEvents.emit('flush', time_stamp, metrics);
   });
 
 };
@@ -93,6 +88,7 @@ var stats = {
   messages: {
     last_msg_seen: startup_time,
     bad_lines_seen: 0,
+    calculation_error: 0
   }
 };
 
