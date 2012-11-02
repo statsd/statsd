@@ -1,7 +1,7 @@
 var dgram  = require('dgram')
   , util    = require('util')
   , net    = require('net')
-  , config = require('./config')
+  , config = require('./lib/config')
   , fs     = require('fs')
   , events = require('events')
   , logger = require('./lib/logger')
@@ -160,8 +160,15 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             }
             sets[key].insert(fields[0] || '0');
           } else {
-            if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
-              sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+            if (fields[2]) {
+              if (fields[2].match(/^@([\d\.]+)/)) {
+                sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+              } else {
+                l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"; has invalid sample rate');
+                counters["statsd.bad_lines_seen"]++;
+                stats['messages']['bad_lines_seen']++;
+                continue;
+              }
             }
             if (! counters[key]) {
               counters[key] = 0;
@@ -306,7 +313,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
     if (keyFlushInterval > 0) {
       var keyFlushPercent = Number((config.keyFlush && config.keyFlush.percent) || 100);
-      var keyFlushLog = (config.keyFlush && config.keyFlush.log) || "stdout";
+      var keyFlushLog = config.keyFlush && config.keyFlush.log;
 
       keyFlushInt = setInterval(function () {
         var key;
@@ -326,9 +333,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           logMessage += timeString + " count=" + sortedKeys[i][1] + " key=" + sortedKeys[i][0] + "\n";
         }
 
-        var logFile = fs.createWriteStream(keyFlushLog, {flags: 'a+'});
-        logFile.write(logMessage);
-        logFile.end();
+        if (keyFlushLog) {
+          var logFile = fs.createWriteStream(keyFlushLog, {flags: 'a+'});
+          logFile.write(logMessage);
+          logFile.end();
+        } else {
+          process.stdout.write(logMessage);
+        }
 
         // clear the counter
         keyCounter = {};
