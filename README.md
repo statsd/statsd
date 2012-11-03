@@ -270,6 +270,8 @@ metrics: {
     gauges: gauges,
     timers: timers,
     sets: sets,
+    counter_rates: counter_rates,
+    timer_data: timer_data,
     pctThreshold: pctThreshold
 }
   ```

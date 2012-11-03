@@ -240,7 +240,7 @@ module.exports = {
               var mykey = 'statsd.numStats';
               return _.include(_.keys(post),mykey) && (post[mykey] == 3);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 3');
 
             var testavgvalue_test = function(post){
               var mykey = 'stats.a_test_value';
