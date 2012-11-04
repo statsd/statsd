@@ -276,8 +276,9 @@ metrics: {
 }
   ```
 
-  Each backend module is passed the same set of statistics, so a
-  backend module should treat the metrics as immutable
+  The counter_rates and timer_data are precalculated statistics to simplify
+  the creation of backends. Each backend module is passed the same set of
+  statistics, so a backend module should treat the metrics as immutable
   structures. StatsD will reset timers and counters after each
   listener has handled the event.
 
