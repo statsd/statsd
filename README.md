@@ -57,13 +57,13 @@ ordered non-inclusive upper limits of bins (class intervals).
 (use `inf` to denote infinity; a lower limit of 0 is assumed)
 Each `flushInterval`, statsd will store how many values (absolute frequency)
 fall within each bin (class interval), for all matching metrics.
-First match wins.  examples:
+Examples:
 
 * no histograms for any timer (default): `[]`
 * histogram to only track render durations,
   with unequal class intervals and catchall for outliers:
 
-        [ { metric: 'render', bins: [8, 25, 50, 100, 'inf'] } ]
+        [ { metric: 'render', bins: [ 0.01, 0.1, 1, 10, 'inf'] } ]
 
 * histogram for all timers except 'foo' related,
   with equal class interval and catchall for outliers:
@@ -71,9 +71,13 @@ First match wins.  examples:
         [ { metric: 'foo', bins: [] },
           { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
 
-Note that this is actually more powerful than what's strictly considered
-histograms, as you can make each bin arbitrarily wide if you want to
-(upto infinity), i.e. class intervals of different sizes.
+Note:
+
+* first match for a metric wins.
+* bin upper limits may contain decimals.
+* this is actually more powerful than what's strictly considered
+histograms, as you can make each bin arbitrarily wide,
+i.e. class intervals of different sizes.
 
 Sampling
 --------

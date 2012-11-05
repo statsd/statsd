@@ -142,7 +142,8 @@ var flush_stats = function graphite_flush(ts, metrics) {
         for (; i < count && (bins[bin_i] == 'inf' || values[i] < bins[bin_i]); i++) {
           freq += 1;
         }
-        message += 'stats.timers.' + key + '.bin_' + bins[bin_i] + ' ' + freq  + ' ' + ts + "\n";
+        bin_name = ('bin_' + bins[bin_i]).replace('.','_');
+        message += 'stats.timers.' + key + '.' + bin_name + ' ' + freq  + ' ' + ts + "\n";
       }
 
       statString += message;

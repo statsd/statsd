@@ -59,7 +59,7 @@ Optional Variables:
                     First match wins.  examples:
                     * histogram to only track render durations, with unequal
                       class intervals and catchall for outliers:
-                      [ { metric: 'render', bins: [8, 25, 50, 100, 'inf'] } ]
+                      [ { metric: 'render', bins: [ 0.01, 0.1, 1, 10, 'inf'] } ]
                     * histogram for all timers except 'foo' related,
                       equal class interval and catchall for outliers:
                      [ { metric: 'foo', bins: [] },
