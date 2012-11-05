@@ -50,11 +50,20 @@ Optional Variables:
     percentThreshold: calculate the Nth percentile(s)
                     (can be a single value or list of floating-point values)
                     [%, default: 90]
-    histogram:      an array of ordered non-inclusive upper limits of bins for
-                    histogram (in ms).  'inf' means infinity. (default: [])
-                    if non-empty, histograms are enabled and frequencies
-                    for each bin are written.
-                    e.g. [ 25, 50, 100, 150, 200, 'inf' ]
+    histogram:      an array of mappings of strings (to match metrics) and
+                    corresponding ordered non-inclusive upper limits of bins.
+                    For all matching metrics, histograms are maintained over
+                    time by writing the frequencies for all bins.
+                    'inf' means infinity. A lower limit of 0 is assumed.
+                    default: [], meaning no histograms for any timer.
+                    First match wins.  examples:
+                    * histogram to only track render durations, with unequal
+                      class intervals and catchall for outliers:
+                      [ { metric: 'render', bins: [8, 25, 50, 100, 'inf'] } ]
+                    * histogram for all timers except 'foo' related,
+                      equal class interval and catchall for outliers:
+                     [ { metric: 'foo', bins: [] },
+                       { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
 */
 {
   graphitePort: 2003

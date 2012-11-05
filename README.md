@@ -51,15 +51,29 @@ generate the following list of stats for each threshold:
 Where `$KEY` is the key you stats key you specify when sending to statsd, and
 `$PCT` is the percentile threshold.
 
-If `config.histogram` is set to a non-zero array, statsd will also
-maintain frequencies for each bin as specified by the (non-inclusive)
-upper limits in the array. (`'inf'` can be used to denote infinity,
-which is highly recommended, as high outliers will not be accounted for if
-your last upper limit is too low).  A lower limit of 0 is assumed.
-Note that this is actually more powerful than real histograms, as you can
-make your bins arbitrarily wide if you want to.   Though if you want to
-view real histograms, you should make your bins equally wide
-(equally sized class intervals).
+Use the `config.histogram` setting to instruct statsd to maintain histograms
+over time.  Specify which metrics to match and a corresponding list of
+ordered non-inclusive upper limits of bins (class intervals).
+(use `inf` to denote infinity; a lower limit of 0 is assumed)
+Each `flushInterval`, statsd will store how many values (absolute frequency)
+fall within each bin (class interval), for all matching metrics.
+First match wins.  examples:
+
+* no histograms for any timer (default): `[]`
+* histogram to only track render durations,
+  with unequal class intervals and catchall for outliers:
+
+        [ { metric: 'render', bins: [8, 25, 50, 100, 'inf'] } ]
+
+* histogram for all timers except 'foo' related,
+  with equal class interval and catchall for outliers:
+
+        [ { metric: 'foo', bins: [] },
+          { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
+
+Note that this is actually more powerful than what's strictly considered
+histograms, as you can make each bin arbitrarily wide if you want to
+(upto infinity), i.e. class intervals of different sizes.
 
 Sampling
 --------

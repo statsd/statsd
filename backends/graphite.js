@@ -128,14 +128,21 @@ var flush_stats = function graphite_flush(ts, metrics) {
       message += 'stats.timers.' + key + '.mean ' + mean + ' ' + ts + "\n";
 
       // note: values bigger than the upper limit of the last bin are ignored, by design
-      num_bins = (config.histogram || []).length
+      conf = config.histogram || [];
+      bins = [];
+      for (var i = 0; i < conf.length; i++) {
+          if (key.indexOf(conf[i].metric) > -1) {
+              bins = conf[i].bins;
+              break;
+          }
+      }
       var i = 0;
-      for (var bin_i = 0; bin_i < num_bins; bin_i++) {
+      for (var bin_i = 0; bin_i < bins.length; bin_i++) {
         var freq = 0;
-        for (; i < count && (config.histogram[bin_i] == 'inf' || values[i] < config.histogram[bin_i]); i++) {
+        for (; i < count && (bins[bin_i] == 'inf' || values[i] < bins[bin_i]); i++) {
           freq += 1;
         }
-        message += 'stats.timers.' + key + '.bin_' + config.histogram[bin_i] + ' ' + freq  + ' ' + ts + "\n";
+        message += 'stats.timers.' + key + '.bin_' + bins[bin_i] + ' ' + freq  + ' ' + ts + "\n";
       }
 
       statString += message;
