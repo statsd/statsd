@@ -116,5 +116,12 @@ module.exports = {
     test.equal(200, timer_data.upper_80);
     test.equal(300, timer_data.sum_80);
     test.done();
+  },
+    statsd_metrics_exist: function(test) {
+    test.expect(1);
+    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    statsd_metrics = this.metrics.statsd_metrics;
+    test.notEqual(undefined, statsd_metrics["processing_time"]);
+    test.done();
   }
 }
