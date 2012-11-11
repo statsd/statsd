@@ -62,6 +62,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var sets = metrics.sets;
   var counter_rates = metrics.counter_rates;
   var timer_data = metrics.timer_data;
+  var statsd_metrics = metrics.statsd_metrics;
 
   for (key in counters) {
     statString += 'stats.'        + key + ' ' + counter_rates[key] + ' ' + ts + "\n";
@@ -90,6 +91,10 @@ var flush_stats = function graphite_flush(ts, metrics) {
     statString += 'stats.sets.' + key + '.count ' + sets[key].values().length + ' ' + ts + "\n";
 
     numStats += 1;
+  }
+
+  for (key in statsd_metrics) {
+    statString += 'stats.statsd.' + key + ' ' + statsd_metrics[key] + ' ' + ts + "\n";
   }
 
   statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";

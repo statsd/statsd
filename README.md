@@ -51,11 +51,11 @@ The percentile threshold can be tweaked with `config.percentThreshold`.
 The percentile threshold can be a single value, or a list of values, and will
 generate the following list of stats for each threshold:
 
-    stats.timers.$KEY.mean_$PCT 
+    stats.timers.$KEY.mean_$PCT
     stats.timers.$KEY.upper_$PCT
     stats.timers.$KEY.sum_$PCT
 
-Where `$KEY` is the stats key you specify when sending to statsd, and `$PCT` is 
+Where `$KEY` is the stats key you specify when sending to statsd, and `$PCT` is
 the percentile threshold.
 
 Gauges
@@ -274,12 +274,14 @@ metrics: {
     sets: sets,
     counter_rates: counter_rates,
     timer_data: timer_data,
+    statsd_metrics: statsd_metrics,
     pctThreshold: pctThreshold
 }
   ```
 
   The counter_rates and timer_data are precalculated statistics to simplify
-  the creation of backends. Each backend module is passed the same set of
+  the creation of backends, the statsd_metrics hash contains metrics generated
+  by statsd itself. Each backend module is passed the same set of
   statistics, so a backend module should treat the metrics as immutable
   structures. StatsD will reset timers and counters after each
   listener has handled the event.
