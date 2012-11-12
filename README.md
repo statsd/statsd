@@ -88,27 +88,29 @@ For more information, check the `exampleConfig.js`.
 Supported Backends
 ------------------
 
-StatsD supports multiple, pluggable, backend modules that can publish
+StatsD supports pluggable backend modules that can publish
 statistics from the local StatsD daemon to a backend service or data
-store. Backend services can retain statistics for
-longer durations in a time series data store, visualize statistics in
-graphs or tables, or generate alerts based on defined thresholds. A
-backend can also correlate statistics sent from StatsD daemons running
-across multiple hosts in an infrastructure.
+store. Backend services can retain statistics in a time series data store, 
+visualize statistics in graphs or tables, or generate alerts based on 
+defined thresholds. A backend can also correlate statistics sent from StatsD
+daemons running across multiple hosts in an infrastructure.
 
-StatsD includes the following backends:
+StatsD includes the following built-in backends:
 
-* [Graphite][graphite] (`graphite`): Graphite is an open-source
-  time-series data store that provides visualization through a
-  web-browser interface.
-* Console (`console`): The console backend outputs the received
-  metrics to stdout (e.g. for seeing what's going on during development).
-* Repeater (`repeater`): The repeater backend utilizes the `packet` emit API to
+* [Graphite][graphite] (`graphite`): An open-source
+  time-series data store that provides visualization through a web-browser.
+* Console (`console`): Outputs the received
+  metrics to stdout (see what's going on during development).
+* Repeater (`repeater`): Utilizes the `packet` emit API to
   forward raw packets retrieved by StatsD to multiple backend StatsD instances.
 
-By default, the `graphite` backend will be loaded automatically. To
-select which backends are loaded, set the `backends` configuration
-variable to the list of backend modules to load.
+A robust set of [other backends](https://github.com/etsy/statsd/wiki/Backends) 
+are also available as plugins to allow easy reporting into databases, queues 
+and third-party services.
+
+By default, the `graphite` backend will be loaded automatically. Multiple
+backends can be run at once. To select which backends are loaded, set 
+the `backends` configuration variable to the list of backend modules to load.
 
 Backends are just npm modules which implement the interface described in
 section *Backend Interface*. In order to be able to load the backend, add the
