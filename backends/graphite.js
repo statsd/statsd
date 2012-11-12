@@ -136,6 +136,9 @@ var flush_stats = function graphite_flush(ts, metrics) {
               break;
           }
       }
+      // the outer loop iterates bins, the inner loop iterates timer values;
+      // within each run of the inner loop we should only consider the timer value range that's within the scope of the current bin
+      // so we leverage the fact that the values are already sorted to end up with only full 1 iteration of the entire values range
       var i = 0;
       for (var bin_i = 0; bin_i < bins.length; bin_i++) {
         var freq = 0;
