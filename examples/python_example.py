@@ -9,8 +9,7 @@
 # statsd_port = 8125
 
 # Sends statistics to the stats daemon over UDP
-class Statsd(object):
-
+class StatsdClient(object):
     def __init__(self, host='localhost', port=8125):
         self.host = host
         self.port = port
