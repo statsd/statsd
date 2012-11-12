@@ -11,7 +11,7 @@
 # Sends statistics to the stats daemon over UDP
 class Statsd(object):
 
-    def __init__(self, host=localhost, port=8125):
+    def __init__(self, host='localhost', port=8125):
         self.host = host
         self.port = port
         try:
