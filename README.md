@@ -329,6 +329,16 @@ prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
 prefixSet:        graphite prefix for set metrics [default: "sets"]
 ```
 
+If you decide to not use the legacy namespacing, besides the obvious changes
+in the prefixing, there will also be a breaking change in the way counters are
+submitted. So far counters didn't live under any namespace and were also a bit
+confusing due to the way they record rate and absolute counts. In the legacy
+setting rates were recorded under `stats.counter_name` directly, whereas the
+absolute count could be found under `stats_count.counter_name`. With disabling
+the legacy namespacing those values can be found (with default prefixing)
+under `stats.counters.counter_name.rate` and
+`stats.counters.counter_name.count` now.
+
 
 Inspiration
 -----------
