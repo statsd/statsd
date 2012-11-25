@@ -90,8 +90,8 @@ Supported Backends
 
 StatsD supports pluggable backend modules that can publish
 statistics from the local StatsD daemon to a backend service or data
-store. Backend services can retain statistics in a time series data store, 
-visualize statistics in graphs or tables, or generate alerts based on 
+store. Backend services can retain statistics in a time series data store,
+visualize statistics in graphs or tables, or generate alerts based on
 defined thresholds. A backend can also correlate statistics sent from StatsD
 daemons running across multiple hosts in an infrastructure.
 
@@ -104,12 +104,12 @@ StatsD includes the following built-in backends:
 * Repeater (`repeater`): Utilizes the `packet` emit API to
   forward raw packets retrieved by StatsD to multiple backend StatsD instances.
 
-A robust set of [other backends](https://github.com/etsy/statsd/wiki/Backends) 
-are also available as plugins to allow easy reporting into databases, queues 
+A robust set of [other backends](https://github.com/etsy/statsd/wiki/Backends)
+are also available as plugins to allow easy reporting into databases, queues
 and third-party services.
 
 By default, the `graphite` backend will be loaded automatically. Multiple
-backends can be run at once. To select which backends are loaded, set 
+backends can be run at once. To select which backends are loaded, set
 the `backends` configuration variable to the list of backend modules to load.
 
 Backends are just npm modules which implement the interface described in
@@ -310,6 +310,25 @@ metrics: {
   This is emitted for every incoming packet. The `packet` parameter contains
   the raw received message string and the `rinfo` paramter contains remote
   address information from the UDP socket.
+
+
+Metric namespacing
+-------------------
+The metric namespacing in the Graphite backend is configurable with regard of
+the prefixes. Per default all stats are put under `stats` in Graphite, which
+makes it easier to consolidate them all under one schema. However it is
+possible to change these namespaces in the backend configuration options.
+The available configuration options (living under the `graphite` key) are:
+
+```
+legacyNamspace:   use the legacy namespace [default: true]
+globalPrefix:     global prefix to use for sending stats to graphite [default: "stats"]
+prefixCounter:    graphite prefix for counter metrics [default: "counters"]
+prefixTimer:      graphite prefix for timer metrics [default: "timers"]
+prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
+prefixSet:        graphite prefix for set metrics [default: "sets"]
+```
+
 
 Inspiration
 -----------
