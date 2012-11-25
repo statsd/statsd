@@ -57,11 +57,15 @@ Optional Variables:
                     packets should be "repeated" (duplicated to).
                     e.g. [ { host: '10.10.10.10', port: 8125 },
                            { host: 'observer', port: 88125 } ]
+
+  repeaterProtocol: whether to use udp4 or udp4 for repeaters.
+                    ["udp4" or "udp6", default: "udp4"]
 */
 {
   graphitePort: 2003
 , graphiteHost: "graphite.host.com"
 , port: 8125
-, backends: [ "./backends/repeater" ]
+, backends: [ "./backends/graphite" ]
 , repeater: [ { host: "10.8.3.214", port: 8125 } ]
+, repeaterProtocol: "udp4"
 }

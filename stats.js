@@ -1,11 +1,13 @@
 var dgram  = require('dgram')
   , util    = require('util')
   , net    = require('net')
-  , config = require('./config')
+  , config = require('./lib/config')
   , fs     = require('fs')
   , events = require('events')
   , logger = require('./lib/logger')
   , set = require('./lib/set')
+  , pm = require('./lib/process_metrics')
+
 
 // initialize data structures with defaults for statsd stats
 var keyCounter = {};
@@ -13,12 +15,11 @@ var counters = {
   "statsd.packets_received": 0,
   "statsd.bad_lines_seen": 0
 };
-var timers = {
-  "statsd.packet_process_time": []
-};
+var timers = {};
 var gauges = {};
-var sets = {
-};
+var sets = {};
+var counter_rates = {};
+var timer_data = {};
 var pctThreshold = null;
 var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
@@ -48,6 +49,8 @@ function flushMetrics() {
     gauges: gauges,
     timers: timers,
     sets: sets,
+    counter_rates: counter_rates,
+    timer_data: timer_data,
     pctThreshold: pctThreshold
   }
 
@@ -69,14 +72,16 @@ function flushMetrics() {
     }
   });
 
-  // Flush metrics to each backend.
-  backendEvents.emit('flush', time_stamp, metrics_hash);
+  pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(metrics) {
+    backendEvents.emit('flush', time_stamp, metrics);
+  });
+
 };
 
 var stats = {
   messages: {
     last_msg_seen: startup_time,
-    bad_lines_seen: 0,
+    bad_lines_seen: 0
   }
 };
 
@@ -155,8 +160,15 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             }
             sets[key].insert(fields[0] || '0');
           } else {
-            if (fields[2] && fields[2].match(/^@([\d\.]+)/)) {
-              sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+            if (fields[2]) {
+              if (fields[2].match(/^@([\d\.]+)/)) {
+                sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+              } else {
+                l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"; has invalid sample rate');
+                counters["statsd.bad_lines_seen"]++;
+                stats['messages']['bad_lines_seen']++;
+                continue;
+              }
             }
             if (! counters[key]) {
               counters[key] = 0;
@@ -301,7 +313,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
     if (keyFlushInterval > 0) {
       var keyFlushPercent = Number((config.keyFlush && config.keyFlush.percent) || 100);
-      var keyFlushLog = (config.keyFlush && config.keyFlush.log) || "stdout";
+      var keyFlushLog = config.keyFlush && config.keyFlush.log;
 
       keyFlushInt = setInterval(function () {
         var key;
@@ -321,9 +333,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           logMessage += timeString + " count=" + sortedKeys[i][1] + " key=" + sortedKeys[i][0] + "\n";
         }
 
-        var logFile = fs.createWriteStream(keyFlushLog, {flags: 'a+'});
-        logFile.write(logMessage);
-        logFile.end();
+        if (keyFlushLog) {
+          var logFile = fs.createWriteStream(keyFlushLog, {flags: 'a+'});
+          logFile.write(logMessage);
+          logFile.end();
+        } else {
+          process.stdout.write(logMessage);
+        }
 
         // clear the counter
         keyCounter = {};

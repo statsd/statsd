@@ -3,7 +3,10 @@
   "description": "A simple, lightweight network daemon to collect metrics over UDP",
   "author": "Etsy",
   "scripts": {
-    "test": "./run_tests.sh"
+    "test": "./run_tests.sh",
+    "start": "node stats.js config.js",
+    "install-windows-service": "node_modules\\.bin\\winser -i",
+    "uninstall-windows-service": "node_modules\\.bin\\winser -r"
   },
   "repository": {
     "type": "git",
@@ -19,9 +22,10 @@
     "temp": "0.4.x"
   },
   "optionalDependencies": {
-    "node-syslog":"1.1.3"
+    "node-syslog":"1.1.3",
+    "winser": "=0.0.11"
   },
-  "engine": {
+  "engines": {
     "node" : ">=0.4"
   },
   "bin": { "statsd": "./bin/statsd" }

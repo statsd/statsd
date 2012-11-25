@@ -156,6 +156,39 @@ module.exports = {
     });
   },
 
+  send_malformed_post: function (test) {
+    test.expect(3);
+
+    var testvalue = 1;
+    var me = this;
+    this.acceptor.once('connection',function(c){
+      statsd_send('a_bad_test_value|z',me.sock,'127.0.0.1',8125,function(){
+          collect_for(me.acceptor,me.myflush*2,function(strings){
+            test.ok(strings.length > 0,'should receive some data');
+            var hashes = _.map(strings, function(x) {
+              var chunks = x.split(' ');
+              var data = {};
+              data[chunks[0]] = chunks[1];
+              return data;
+            });
+            var numstat_test = function(post){
+              var mykey = 'stats.statsd.numStats';
+              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
+            };
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 0');
+
+            var bad_lines_seen_value_test = function(post){
+              var mykey = 'stats.counters.statsd.bad_lines_seen.count';
+              return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
+            };
+            test.ok(_.any(hashes,bad_lines_seen_value_test), 'stats.counters.statsd.bad_lines_seen.count should be ' + testvalue);
+
+            test.done();
+          });
+      });
+    });
+  },
+
   timers_are_valid: function (test) {
     test.expect(3);
 
@@ -208,7 +241,7 @@ module.exports = {
               var mykey = 'stats.statsd.numStats';
               return _.include(_.keys(post),mykey) && (post[mykey] == 3);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 3');
 
             var testavgvalue_test = function(post){
               var mykey = 'stats.counters.a_test_value.rate';

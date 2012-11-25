@@ -72,12 +72,14 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var statString = '';
   var numStats = 0;
   var key;
-
+  var timer_data_key;
   var counters = metrics.counters;
   var gauges = metrics.gauges;
   var timers = metrics.timers;
   var sets = metrics.sets;
-  var pctThreshold = metrics.pctThreshold;
+  var counter_rates = metrics.counter_rates;
+  var timer_data = metrics.timer_data;
+  var statsd_metrics = metrics.statsd_metrics;
 
   for (key in counters) {
     var namespace = counterNamespace.concat(key);
@@ -88,71 +90,20 @@ var flush_stats = function graphite_flush(ts, metrics) {
       statString += namespace.join(".")   + ' ' + valuePerSecond + ' ' + ts + "\n";
       statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
     } else {
-      statString += namespace.concat('rate').join(".") + ' ' + valuePerSecond + ' ' + ts + "\n";
+      statString += namespace.concat('rate').join(".")  + ' ' + valuePerSecond + ' ' + ts + "\n";
       statString += namespace.concat('count').join(".") + ' ' + value          + ' ' + ts + "\n";
     }
 
     numStats += 1;
   }
 
-  for (key in timers) {
-    if (timers[key].length > 0) {
-      var values = timers[key].sort(function (a,b) { return a-b; });
-      var count = values.length;
-      var min = values[0];
-      var max = values[count - 1];
-
-      var namespace = timerNamespace.concat(key);
-      var the_key = namespace.join(".");
-
-      var cumulativeValues = [min];
-      for (var i = 1; i < count; i++) {
-          cumulativeValues.push(values[i] + cumulativeValues[i-1]);
+  for (key in timer_data) {
+    if (Object.keys(timer_data).length > 0) {
+      for (timer_data_key in timer_data[key]) {
+        var namespace = timerNamespace.concat(key);
+        var the_key = namespace.join(".");
+        statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ' ' + ts + "\n";
       }
-
-      var sum = min;
-      var mean = min;
-      var maxAtThreshold = max;
-
-      var message = "";
-
-      var key2;
-
-      for (key2 in pctThreshold) {
-        var pct = pctThreshold[key2];
-        if (count > 1) {
-          var thresholdIndex = Math.round(((100 - pct) / 100) * count);
-          var numInThreshold = count - thresholdIndex;
-
-          maxAtThreshold = values[numInThreshold - 1];
-          sum = cumulativeValues[numInThreshold - 1];
-          mean = sum / numInThreshold;
-        }
-
-        var clean_pct = '' + pct;
-        clean_pct.replace('.', '_');
-        message += the_key + '.mean_'  + clean_pct + ' ' + mean           + ' ' + ts + "\n";
-        message += the_key + '.upper_' + clean_pct + ' ' + maxAtThreshold + ' ' + ts + "\n";
-        message += the_key + '.sum_'   + clean_pct + ' ' + sum            + ' ' + ts + "\n";
-      }
-
-      sum = cumulativeValues[count-1];
-      mean = sum / count;
-
-      var sumOfDiffs = 0;
-      for (var i = 0; i < count; i++) {
-         sumOfDiffs += (values[i] - mean) * (values[i] - mean);
-      }
-      var stddev = Math.sqrt(sumOfDiffs / count);
-
-      message += the_key + '.std '   + stddev + ' ' + ts + "\n";
-      message += the_key + '.upper ' + max    + ' ' + ts + "\n";
-      message += the_key + '.lower ' + min    + ' ' + ts + "\n";
-      message += the_key + '.count ' + count  + ' ' + ts + "\n";
-      message += the_key + '.sum '   + sum    + ' ' + ts + "\n";
-      message += the_key + '.mean '  + mean   + ' ' + ts + "\n";
-
-      statString += message;
 
       numStats += 1;
     }
@@ -174,10 +125,18 @@ var flush_stats = function graphite_flush(ts, metrics) {
   if (legacyNamespace === true) {
     statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
     statString += 'stats.statsd.graphiteStats.calculationtime ' + (Date.now() - starttime) + ' ' + ts + "\n";
+    for (key in statsd_metrics) {
+      statString += 'stats.statsd.' + key + ' ' + statsd_metrics[key] + ' ' + ts + "\n";
+    }
   } else {
     statString += namespace.join(".") + '.numStats ' + numStats + ' ' + ts + "\n";
     statString += namespace.join(".") + '.graphiteStats.calculationtime ' + (Date.now() - starttime) + ' ' + ts + "\n";
+    for (key in statsd_metrics) {
+      var the_key = namespace.concat(key);
+      statString += the_key.join(".") + ' ' + statsd_metrics[key] + ' ' + ts + "\n";
+    }
   }
+
   post_stats(statString);
 };
 
