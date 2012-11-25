@@ -44,6 +44,14 @@ Optional Variables:
     application:    name of the application for syslog [string, default: statsd]
     level:          log level for [node-]syslog [string, default: LOG_INFO]
 
+  graphite:
+    legacyNamespace:  use the legacy namespace [default: true]
+    globalPrefix:     global prefix to use for sending stats to graphite [default: "stats"]
+    prefixCounter:    graphite prefix for counter metrics [default: "counters"]
+    prefixTimer:      graphite prefix for timer metrics [default: "timers"]
+    prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
+    prefixSet:        graphite prefix for set metrics [default: "sets"]
+
   repeater:         an array of hashes of the for host: and port:
                     that details other statsd servers to which the received
                     packets should be "repeated" (duplicated to).
