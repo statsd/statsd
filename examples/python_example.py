@@ -9,7 +9,17 @@
 # statsd_port = 8125
 
 # Sends statistics to the stats daemon over UDP
-class Statsd(object):
+class StatsdClient(object):
+    def __init__(self, host='localhost', port=8125):
+        self.host = host
+        self.port = port
+        try:
+            import local_settings as settings
+            self.host = settings.statsd_host
+            self.port = settings.statsd_port
+        except:
+            pass
+        self.addr=(host, port)
 
     @staticmethod
     def timing(stat, time, sample_rate=1):
@@ -83,9 +93,14 @@ class Statsd(object):
             for stat in sampled_data.keys():
                 value = sampled_data[stat]
                 send_data = "%s:%s" % (stat, value)
-                udp_sock.sendto(send_data, addr)
+                udp_sock.sendto(send_data, self.addr)
         except:
             import sys
             from pprint import pprint
             print "Unexpected error:", pprint(sys.exc_info())
             pass # we don't care
+
+
+if __name__=="__main__":
+    c = StatsdClient()
+    c.increment('example.python')

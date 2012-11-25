@@ -4,7 +4,9 @@ var util = require('util'),
 function RepeaterBackend(startupTime, config, emitter){
   var self = this;
   this.config = config.repeater || [];
-  this.sock = dgram.createSocket('udp6');
+  this.sock = (config.repeaterProtocol == 'udp6') ?
+        dgram.createSocket('udp6') :
+        dgram.createSocket('udp4');
 
   // attach
   emitter.on('packet', function(packet, rinfo) { self.process(packet, rinfo); });

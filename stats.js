@@ -6,6 +6,8 @@ var dgram  = require('dgram')
   , events = require('events')
   , logger = require('./lib/logger')
   , set = require('./lib/set')
+  , pm = require('./lib/process_metrics')
+
 
 // initialize data structures with defaults for statsd stats
 var keyCounter = {};
@@ -16,6 +18,8 @@ var counters = {
 var timers = {};
 var gauges = {};
 var sets = {};
+var counter_rates = {};
+var timer_data = {};
 var pctThreshold = null;
 var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
@@ -48,6 +52,8 @@ function flushMetrics() {
     gauges: gauges,
     timers: timers,
     sets: sets,
+    counter_rates: counter_rates,
+    timer_data: timer_data,
     pctThreshold: pctThreshold
   }
 
@@ -74,14 +80,16 @@ function flushMetrics() {
     }
   });
 
-  // Flush metrics to each backend.
-  backendEvents.emit('flush', time_stamp, metrics_hash);
+  pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(metrics) {
+    backendEvents.emit('flush', time_stamp, metrics);
+  });
+
 };
 
 var stats = {
   messages: {
     last_msg_seen: startup_time,
-    bad_lines_seen: 0,
+    bad_lines_seen: 0
   }
 };
 
