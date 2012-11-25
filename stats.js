@@ -36,6 +36,9 @@ function loadBackend(config, name) {
   }
 };
 
+// global for conf
+var conf;
+
 // Flush metrics to each backend.
 function flushMetrics() {
   var time_stamp = Math.round(new Date().getTime() / 1000);
@@ -51,8 +54,13 @@ function flushMetrics() {
   // After all listeners, reset the stats
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
     // Clear the counters
+    conf.deleteCounters = conf.deleteCounters || false;
     for (key in metrics.counters) {
-      delete(metrics.counters[key]);
+      if (conf.deleteCounters) {
+        metrics.counters[key] = undefined;
+      } else {
+        metrics.counters[key] = 0;
+      }
     }
 
     // Clear the timers
@@ -81,6 +89,7 @@ var stats = {
 var l;
 
 config.configFile(process.argv[2], function (config, oldConfig) {
+  conf = config;
   if (! config.debug && debugInt) {
     clearInterval(debugInt);
     debugInt = false;
