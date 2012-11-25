@@ -314,7 +314,7 @@ metrics: {
 
 Metric namespacing
 -------------------
-The metric namespacing in the Graphite backend is configurable with regard of
+The metric namespacing in the Graphite backend is configurable with regard to
 the prefixes. Per default all stats are put under `stats` in Graphite, which
 makes it easier to consolidate them all under one schema. However it is
 possible to change these namespaces in the backend configuration options.
@@ -329,7 +329,7 @@ prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
 prefixSet:        graphite prefix for set metrics [default: "sets"]
 ```
 
-If you decide to not use the legacy namespacing, besides the obvious changes
+If you decide not to use the legacy namespacing, besides the obvious changes
 in the prefixing, there will also be a breaking change in the way counters are
 submitted. So far counters didn't live under any namespace and were also a bit
 confusing due to the way they record rate and absolute counts. In the legacy
