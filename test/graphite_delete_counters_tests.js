@@ -206,7 +206,7 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
             };
             test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
 
@@ -239,7 +239,7 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
             };
             test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
 
