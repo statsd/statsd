@@ -34,7 +34,7 @@ This is a simple counter. Add 1 to the "gorets" bucket.
 At each flush the current count is sent and reset to 0.
 If the count at flush is 0 then you can opt to send no metric at all for
 this counter, by setting `config.deleteCounters` (applies only to graphite
-backend)
+backend).  Statsd will send both the rate as well as the count at each flush.
 
 ### Sampling
 
