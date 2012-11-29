@@ -117,6 +117,15 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       counters["statsd.packets_received"]++;
       var metrics = msg.toString().split("\n");
 
+      if(metrics.length == 1 && metrics[0] == 'PING'){
+        var client = dgram.createSocket('udp4');
+        var message = new Buffer('PONG');
+        client.send(message, 0, message.length, rinfo.port, rinfo.address, function(){
+          client.close();
+        });
+        return;
+      }
+
       for (midx in metrics) {
         if (config.dumpMessages) {
           l.log(metrics[midx].toString());
