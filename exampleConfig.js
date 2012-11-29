@@ -34,7 +34,7 @@ Optional Variables:
     interval:       how often to log frequent keys [ms, default: 0]
     percent:        percentage of frequent keys to log [%, default: 100]
     log:            location of log file for frequent keys [default: STDOUT]
-  deleteCounters:   when flushing to graphite, send null instead of 0 [default: false]
+  deleteCounters:   don't send values to graphite for inactive counters, as opposed to sending 0 [default: false]
 
   console:
     prettyprint:    whether to prettyprint the console backend
