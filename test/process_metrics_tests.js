@@ -184,6 +184,28 @@ module.exports = {
 
     test.done();
   },
+    timers_single_time_single_top_percentile: function(test) {
+    test.expect(3);
+    this.metrics.timers['a'] = [100];
+    this.metrics.pctThreshold = [-10];
+    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    timer_data = this.metrics.timer_data['a'];
+    test.equal(100, timer_data.mean_top10);
+    test.equal(100, timer_data.lower_top10);
+    test.equal(100, timer_data.sum_top10);
+    test.done();
+  },
+    timers_multiple_times_single_top_percentile: function(test) {
+    test.expect(3);
+    this.metrics.timers['a'] = [10, 10, 10, 10, 10, 10, 10, 10, 100, 200];
+    this.metrics.pctThreshold = [-20];
+    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    timer_data = this.metrics.timer_data['a'];
+    test.equal(150, timer_data.mean_top20);
+    test.equal(100, timer_data.lower_top20);
+    test.equal(300, timer_data.sum_top20);
+    test.done();
+  },
     statsd_metrics_exist: function(test) {
     test.expect(1);
     pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
