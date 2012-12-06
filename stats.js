@@ -64,8 +64,6 @@ function flushMetrics() {
     for (key in metrics.counters) {
       if (conf.deleteCounters) {
         delete(metrics.counters[key]);
-      } else {
-        metrics.counters[key] = 0;
       }
     }
 
