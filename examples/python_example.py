@@ -3,6 +3,9 @@
 # Steve Ivy <steveivy@gmail.com>
 # http://monkinetic.com
 
+from random import random
+from socket import socket, AF_INET, SOCK_DGRAM
+
 # Sends statistics to the stats daemon over UDP
 class StatsdClient(object):
     def __init__(self, host='localhost', port=8125):
@@ -56,14 +59,12 @@ class StatsdClient(object):
         sampled_data = {}
 
         if (sample_rate < 1):
-            import random
-            if random.random() <= sample_rate:
+            if random() <= sample_rate:
                 for stat, value in data.items():
                     sampled_data[stat] = "%s|@%s" %(value, sample_rate)
         else:
             sampled_data = data
 
-        from socket import socket, AF_INET, SOCK_DGRAM
         udp_sock = socket(AF_INET, SOCK_DGRAM)
         try:
             for stat, value in sampled_data.items():
