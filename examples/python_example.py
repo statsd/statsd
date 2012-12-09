@@ -72,7 +72,8 @@ class StatsdClient(object):
             import sys
             import traceback
             print >>sys.stderr, "Unexpected error: ", traceback.format_exc()
-            pass # we don't care
+            return False
+        return True
 
 
 if __name__=="__main__":
