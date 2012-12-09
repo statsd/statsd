@@ -6,8 +6,6 @@
 # Sends statistics to the stats daemon over UDP
 class StatsdClient(object):
     def __init__(self, host='localhost', port=8125):
-        self.host = host
-        self.port = port
         self.addr=(host, port)
 
     def timing(self, stat, time, sample_rate=1):
