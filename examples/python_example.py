@@ -71,7 +71,7 @@ class StatsdClient(object):
         except:
             import sys
             from pprint import pprint
-            print "Unexpected error:", pprint(sys.exc_info())
+            print >>sys.stderr, "Unexpected error:", pprint(sys.exc_info())
             pass # we don't care
 
 
