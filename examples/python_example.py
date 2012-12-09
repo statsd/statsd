@@ -30,7 +30,7 @@ class StatsdClient(object):
         """
         stats = {}
         stats[stat] = "%d|ms" % time
-        Statsd.send(stats, sample_rate)
+        StatsdClient.send(stats, sample_rate)
 
     @staticmethod
     def increment(stats, sample_rate=1):
@@ -39,7 +39,7 @@ class StatsdClient(object):
         >>> Statsd.increment('some.int')
         >>> Statsd.increment('some.int',0.5)
         """
-        Statsd.update_stats(stats, 1, sample_rate)
+        StatsdClient.update_stats(stats, 1, sample_rate)
 
     @staticmethod
     def decrement(stats, sample_rate=1):
@@ -47,7 +47,7 @@ class StatsdClient(object):
         Decrements one or more stats counters
         >>> Statsd.decrement('some.int')
         """
-        Statsd.update_stats(stats, -1, sample_rate)
+        StatsdClient.update_stats(stats, -1, sample_rate)
 
     @staticmethod
     def update_stats(stats, delta=1, sampleRate=1):
@@ -61,7 +61,7 @@ class StatsdClient(object):
         for stat in stats:
             data[stat] = "%s|c" % delta
 
-        Statsd.send(data, sampleRate)
+        StatsdClient.send(data, sampleRate)
 
     @staticmethod
     def send(data, sample_rate=1):
