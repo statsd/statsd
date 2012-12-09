@@ -11,8 +11,9 @@ class StatsdClient(object):
     def timing(self, stat, time, sample_rate=1):
         """
         Log timing information
-        >>> from python_example import Statsd
-        >>> Statsd.timing('some.time', 500)
+        >>> from python_example import StatsdClient
+        >>> client = StatsdClient()
+        >>> client.timing('some.time', 500)
         """
         stats = {}
         stats[stat] = "%d|ms" % time
@@ -21,22 +22,25 @@ class StatsdClient(object):
     def increment(self, stats, sample_rate=1):
         """
         Increments one or more stats counters
-        >>> Statsd.increment('some.int')
-        >>> Statsd.increment('some.int',0.5)
+        >>> client = StatsdClient()
+        >>> client.increment('some.int')
+        >>> client.increment('some.int',0.5)
         """
         self.update_stats(stats, 1, sample_rate)
 
     def decrement(self, stats, sample_rate=1):
         """
         Decrements one or more stats counters
-        >>> Statsd.decrement('some.int')
+        >>> client = StatsdClient()
+        >>> client.decrement('some.int')
         """
         self.update_stats(stats, -1, sample_rate)
 
     def update_stats(self, stats, delta=1, sampleRate=1):
         """
         Updates one or more stats counters by arbitrary amounts
-        >>> Statsd.update_stats('some.int',10)
+        >>> client = StatsdClient()
+        >>> client.update_stats('some.int',10)
         """
         if isinstance(stats, list):
             stats = [stats]
