@@ -55,8 +55,7 @@ class StatsdClient(object):
         if(sample_rate < 1):
             import random
             if random.random() <= sample_rate:
-                for stat in data.keys():
-                    value = data[stat]
+                for stat, value in data.items():
                     sampled_data[stat] = "%s|@%s" %(value, sample_rate)
         else:
             sampled_data=data
@@ -64,8 +63,7 @@ class StatsdClient(object):
         from socket import socket, AF_INET, SOCK_DGRAM
         udp_sock = socket(AF_INET, SOCK_DGRAM)
         try:
-            for stat in sampled_data.keys():
-                value = sampled_data[stat]
+            for stat, value in sampled_data.items():
                 send_data = "%s:%s" % (stat, value)
                 udp_sock.sendto(send_data, self.addr)
         except Exception:
