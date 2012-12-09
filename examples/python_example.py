@@ -3,22 +3,11 @@
 # Steve Ivy <steveivy@gmail.com>
 # http://monkinetic.com
 
-# this file expects local_settings.py to be in the same dir, with statsd host and port information:
-#
-# statsd_host = 'localhost'
-# statsd_port = 8125
-
 # Sends statistics to the stats daemon over UDP
 class StatsdClient(object):
     def __init__(self, host='localhost', port=8125):
         self.host = host
         self.port = port
-        try:
-            import local_settings as settings
-            self.host = settings.statsd_host
-            self.port = settings.statsd_port
-        except:
-            pass
         self.addr=(host, port)
 
     def timing(self, stat, time, sample_rate=1):
