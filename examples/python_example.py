@@ -21,8 +21,7 @@ class StatsdClient(object):
             pass
         self.addr=(host, port)
 
-    @staticmethod
-    def timing(stat, time, sample_rate=1):
+    def timing(self, stat, time, sample_rate=1):
         """
         Log timing information
         >>> from python_example import Statsd
@@ -30,27 +29,24 @@ class StatsdClient(object):
         """
         stats = {}
         stats[stat] = "%d|ms" % time
-        StatsdClient.send(stats, sample_rate)
+        self.send(stats, sample_rate)
 
-    @staticmethod
-    def increment(stats, sample_rate=1):
+    def increment(self, stats, sample_rate=1):
         """
         Increments one or more stats counters
         >>> Statsd.increment('some.int')
         >>> Statsd.increment('some.int',0.5)
         """
-        StatsdClient.update_stats(stats, 1, sample_rate)
+        self.update_stats(stats, 1, sample_rate)
 
-    @staticmethod
-    def decrement(stats, sample_rate=1):
+    def decrement(self, stats, sample_rate=1):
         """
         Decrements one or more stats counters
         >>> Statsd.decrement('some.int')
         """
-        StatsdClient.update_stats(stats, -1, sample_rate)
+        self.update_stats(stats, -1, sample_rate)
 
-    @staticmethod
-    def update_stats(stats, delta=1, sampleRate=1):
+    def update_stats(self, stats, delta=1, sampleRate=1):
         """
         Updates one or more stats counters by arbitrary amounts
         >>> Statsd.update_stats('some.int',10)
@@ -61,21 +57,12 @@ class StatsdClient(object):
         for stat in stats:
             data[stat] = "%s|c" % delta
 
-        StatsdClient.send(data, sampleRate)
+        self.send(data, sampleRate)
 
-    @staticmethod
-    def send(data, sample_rate=1):
+    def send(self, data, sample_rate=1):
         """
         Squirt the metrics over UDP
         """
-        try:
-            import local_settings as settings
-            host = settings.statsd_host
-            port = settings.statsd_port
-            addr=(host, port)
-        except:
-            exit(1)
-
         sampled_data = {}
 
         if(sample_rate < 1):
