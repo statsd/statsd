@@ -38,7 +38,7 @@ class StatsdClient(object):
         Updates one or more stats counters by arbitrary amounts
         >>> Statsd.update_stats('some.int',10)
         """
-        if (type(stats) is not list):
+        if isinstance(stats, list):
             stats = [stats]
         data = {}
         for stat in stats:
