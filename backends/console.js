@@ -31,9 +31,11 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
   });
 
   var out = {
-    counter: this.statsCache.counters,
+    counters: this.statsCache.counters,
     timers: this.statsCache.timers,
     gauges: metrics.gauges,
+    timer_data: metrics.timer_data,
+    counter_rates: metrics.counter_rates,
     sets: function (vals) {
       var ret = {};
       for (val in vals) {

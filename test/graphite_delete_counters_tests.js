@@ -79,7 +79,7 @@ module.exports = {
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
                ,  debug: false\n\
-               ,  graphite: { legacyNamespace: false }\n\
+               ,  deleteCounters: true\n\
                ,  graphitePort: " + this.testport + "\n\
                ,  graphiteHost: \"127.0.0.1\"}";
 
@@ -149,8 +149,8 @@ module.exports = {
           data[chunks[0]] = chunks[1];
           return data;
         });
-        test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'stats.statsd.numStats'),'graphite output includes numStats');
-        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'stats.statsd.numStats' })['stats.statsd.numStats'],2);
+        test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'statsd.numStats'),'graphite output includes numStats');
+        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'statsd.numStats' })['statsd.numStats'],2);
         test.done();
       });
     });
@@ -172,16 +172,16 @@ module.exports = {
               return data;
             });
             var numstat_test = function(post){
-              var mykey = 'stats.statsd.numStats';
+              var mykey = 'statsd.numStats';
               return _.include(_.keys(post),mykey) && (post[mykey] == 2);
             };
             test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 0');
 
             var bad_lines_seen_value_test = function(post){
-              var mykey = 'stats.counters.statsd.bad_lines_seen.count';
-              return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
+              var mykey = 'stats_counts.statsd.bad_lines_seen';
+              return _.include(_.keys(post),mykey) && isNaN(post[mykey]);
             };
-            test.ok(_.any(hashes,bad_lines_seen_value_test), 'stats.counters.statsd.bad_lines_seen.count should be ' + testvalue);
+            test.ok(_.any(hashes,bad_lines_seen_value_test), 'stats_counts.statsd.bad_lines_seen should be ' + testvalue);
 
             test.done();
           });
@@ -205,10 +205,10 @@ module.exports = {
               return data;
             });
             var numstat_test = function(post){
-              var mykey = 'stats.statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              var mykey = 'statsd.numStats';
+              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
             };
-            test.ok(_.any(hashes,numstat_test), 'stats.statsd.numStats should be 1');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
 
             var testtimervalue_test = function(post){
               var mykey = 'stats.timers.a_test_value.mean_90';
@@ -238,22 +238,22 @@ module.exports = {
               return data;
             });
             var numstat_test = function(post){
-              var mykey = 'stats.statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              var mykey = 'statsd.numStats';
+              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 3');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
 
             var testavgvalue_test = function(post){
-              var mykey = 'stats.counters.a_test_value.rate';
+              var mykey = 'stats.a_test_value';
               return _.include(_.keys(post),mykey) && (post[mykey] == (testvalue/(me.myflush / 1000)));
             };
-            test.ok(_.any(hashes,testavgvalue_test), 'a_test_value.rate should be ' + (testvalue/(me.myflush / 1000)));
+            test.ok(_.any(hashes,testavgvalue_test), 'stats.a_test_value should be ' + (testvalue/(me.myflush / 1000)));
 
             var testcountvalue_test = function(post){
-              var mykey = 'stats.counters.a_test_value.count';
+              var mykey = 'stats_counts.a_test_value';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
-            test.ok(_.any(hashes,testcountvalue_test), 'a_test_value.count should be ' + testvalue);
+            test.ok(_.any(hashes,testcountvalue_test), 'stats_counts.a_test_value should be ' + testvalue);
 
             test.done();
           });
