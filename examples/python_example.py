@@ -70,8 +70,8 @@ class StatsdClient(object):
                 udp_sock.sendto(send_data, self.addr)
         except Exception:
             import sys
-            from pprint import pprint
-            print >>sys.stderr, "Unexpected error:", pprint(sys.exc_info())
+            import traceback
+            print >>sys.stderr, "Unexpected error: ", traceback.format_exc()
             pass # we don't care
 
 
