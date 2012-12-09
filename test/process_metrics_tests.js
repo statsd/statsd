@@ -1,4 +1,5 @@
-var pm = require('../lib/process_metrics')
+var pm = require('../lib/process_metrics'),
+    _  = require('underscore');
 
 module.exports = {
   setUp: function (callback) {
@@ -118,7 +119,7 @@ module.exports = {
     test.done();
   }, // check if the correct settings are being applied. as well as actual counts
     timers_histogram: function (test) {
-    test.expect(45);
+    test.expect(13);
     this.metrics.timers['a'] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     this.metrics.timers['abc'] = [0.1234, 2.89, 4, 6, 8];
     this.metrics.timers['foo'] = [0, 2, 4, 6, 8];
@@ -132,41 +133,26 @@ module.exports = {
     pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data;
     // nothing matches the 'abcd' config, so nothing has bin_5
-    test.equal(undefined, timer_data['a']['bin_5']);
-    test.equal(undefined, timer_data['abc']['bin_5']);
-    test.equal(undefined, timer_data['foo']['bin_5']);
-    test.equal(undefined, timer_data['barbazfoobar']['bin_5']);
-    test.equal(undefined, timer_data['bar.bazfoobar.abc']['bin_5']);
-    test.equal(undefined, timer_data['xyz']['bin_5']);
+    test.equal(undefined, timer_data['a']['histogram']['bin_5']);
+    test.equal(undefined, timer_data['abc']['histogram']['bin_5']);
 
     // check that 'a' got the right config and numbers
-    test.equal(0, timer_data['a']['bin_1']);
-    test.equal(1, timer_data['a']['bin_2']);
-    test.equal(undefined, timer_data['a']['bin_inf']);
+    test.equal(0, timer_data['a']['histogram']['bin_1']);
+    test.equal(1, timer_data['a']['histogram']['bin_2']);
+    test.equal(undefined, timer_data['a']['histogram']['bin_inf']);
 
     // only 'abc' should have a bin_inf; also check all its counts,
     // and make sure it has no other bins
-    // amount of non-bin_ keys: std, upper, lower, count, sum, mean -> 6
-    test.equal(1, timer_data['abc']['bin_1']);
-    test.equal(0, timer_data['abc']['bin_2_21']);
-    test.equal(4, timer_data['abc']['bin_inf']);
-    for (key in timer_data['abc']) {
-        test.ok(key.indexOf('bin_') < 0 || key == 'bin_1' || key == 'bin_2_21' || key == 'bin_inf');
-    }
+    test.equal(1, timer_data['abc']['histogram']['bin_1']);
+    test.equal(0, timer_data['abc']['histogram']['bin_2_21']);
+    test.equal(4, timer_data['abc']['histogram']['bin_inf']);
+    test.equal(3, _.size(timer_data['abc']['histogram']));
 
-    // 'foo', 'barbazfoobar' and 'bar.bazfoobar.meh' and 'xyz' should not have any bin
-    for (key in timer_data['foo']) {
-        test.ok(key.indexOf('bin_') < 0);
-    }
-    for (key in timer_data['barbazfoobar']) {
-        test.ok(key.indexOf('bin_') < 0);
-    }
-    for (key in timer_data['bar.bazfoobar.abc']) {
-        test.ok(key.indexOf('bin_') < 0);
-    }
-    for (key in timer_data['xyz']) {
-        test.ok(key.indexOf('bin_') < 0);
-    }
+    // these all have histograms disabled ('foo' explicitly, rest implicitly)
+    test.equal(undefined, timer_data['foo']['histogram']);
+    test.equal(undefined, timer_data['barbazfoobar']['histogram']);
+    test.equal(undefined, timer_data['bar.bazfoobar.abc']['histogram']);
+    test.equal(undefined, timer_data['xyz']['histogram']);
 
     test.done();
   },
