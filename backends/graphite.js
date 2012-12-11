@@ -68,6 +68,7 @@ var post_stats = function graphite_post_stats(statString) {
 }
 
 var flush_stats = function graphite_flush(ts, metrics) {
+  var ts_suffix = ' ' + ts + "\n";
   var starttime = Date.now();
   var statString = '';
   var numStats = 0;
@@ -87,11 +88,11 @@ var flush_stats = function graphite_flush(ts, metrics) {
     var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
 
     if (legacyNamespace === true) {
-      statString += namespace.join(".")   + ' ' + valuePerSecond + ' ' + ts + "\n";
-      statString += 'stats_counts.' + key + ' ' + value          + ' ' + ts + "\n";
+      statString += namespace.join(".")   + ' ' + valuePerSecond + ts_suffix;
+      statString += 'stats_counts.' + key + ' ' + value          + ts_suffix;
     } else {
-      statString += namespace.concat('rate').join(".")  + ' ' + valuePerSecond + ' ' + ts + "\n";
-      statString += namespace.concat('count').join(".") + ' ' + value          + ' ' + ts + "\n";
+      statString += namespace.concat('rate').join(".")  + ' ' + valuePerSecond + ts_suffix;
+      statString += namespace.concat('count').join(".") + ' ' + value          + ts_suffix;
     }
 
     numStats += 1;
@@ -102,7 +103,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
       for (timer_data_key in timer_data[key]) {
         var namespace = timerNamespace.concat(key);
         var the_key = namespace.join(".");
-        statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ' ' + ts + "\n";
+        statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ts_suffix;
       }
 
       numStats += 1;
@@ -111,29 +112,29 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
   for (key in gauges) {
     var namespace = gaugesNamespace.concat(key);
-    statString += namespace.join(".") + ' ' + gauges[key] + ' ' + ts + "\n";
+    statString += namespace.join(".") + ' ' + gauges[key] + ts_suffix;
     numStats += 1;
   }
 
   for (key in sets) {
     var namespace = setsNamespace.concat(key);
-    statString += namespace.join(".") + '.count ' + sets[key].values().length + ' ' + ts + "\n";
+    statString += namespace.join(".") + '.count ' + sets[key].values().length + ts_suffix;
     numStats += 1;
   }
 
   var namespace = globalNamespace.concat('statsd');
   if (legacyNamespace === true) {
-    statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
-    statString += 'stats.statsd.graphiteStats.calculationtime ' + (Date.now() - starttime) + ' ' + ts + "\n";
+    statString += 'statsd.numStats ' + numStats + ts_suffix;
+    statString += 'stats.statsd.graphiteStats.calculationtime ' + (Date.now() - starttime) + ts_suffix;
     for (key in statsd_metrics) {
-      statString += 'stats.statsd.' + key + ' ' + statsd_metrics[key] + ' ' + ts + "\n";
+      statString += 'stats.statsd.' + key + ' ' + statsd_metrics[key] + ts_suffix;
     }
   } else {
-    statString += namespace.join(".") + '.numStats ' + numStats + ' ' + ts + "\n";
-    statString += namespace.join(".") + '.graphiteStats.calculationtime ' + (Date.now() - starttime) + ' ' + ts + "\n";
+    statString += namespace.join(".") + '.numStats ' + numStats + ts_suffix;
+    statString += namespace.join(".") + '.graphiteStats.calculationtime ' + (Date.now() - starttime) + ts_suffix;
     for (key in statsd_metrics) {
       var the_key = namespace.concat(key);
-      statString += the_key.join(".") + ' ' + statsd_metrics[key] + ' ' + ts + "\n";
+      statString += the_key.join(".") + ' ' + statsd_metrics[key] + ts_suffix;
     }
   }
 
