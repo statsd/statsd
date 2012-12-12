@@ -85,7 +85,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
   for (key in counters) {
     var namespace = counterNamespace.concat(key);
     var value = counters[key];
-    var valuePerSecond = value / (flushInterval / 1000); // calculate "per second" rate
+    var valuePerSecond = counter_rates[key]; // pre-calculated "per second" rate
 
     if (legacyNamespace === true) {
       statString += namespace.join(".")   + ' ' + valuePerSecond + ts_suffix;
