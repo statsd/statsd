@@ -215,6 +215,8 @@ Graphite:
   flush to graphite
 * graphite.last_exception: the number of seconds elapsed since the last
   exception thrown whilst flushing to graphite
+* graphite.flush_length: the length of the string sent to graphite
+* graphite.flush_time: the time it took to send the data to graphite
 
 A simple nagios check can be found in the utils/ directory that can be used to
 check metric thresholds, for example the number of seconds since the last
