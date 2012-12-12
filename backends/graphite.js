@@ -55,9 +55,9 @@ var post_stats = function graphite_post_stats(statString) {
         var ts = Math.round(new Date().getTime() / 1000);
         var ts_suffix = ' ' + ts + "\n";
         var namespace = globalNamespace.concat('statsd');
-        statString += namespace.join(".") + '.graphiteStats.last_exception ' + last_exception + ts_suffix;
-        statString += namespace.join(".") + '.graphiteStats.last_flush ' + last_flush + ts_suffix;
-        statString += namespace.join(".") + '.graphiteStats.last_flush_time ' + last_flush_time + ts_suffix;
+        statString += namespace.join(".") + '.graphiteStats.last_exception '    + last_exception    + ts_suffix;
+        statString += namespace.join(".") + '.graphiteStats.last_flush '        + last_flush        + ts_suffix;
+        statString += namespace.join(".") + '.graphiteStats.last_flush_time '   + last_flush_time   + ts_suffix;
         statString += namespace.join(".") + '.graphiteStats.last_flush_length ' + last_flush_length + ts_suffix;
         var starttime = Date.now();
         this.write(statString);
