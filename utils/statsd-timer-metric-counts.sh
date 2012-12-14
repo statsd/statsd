@@ -3,7 +3,7 @@
 # at a fast enough rate? (see `netstat -su` ) timer metrics are by far the most cpu intensive
 # and tuning the sampling of those is key to keeping cpu load under control.
 # this tool (to be run on your graphite server) shows for all your timing metric keys how many packets
-# it accepted for a "typical" flushInterval (averaged out). using this information you can make informed decisions as
+# it accepted in a given interval like 1hour. using this information you can make informed decisions as
 # to which keys to sample and how much.
 # note that in some bad cases you might see no effect after increasing your amount of sampling, the explanation is
 # that you were first sending so many packets of which only a fraction were being processed and shown in these counts, 
