@@ -259,5 +259,43 @@ module.exports = {
           });
       });
     });
+  },
+  status_are_valid: function (test) {
+    test.expect(4);
+
+    var testvalue = 100;
+    var me = this;
+    this.acceptor.once('connection',function(c){
+      statsd_send('a_test_value:' + testvalue + '|v',me.sock,'127.0.0.1',8125,function(){
+        collect_for(me.acceptor,me.myflush*2,function(strings){
+          test.ok(strings.length > 0,'should receive some data');
+          var hashes = _.map(strings, function(x) {
+            var chunks = x.split(' ');
+            var data = {};
+            data[chunks[0]] = chunks[1];
+            return data;
+          });
+          var numstat_test = function(post){
+            var mykey = 'statsd.numStats';
+            return _.include(_.keys(post),mykey) && (post[mykey] == 2);
+          };
+          test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
+
+          var testavgvalue_test = function(post){
+            var mykey = 'stats.a_test_value';
+            return _.include(_.keys(post),mykey) && (post[mykey] == (testvalue/(me.myflush / 1000)));
+          };
+          test.ok(_.any(hashes,testavgvalue_test), 'stats.a_test_value should be ' + (testvalue/(me.myflush / 1000)));
+
+          var testcountvalue_test = function(post){
+            var mykey = 'stats_counts.a_test_value';
+            return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
+          };
+          test.ok(_.any(hashes,testcountvalue_test), 'stats_counts.a_test_value should be ' + testvalue);
+
+          test.done();
+        });
+      });
+    });
   }
 }

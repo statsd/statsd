@@ -42,6 +42,14 @@ backend).  Statsd will send both the rate as well as the count at each flush.
 
 Tells StatsD that this counter is being sent sampled every 1/10th of the time.
 
+Status
+--------
+
+    gorets:1|v
+
+This works the same way as the counters, except it won't be reset to 0
+after every flush.
+
 Timing
 ------
 

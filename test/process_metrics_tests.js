@@ -1,10 +1,11 @@
-var pm = require('../lib/process_metrics')
+var pm = require('../lib/process_metrics');
 
 module.exports = {
   setUp: function (callback) {
     this.time_stamp = Math.round(new Date().getTime() / 1000);
 
     var counters = {};
+    var status = {};
     var gauges = {};
     var timers = {};
     var sets = {};
@@ -15,8 +16,9 @@ module.exports = {
       gauges: gauges,
       timers: timers,
       sets: sets,
+      status: status,
       pctThreshold: pctThreshold
-    }
+    };
     callback();
   },
   counters_has_stats_count: function(test) {
@@ -29,6 +31,20 @@ module.exports = {
   counters_has_correct_rate: function(test) {
     test.expect(1);
     this.metrics.counters['a'] = 2;
+    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    test.equal(20, this.metrics.counter_rates['a']);
+    test.done();
+  },
+  status_has_stats_count: function(test) {
+    test.expect(1);
+    this.metrics.status['a'] = 2;
+    pm.process_metrics(this.metrics, 1000, this.time_stamp, function(){});
+    test.equal(2, this.metrics.status['a']);
+    test.done();
+  },
+  status_has_correct_rate: function(test) {
+    test.expect(1);
+    this.metrics.status['a'] = 2;
     pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
     test.equal(20, this.metrics.counter_rates['a']);
     test.done();
