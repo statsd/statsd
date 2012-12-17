@@ -18,6 +18,7 @@ var counters = {
 var timers = {};
 var gauges = {};
 var sets = {};
+var status = {};
 var counter_rates = {};
 var timer_data = {};
 var pctThreshold = null;
@@ -38,7 +39,7 @@ function loadBackend(config, name) {
     l.log("Failed to load backend: " + name);
     process.exit(1);
   }
-};
+}
 
 // global for conf
 var conf;
@@ -52,10 +53,11 @@ function flushMetrics() {
     gauges: gauges,
     timers: timers,
     sets: sets,
+    status: status,
     counter_rates: counter_rates,
     timer_data: timer_data,
     pctThreshold: pctThreshold
-  }
+  };
 
   // After all listeners, reset the stats
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
@@ -84,7 +86,7 @@ function flushMetrics() {
     backendEvents.emit('flush', time_stamp, metrics);
   });
 
-};
+}
 
 var stats = {
   messages: {
@@ -112,7 +114,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     debugInt = setInterval(function () {
       l.log("Counters:\n" + util.inspect(counters) +
                "\nTimers:\n" + util.inspect(timers) +
-               "\nGauges:\n" + util.inspect(gauges), 'debug');
+               "\nGauges:\n" + util.inspect(gauges) +
+               "\nStatus:\n" + util.inspect(status), 'debug');
     }, config.debugInterval || 10000);
   }
 
@@ -156,18 +159,27 @@ config.configFile(process.argv[2], function (config, oldConfig) {
               stats['messages']['bad_lines_seen']++;
               continue;
           }
-          if (fields[1].trim() == "ms") {
+
+          var metric = fields[1].trim();
+
+          if (metric === "ms") {
             if (! timers[key]) {
               timers[key] = [];
             }
             timers[key].push(Number(fields[0] || 0));
-          } else if (fields[1].trim() == "g") {
+          } else if (metric === "g") {
             gauges[key] = Number(fields[0] || 0);
-          } else if (fields[1].trim() == "s") {
+          } else if (metric === "s") {
             if (! sets[key]) {
               sets[key] = new set.Set();
             }
             sets[key].insert(fields[0] || '0');
+          } else if (metric === 'v') {
+            if (!status[key]) {
+              status[key] = 0;
+            }
+
+            status[key] += Number(fields[0] || 1) * (1 / sampleRate);
           } else {
             if (fields[2]) {
               if (fields[2].match(/^@([\d\.]+)/)) {
@@ -199,7 +211,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
         switch(cmd) {
           case "help":
-            stream.write("Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, quit\n\n");
+            stream.write("Commands: stats, counters, timers, gauges, status, delcounters, deltimers, delgauges, delstatus, quit\n\n");
             break;
 
           case "stats":
@@ -259,6 +271,11 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             stream.write("END\n\n");
             break;
 
+          case "status":
+            stream.write(util.inspect(status) + "\n");
+            stream.write("END\n\n");
+            break;
+
           case "delcounters":
             for (var index in cmdline) {
               delete counters[cmdline[index]];
@@ -278,6 +295,14 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           case "delgauges":
             for (var index in cmdline) {
               delete gauges[cmdline[index]];
+              stream.write("deleted: " + cmdline[index] + "\n");
+            }
+            stream.write("END\n\n");
+            break;
+
+          case "delstatus":
+            for (var index in cmdline) {
+              delete status[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
             stream.write("END\n\n");
@@ -354,9 +379,5 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         keyCounter = {};
       }, keyFlushInterval);
     }
-
-
-  ;
-
   }
-})
+});
