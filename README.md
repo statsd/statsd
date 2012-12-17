@@ -332,6 +332,17 @@ prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
 prefixSet:        graphite prefix for set metrics [default: "sets"]
 ```
 
+Example prefix config:
+```
+, graphite: { legacyNamespace: false
+, 			prefixCounter: "counters"
+, 			prefixTimer: "timers"
+, 			prefixGauge: "gauges"
+, 			prefixSet: "sets"
+, 			globalPrefix: "stats"
+, }
+```
+
 If you decide not to use the legacy namespacing, besides the obvious changes
 in the prefixing, there will also be a breaking change in the way counters are
 submitted. So far counters didn't live under any namespace and were also a bit
@@ -341,6 +352,94 @@ absolute count could be found under `stats_count.counter_name`. With disabling
 the legacy namespacing those values can be found (with default prefixing)
 under `stats.counters.counter_name.rate` and
 `stats.counters.counter_name.count` now.
+
+
+Along with disabling legacy namespacing, there's an option to use suffixes 
+instead of prefixes to label the data.  When "useSuffixNames" is set to true, 
+prefixes are ignored and suffixes are used instead.
+
+Example suffix config:
+```
+, graphite: { legacyNamespace: false
+,		useSuffixNames: true
+, 		suffixCounter: "counters"
+, 		suffixTimer: "timers"
+, 		suffixGauge: "gauges"
+, 		suffixSet: "sets"
+, }
+```
+
+Some namespacing examples:
+
+Legacy namespacing:
+```
+stats:
+NAME-c.wsp  gauges  sets  statsd  timers
+stats/gauges:
+NAME-g.wsp
+stats/sets/NAME-s:
+count.wsp
+stats/statsd:
+bad_lines_seen.wsp  graphiteStats  packets_received.wsp  processing_time.wsp
+stats/statsd/graphiteStats:
+calculationtime.wsp  last_exception.wsp  last_flush.wsp
+stats/timers/NAME-ms:
+count.wsp  mean.wsp     std.wsp  sum_90.wsp  upper_90.wsp
+lower.wsp  mean_90.wsp  sum.wsp  upper.wsp
+stats_counts:
+NAME-c.wsp  statsd
+stats_counts/statsd:
+bad_lines_seen.wsp  packets_received.wsp
+statsd:
+numStats.wsp
+```
+
+Prefix namespacing:
+```
+stats/counters:
+NAME-c  statsd
+stats/counters/NAME-c:
+count.wsp  rate.wsp
+stats/counters/statsd/bad_lines_seen:
+count.wsp  rate.wsp
+stats/counters/statsd/packets_received:
+count.wsp  rate.wsp
+stats/gauges:
+NAME-g.wsp
+stats/sets/NAME-s:
+count.wsp
+stats/statsd:
+graphiteStats  numStats.wsp  processing_time.wsp
+stats/statsd/graphiteStats:
+calculationtime.wsp  last_exception.wsp  last_flush.wsp
+stats/timers/NAME-ms:
+count.wsp  mean.wsp     std.wsp  sum_90.wsp  upper_90.wsp
+lower.wsp  mean_90.wsp  sum.wsp  upper.wsp
+```
+
+Suffix namespacing:
+```
+stats/NAME-c/counters:
+count.wsp  rate.wsp
+stats/NAME-g:
+gauges.wsp
+stats/NAME-ms/timers:
+count.wsp  mean.wsp     std.wsp  sum_90.wsp  upper_90.wsp
+lower.wsp  mean_90.wsp  sum.wsp  upper.wsp
+stats/NAME-s/sets:
+count.wsp
+stats/statsd:
+bad_lines_seen  numStats.wsp      processing_time.wsp
+graphiteStats   packets_received
+stats/statsd/bad_lines_seen/counters:
+count.wsp  rate.wsp
+stats/statsd/graphiteStats:
+calculationtime.wsp  last_exception.wsp  last_flush.wsp
+stats/statsd/packets_received/counters:
+count.wsp  rate.wsp
+```
+
+
 
 
 Inspiration
