@@ -16,7 +16,7 @@ class StatsdClient(object):
         """
         self.addr = (host, port)
 
-    def timing(self, stat, time, sample_rate=1):
+    def timing(self, stat, time):
         """
         Log timing information
 
@@ -25,7 +25,7 @@ class StatsdClient(object):
         """
         stats = {}
         stats[stat] = "{0}|ms".format(time)
-        self.sample_send(stats, sample_rate)
+        self.send(stats, self.addr)
 
     def increment(self, stats, sample_rate=1):
         """
