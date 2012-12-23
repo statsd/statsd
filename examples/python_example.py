@@ -25,7 +25,6 @@ class StatsdClient(object):
         >>> client = StatsdClient()
         >>> client.timing('example.timing', 500)
         >>> client.timing(('example.timing23', 'example.timing29'), 500)
-
         """
         stats = self.format(stats, time, self.SC_TIMING)
         self.send(stats, self.addr)
@@ -39,6 +38,17 @@ class StatsdClient(object):
         >>> client.gauge(('example.gauge41', 'example.gauge43'), 47)
         """
         stats = self.format(stats, value, self.SC_GAUGE)
+        self.send(stats, self.addr)
+
+    def set(self, stats, value):
+        """
+        Log set
+
+        >>> client = StatsdClient()
+        >>> client.set('example.set', "set")
+        >>> client.set(('example.set61', 'example.set67'), "2701")
+        """
+        stats = self.format(stats, value, self.SC_SET)
         self.send(stats, self.addr)
 
     def increment(self, stats, sample_rate=1):
