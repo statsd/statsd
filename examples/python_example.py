@@ -108,8 +108,3 @@ class StatsdClient(object):
             print("Unexpected error: ", traceback.format_exc(), file=sys.stderr)
             return False
         return True
-
-
-if __name__=="__main__":
-    c = StatsdClient()
-    c.increment('example.python')
