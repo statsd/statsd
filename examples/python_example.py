@@ -1,7 +1,6 @@
 # Steve Ivy <steveivy@gmail.com>
 # http://monkinetic.com
 
-from __future__ import print_function
 from random import random
 from socket import socket, AF_INET, SOCK_DGRAM
 
@@ -92,17 +91,9 @@ class StatsdClient(object):
         Sends key/value pairs via UDP.
 
         >>> StatsdClient.send({"example.send":"11|c"}, ("127.0.0.1", 8125))
-        True
         """
         # TODO(rbtz@): IPv6 support
         udp_sock = socket(AF_INET, SOCK_DGRAM)
-        try:
-            # TODO(rbtz@): Add batch support
-            for item in _dict.items():
-                udp_sock.sendto(":".join(item).encode('utf-8'), addr)
-        except Exception:
-            import sys
-            import traceback
-            print("Unexpected error: ", traceback.format_exc(), file=sys.stderr)
-            return False
-        return True
+        # TODO(rbtz@): Add batch support
+        for item in _dict.items():
+            udp_sock.sendto(":".join(item).encode('utf-8'), addr)
