@@ -30,6 +30,17 @@ class StatsdClient(object):
         stats = self.format(stats, time, self.SC_TIMING)
         self.send(stats, self.addr)
 
+    def gauge(self, stats, value):
+        """
+        Log gauges
+
+        >>> client = StatsdClient()
+        >>> client.gauge('example.gauge', 47)
+        >>> client.gauge(('example.gauge41', 'example.gauge43'), 47)
+        """
+        stats = self.format(stats, value, self.SC_GAUGE)
+        self.send(stats, self.addr)
+
     def increment(self, stats, sample_rate=1):
         """
         Increments one or more stats counters
