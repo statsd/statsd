@@ -7,17 +7,21 @@ from __future__ import print_function
 from random import random
 from socket import socket, AF_INET, SOCK_DGRAM
 
-# Sends statistics to the stats daemon over UDP
 class StatsdClient(object):
     def __init__(self, host='localhost', port=8125):
+        """
+        Sends statistics to the stats daemon over UDP
+
+        >>> from python_example import StatsdClient
+        """
         self.addr = (host, port)
 
     def timing(self, stat, time, sample_rate=1):
         """
         Log timing information
-        >>> from python_example import StatsdClient
+
         >>> client = StatsdClient()
-        >>> client.timing('some.time', 500)
+        >>> client.timing('example.timing', 500)
         """
         stats = {}
         stats[stat] = "{0}|ms".format(time)
@@ -26,25 +30,28 @@ class StatsdClient(object):
     def increment(self, stats, sample_rate=1):
         """
         Increments one or more stats counters
+
         >>> client = StatsdClient()
-        >>> client.increment('some.int')
-        >>> client.increment('some.int', 0.5)
+        >>> client.increment('example.increment')
+        >>> client.increment('example.increment', 0.5)
         """
         self.update_stats(stats, 1, sample_rate)
 
     def decrement(self, stats, sample_rate=1):
         """
         Decrements one or more stats counters
+
         >>> client = StatsdClient()
-        >>> client.decrement('some.int')
+        >>> client.decrement('example.decrement')
         """
         self.update_stats(stats, -1, sample_rate)
 
     def update_stats(self, stats, delta=1, sampleRate=1):
         """
         Updates one or more stats counters by arbitrary amounts
+
         >>> client = StatsdClient()
-        >>> client.update_stats('some.int', 10)
+        >>> client.update_stats('example.update_stats', 17)
         """
         if not isinstance(stats, list):
             stats = [stats]
