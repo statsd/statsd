@@ -20,7 +20,7 @@ class StatsdClient(object):
         >>> client.timing('some.time', 500)
         """
         stats = {}
-        stats[stat] = "%d|ms" % time
+        stats[stat] = "{0}|ms".format(time)
         self.send(stats, sample_rate)
 
     def increment(self, stats, sample_rate=1):
@@ -50,7 +50,7 @@ class StatsdClient(object):
             stats = [stats]
         data = {}
         for stat in stats:
-            data[stat] = "%s|c" % delta
+            data[stat] = "{0}|c".format(delta)
         self.send(data, sampleRate)
 
     def send(self, data, sample_rate=1):
@@ -62,14 +62,14 @@ class StatsdClient(object):
         if (sample_rate < 1):
             if random() <= sample_rate:
                 for stat, value in data.items():
-                    sampled_data[stat] = "%s|@%s" %(value, sample_rate)
+                    sampled_data[stat] = "{0}|@{1}".format(value, sample_rate)
         else:
             sampled_data = data
 
         udp_sock = socket(AF_INET, SOCK_DGRAM)
         try:
             for stat, value in sampled_data.items():
-                send_data = "%s:%s" % (stat, value)
+                send_data = "{0}:{1}".format(stat, value)
                 udp_sock.sendto(send_data.encode('utf-8'), self.addr)
         except Exception:
             import sys
