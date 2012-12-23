@@ -18,7 +18,7 @@ class StatsdClient(object):
         """
         self.addr = (host, port)
 
-    def timing(self, stats, time):
+    def timing(self, stats, value):
         """
         Log timing information
 
@@ -26,7 +26,7 @@ class StatsdClient(object):
         >>> client.timing('example.timing', 500)
         >>> client.timing(('example.timing23', 'example.timing29'), 500)
         """
-        stats = self.format(stats, time, self.SC_TIMING)
+        stats = self.format(stats, value, self.SC_TIMING)
         self.send(stats, self.addr)
 
     def gauge(self, stats, value):
@@ -70,14 +70,14 @@ class StatsdClient(object):
         """
         self.count(stats, -1, sample_rate)
 
-    def count(self, stats, delta, sample_rate=1):
+    def count(self, stats, value, sample_rate=1):
         """
         Updates one or more stats counters by arbitrary amounts
 
         >>> client = StatsdClient()
         >>> client.count('example.counter', 17)
         """
-        stats = self.format(stats, delta, self.SC_COUNT)
+        stats = self.format(stats, value, self.SC_COUNT)
         self.send(self.sample(stats, sample_rate), self.addr)
 
     @staticmethod
