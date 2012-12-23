@@ -46,7 +46,7 @@ class StatsdClient(object):
         >>> client = StatsdClient()
         >>> client.update_stats('some.int', 10)
         """
-        if isinstance(stats, list):
+        if not isinstance(stats, list):
             stats = [stats]
         data = {}
         for stat in stats:
