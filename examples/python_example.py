@@ -58,20 +58,10 @@ class StatsdClient(object):
         data = {}
         for stat in stats:
             data[stat] = "{0}|c".format(delta)
-        self.sample_send(data, sample_rate)
-
-    def sample_send(self, data, sample_rate=1):
-        """
-        Sample and squirt the metrics over UDP
-
-        >>> client = StatsdClient()
-        >>> client.sample_send({"example.sample_send": "13|c"}, 1)
-        True
-        """
-        return self.send(self.sample(data, sample_rate), self.addr)
+        self.send(self.sample(data, sample_rate), self.addr)
 
     @staticmethod
-    def sample(data, sample_rate=1):
+    def sample(data, sample_rate):
         """
         Sample data dict
         TODO(rbtz@): Convert to generator
