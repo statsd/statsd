@@ -26,8 +26,7 @@ class StatsdClient(object):
         >>> client.timing('example.timing', 500)
         >>> client.timing(('example.timing23', 'example.timing29'), 500)
         """
-        stats = self.format(stats, value, self.SC_TIMING)
-        self.send(stats, self.addr)
+        self.update_stats(stats, value, self.SC_TIMING)
 
     def gauge(self, stats, value):
         """
@@ -37,8 +36,7 @@ class StatsdClient(object):
         >>> client.gauge('example.gauge', 47)
         >>> client.gauge(('example.gauge41', 'example.gauge43'), 47)
         """
-        stats = self.format(stats, value, self.SC_GAUGE)
-        self.send(stats, self.addr)
+        self.update_stats(stats, value, self.SC_GAUGE)
 
     def set(self, stats, value):
         """
@@ -48,8 +46,7 @@ class StatsdClient(object):
         >>> client.set('example.set', "set")
         >>> client.set(('example.set61', 'example.set67'), "2701")
         """
-        stats = self.format(stats, value, self.SC_SET)
-        self.send(stats, self.addr)
+        self.update_stats(stats, value, self.SC_SET)
 
     def increment(self, stats, sample_rate=1):
         """
@@ -72,12 +69,21 @@ class StatsdClient(object):
 
     def count(self, stats, value, sample_rate=1):
         """
-        Updates one or more stats counters by arbitrary amounts
+        Updates one or more stats counters by arbitrary value
 
         >>> client = StatsdClient()
         >>> client.count('example.counter', 17)
         """
-        stats = self.format(stats, value, self.SC_COUNT)
+        self.update_stats(stats, value, self.SC_COUNT, sample_rate)
+
+    def update_stats(self, stats, value, _type, sample_rate=1):
+        """
+        Pipeline function that formats data, samples it and passes to send()
+
+        >>> client = StatsdClient()
+        >>> client.update_stats('example.update_stats', 73, "c", 0.9)
+        """
+        stats = self.format(stats, value, _type)
         self.send(self.sample(stats, sample_rate), self.addr)
 
     @staticmethod
