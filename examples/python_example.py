@@ -3,6 +3,7 @@
 # Steve Ivy <steveivy@gmail.com>
 # http://monkinetic.com
 
+from __future__ import print_function
 from random import random
 from socket import socket, AF_INET, SOCK_DGRAM
 
@@ -69,11 +70,11 @@ class StatsdClient(object):
         try:
             for stat, value in sampled_data.items():
                 send_data = "%s:%s" % (stat, value)
-                udp_sock.sendto(send_data, self.addr)
+                udp_sock.sendto(send_data.encode('utf-8'), self.addr)
         except Exception:
             import sys
             import traceback
-            print >>sys.stderr, "Unexpected error: ", traceback.format_exc()
+            print("Unexpected error: ", traceback.format_exc(), file=sys.stderr)
             return False
         return True
 
