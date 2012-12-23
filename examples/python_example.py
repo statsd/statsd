@@ -5,6 +5,11 @@ from random import random
 from socket import socket, AF_INET, SOCK_DGRAM
 
 class StatsdClient(object):
+    SC_TIMING = "ms"
+    SC_COUNT = "c"
+    SC_GAUGE = "g"
+    SC_SET = "s"
+
     def __init__(self, host='localhost', port=8125):
         """
         Sends statistics to the stats daemon over UDP
@@ -13,15 +18,16 @@ class StatsdClient(object):
         """
         self.addr = (host, port)
 
-    def timing(self, stat, time):
+    def timing(self, stats, time):
         """
         Log timing information
 
         >>> client = StatsdClient()
         >>> client.timing('example.timing', 500)
+        >>> client.timing(('example.timing23', 'example.timing29'), 500)
+
         """
-        stats = {}
-        stats[stat] = "{0}|ms".format(time)
+        stats = self.format(stats, time, self.SC_TIMING)
         self.send(stats, self.addr)
 
     def increment(self, stats, sample_rate=1):
@@ -50,12 +56,27 @@ class StatsdClient(object):
         >>> client = StatsdClient()
         >>> client.count('example.counter', 17)
         """
-        if not isinstance(stats, list):
-            stats = [stats]
+        stats = self.format(stats, delta, self.SC_COUNT)
+        self.send(self.sample(stats, sample_rate), self.addr)
+
+    @staticmethod
+    def format(keys, value, _type):
+        """
+        General format function.
+
+        >>> StatsdClient.format("example.format", 2, "T")
+        {'example.format': '2|T'}
+        >>> StatsdClient.format(("example.format31", "example.format37"), "2", "T")
+        {'example.format31': '2|T', 'example.format37': '2|T'}
+        """
         data = {}
-        for stat in stats:
-            data[stat] = "{0}|c".format(delta)
-        self.send(self.sample(data, sample_rate), self.addr)
+        value = "{0}|{1}".format(value, _type)
+        # TODO: Allow any iterable except strings
+        if not isinstance(keys, (list, tuple)):
+            keys = [keys]
+        for key in keys:
+            data[key] = value
+        return data
 
     @staticmethod
     def sample(data, sample_rate):
