@@ -35,7 +35,7 @@ class StatsdClient(object):
         >>> client.increment('example.increment')
         >>> client.increment('example.increment', 0.5)
         """
-        self.update_stats(stats, 1, sample_rate)
+        self.count(stats, 1, sample_rate)
 
     def decrement(self, stats, sample_rate=1):
         """
@@ -44,14 +44,14 @@ class StatsdClient(object):
         >>> client = StatsdClient()
         >>> client.decrement('example.decrement')
         """
-        self.update_stats(stats, -1, sample_rate)
+        self.count(stats, -1, sample_rate)
 
-    def update_stats(self, stats, delta=1, sampleRate=1):
+    def count(self, stats, delta=1, sampleRate=1):
         """
         Updates one or more stats counters by arbitrary amounts
 
         >>> client = StatsdClient()
-        >>> client.update_stats('example.update_stats', 17)
+        >>> client.count('example.counter', 17)
         """
         if not isinstance(stats, list):
             stats = [stats]
