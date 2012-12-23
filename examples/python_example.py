@@ -21,7 +21,7 @@ class StatsdClient(object):
         """
         stats = {}
         stats[stat] = "{0}|ms".format(time)
-        self.send(stats, sample_rate)
+        self.sample_send(stats, sample_rate)
 
     def increment(self, stats, sample_rate=1):
         """
@@ -51,26 +51,60 @@ class StatsdClient(object):
         data = {}
         for stat in stats:
             data[stat] = "{0}|c".format(delta)
-        self.send(data, sampleRate)
+        self.sample_send(data, sampleRate)
 
-    def send(self, data, sample_rate=1):
+    def sample_send(self, data, sample_rate=1):
         """
-        Squirt the metrics over UDP
+        Sample and squirt the metrics over UDP
+
+        >>> client = StatsdClient()
+        >>> client.sample_send({"example.sample_send": "13|c"}, 1)
+        True
+        """
+        return self.send(self.sample(data, sample_rate), self.addr)
+
+    @staticmethod
+    def sample(data, sample_rate=1):
+        """
+        Sample data dict
+        TODO(rbtz@): Convert to generator
+
+        >>> StatsdClient.sample({"example.sample2": "2"}, 1)
+        {'example.sample2': '2'}
+        >>> StatsdClient.sample({"example.sample3": "3"}, 0)
+        {}
+        >>> from random import seed
+        >>> seed(1)
+        >>> StatsdClient.sample({"example.sample5": "5", "example.sample7": "7"}, 0.99)
+        {'example.sample5': '5|@0.99', 'example.sample7': '7|@0.99'}
+        >>> StatsdClient.sample({"example.sample5": "5", "example.sample7": "7"}, 0.01)
+        {}
         """
         sampled_data = {}
-
-        if (sample_rate < 1):
+        if 0 < sample_rate < 1:
             if random() <= sample_rate:
                 for stat, value in data.items():
                     sampled_data[stat] = "{0}|@{1}".format(value, sample_rate)
+        elif sample_rate == 0:
+            sampled_data = {}
         else:
             sampled_data = data
+        return sampled_data
 
+    @staticmethod
+    def send(_dict, addr):
+        """
+        Sends key/value pairs via UDP.
+
+        >>> StatsdClient.send({"example.send":"11|c"}, ("127.0.0.1", 8125))
+        True
+        """
+        # TODO(rbtz@): IPv6 support
         udp_sock = socket(AF_INET, SOCK_DGRAM)
         try:
-            for stat, value in sampled_data.items():
-                send_data = "{0}:{1}".format(stat, value)
-                udp_sock.sendto(send_data.encode('utf-8'), self.addr)
+            # TODO(rbtz@): Add batch support
+            for item in _dict.items():
+                udp_sock.sendto(":".join(item).encode('utf-8'), addr)
         except Exception:
             import sys
             import traceback
