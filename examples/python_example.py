@@ -122,16 +122,15 @@ class StatsdClient(object):
         >>> StatsdClient.sample({"example.sample5": "5", "example.sample7": "7"}, 0.01)
         {}
         """
-        sampled_data = {}
-        if 0 < sample_rate < 1:
+        if sample_rate >= 1:
+            return data
+        elif sample_rate < 1:
             if random() <= sample_rate:
+                sampled_data = {}
                 for stat, value in data.items():
                     sampled_data[stat] = "{0}|@{1}".format(value, sample_rate)
-        elif sample_rate == 0:
-            sampled_data = {}
-        else:
-            sampled_data = data
-        return sampled_data
+                return sampled_data
+        return {}
 
     @staticmethod
     def send(_dict, addr):
