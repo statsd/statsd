@@ -46,7 +46,7 @@ class StatsdClient(object):
         """
         self.count(stats, -1, sample_rate)
 
-    def count(self, stats, delta=1, sampleRate=1):
+    def count(self, stats, delta, sample_rate=1):
         """
         Updates one or more stats counters by arbitrary amounts
 
@@ -58,7 +58,7 @@ class StatsdClient(object):
         data = {}
         for stat in stats:
             data[stat] = "{0}|c".format(delta)
-        self.sample_send(data, sampleRate)
+        self.sample_send(data, sample_rate)
 
     def sample_send(self, data, sample_rate=1):
         """
