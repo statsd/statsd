@@ -74,8 +74,25 @@ using a Set to store all occuring events.
 
     uniques:765|s
 
-All metrics can also be batch send in a single UDP packet, separated by a
-newline character.
+Multi-Metric Packets
+--------------------
+StatsD supports receiving multiple metrics in a single packet by separating them
+with a newline.
+
+    gorets:1|c\nglork:320|ms\ngaugor:333|g\nuniques:765|s
+
+Be careful to keep the total length of the payload within your network's MTU. There
+is no single good value to use, but here are some guidelines for common network
+scenarios:
+
+* Fast Ethernet (1432) - This is most likely for Intranets.
+* Gigabit Ethernet (8932) - Jumbo frames can make use of this feature much more
+  efficient.
+* Commodity Internet (512) - If you are routing over the internet a value in this
+  range will be reasonable. You might be able to go higher, but you are at the mercy
+  of all the hops in your route.
+
+*(These payload numbers take into account the maximum IP + UDP header sizes)*
 
 Debugging
 ---------
