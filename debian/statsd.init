@@ -146,9 +146,11 @@ case "$1" in
 		;;
 	esac
 	;;
+  status)
+    status_of_proc $DAEMON "$NAME"
+    ;;
   *)
-	#echo "Usage: $SCRIPTNAME {start|stop|restart|reload|force-reload}" >&2
-	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+	echo "Usage: $SCRIPTNAME {start|stop|restart|status|force-reload}" >&2
 	exit 3
 	;;
 esac
