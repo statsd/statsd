@@ -26,7 +26,7 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
     Object.keys(metrics[type]).forEach(function(name) {
       var value = metrics[type][name];
       self.statsCache[type][name] || (self.statsCache[type][name] = 0);
-      self.statsCache[type][name] += value;
+      self.statsCache[type][name] = value;
     });
   });
 
