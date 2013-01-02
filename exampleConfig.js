@@ -67,6 +67,4 @@ Optional Variables:
 , graphiteHost: "graphite.example.com"
 , port: 8125
 , backends: [ "./backends/graphite" ]
-//, repeater: [ { host: "graphiterepeater.example.com", port: 8125 } ]
-//, repeaterProtocol: "udp4"
 }
