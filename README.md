@@ -233,6 +233,10 @@ Graphite:
 * graphite.last_exception: the number of seconds elapsed since the last
   exception thrown whilst flushing to graphite
 
+Those statistics will also be sent to graphite under the namespaces
+`stats.statsd.graphiteStats.last_exception` and
+`stats.statsd.graphiteStats.last_flush`.
+
 A simple nagios check can be found in the utils/ directory that can be used to
 check metric thresholds, for example the number of seconds since the last
 successful flush to graphite.
@@ -359,6 +363,8 @@ the legacy namespacing those values can be found (with default prefixing)
 under `stats.counters.counter_name.rate` and
 `stats.counters.counter_name.count` now.
 
+The number of elements in sets will be recorded under the metric
+`stats.sets.set_name.count` (where "sets" is the prefixSet).
 
 Inspiration
 -----------
