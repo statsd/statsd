@@ -11,10 +11,7 @@ var dgram  = require('dgram')
 
 // initialize data structures with defaults for statsd stats
 var keyCounter = {};
-var counters = {
-  "statsd.packets_received": 0,
-  "statsd.bad_lines_seen": 0
-};
+var counters = {};
 var timers = {};
 var gauges = {};
 var sets = {};
@@ -116,6 +113,17 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     }, config.debugInterval || 10000);
   }
 
+  // setup config for stats prefix
+  prefixStats       = config.prefixStats;
+  prefixStats     = prefixStats !== undefined ? prefixStats : "statsd";
+  //setup the names for the stats stored in counters{}
+  bad_lines_seen = prefixStats + ".bad_lines_seen";
+  packets_received = prefixStats + ".packets_received";
+
+  //now set to zero so we can increment them 
+  counters[bad_lines_seen] = 0;
+  counters[packets_received] = 0;
+
   if (server === undefined) {
 
     // key counting
@@ -123,7 +131,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
     server = dgram.createSocket('udp4', function (msg, rinfo) {
       backendEvents.emit('packet', msg, rinfo);
-      counters["statsd.packets_received"]++;
+      counters[packets_received]++;
       var metrics = msg.toString().split("\n");
 
       for (midx in metrics) {
@@ -152,7 +160,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           var fields = bits[i].split("|");
           if (fields[1] === undefined) {
               l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
-              counters["statsd.bad_lines_seen"]++;
+              counters[bad_lines_seen]++;
               stats['messages']['bad_lines_seen']++;
               continue;
           }
@@ -174,7 +182,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
                 sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
               } else {
                 l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"; has invalid sample rate');
-                counters["statsd.bad_lines_seen"]++;
+                counters[bad_lines_seen]++;
                 stats['messages']['bad_lines_seen']++;
                 continue;
               }
