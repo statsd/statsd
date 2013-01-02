@@ -193,6 +193,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     mgmtServer = net.createServer(function(stream) {
       stream.setEncoding('ascii');
 
+      stream.on('error', function(err) {
+        l.log('Caught ' + err +', Moving on')
+      });
+
       stream.on('data', function(data) {
         var cmdline = data.trim().split(" ");
         var cmd = cmdline.shift();
