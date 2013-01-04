@@ -59,6 +59,17 @@ function flushMetrics() {
 
   // After all listeners, reset the stats
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
+	// TODO: a lot of this should be moved up into an init/constructor so we don't have to do it every
+	// single flushInterval.... 
+    // allows us to flag all of these on with a single config but still override them individually
+    conf.deleteIdleStats = conf.deleteIdleStats !== undefined ? conf.deleteIdleStats : false;
+    if (conf.deleteIdleStats) {
+      conf.deleteCounters = conf.deleteCounters !== undefined ? conf.deleteCounters : true;
+      conf.deleteTimers = conf.deleteTimers !== undefined ? conf.deleteTimers : true;
+      conf.deleteSets = conf.deleteSets !== undefined ? conf.deleteSets : true;
+      conf.deleteGauges = conf.deleteGauges !== undefined ? conf.deleteGauges : true;
+    }
+
     // Clear the counters
     conf.deleteCounters = conf.deleteCounters || false;
     for (key in metrics.counters) {
@@ -70,13 +81,31 @@ function flushMetrics() {
     }
 
     // Clear the timers
+    conf.deleteTimers = conf.deleteTimers || false;
     for (key in metrics.timers) {
-      metrics.timers[key] = [];
+      if (conf.deleteTimers) {
+        delete(metrics.timers[key]);
+      } else {
+        metrics.timers[key] = [];
+     }
     }
 
     // Clear the sets
+    conf.deleteSets = conf.deleteSets || false;
     for (key in metrics.sets) {
-      metrics.sets[key] = new set.Set();
+      if (conf.deleteSets) {
+        delete(metrics.sets[key]);
+      } else {
+        metrics.sets[key] = new set.Set();
+	  }
+    }
+
+	// normally gauges are not reset.  so if we don't delete them, continue to persist previous value
+    conf.deleteGauges = conf.deleteGauges || false;
+    if (conf.deleteGauges) {
+     for (key in metrics.gauges) {
+        delete(metrics.gauges[key]);
+     }
     }
   });
 
