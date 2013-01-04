@@ -37,10 +37,10 @@ Optional Variables:
   deleteIdleStats:  don't send values to graphite for inactive counters, sets, gauges, or timeers
                     as opposed to sending 0.  For gauges, this unsets the gauge (instead of sending
                     the previous value). Can be indivdually overriden. [default: false]
-  deleteCounters:   don't send values to graphite for inactive counters, as opposed to sending 0 [default: false]
   deleteGauges  :   don't send values to graphite for inactive gauges, as opposed to sending the previous value [default: false]
   deleteTimers:     don't send values to graphite for inactive timers, as opposed to sending 0 [default: false]
   deleteSets:       don't send values to graphite for inactive sets, as opposed to sending 0 [default: false]
+  deleteCounters:   don't send values to graphite for inactive counters, as opposed to sending 0 [default: false]
   console:
     prettyprint:    whether to prettyprint the console backend
                     output [true or false, default: true]
