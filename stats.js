@@ -61,9 +61,29 @@ function flushMetrics() {
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
     // Clear the counters
     conf.deleteCounters = conf.deleteCounters || false;
+
+    // handle the case where these vars are not setup - for this patch to work w/o requiring
+    // the statsPrefix patch 
+    var prefixStats;
+    prefixStats       = conf.prefixStats;
+    prefixStats     = prefixStats !== undefined ? prefixStats : "statsd";
+    //setup the names for the stats stored in counters{}
+    bad_lines_seen = prefixStats + ".bad_lines_seen";
+    packets_received = prefixStats + ".packets_received";
+
     for (key in metrics.counters) {
       if (conf.deleteCounters) {
-        delete(metrics.counters[key]);
+      	if (key == packets_received || key == bad_lines_seen) {
+        //  if (conf.debug) {
+        //    l.log("resetting stats key: " + key);
+        //  }
+          metrics.counters[key] = 0;
+        } else {
+         //if (conf.debug) {
+         //  l.log("deleting key: " + key);
+         //}
+      	 delete(metrics.counters[key]);	
+        }
       } else {
         metrics.counters[key] = 0;
       }
