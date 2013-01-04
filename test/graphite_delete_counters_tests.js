@@ -1,3 +1,10 @@
+// this unit test, for deleteCounters and other stats related to deleteIdleStats
+// should probably be reviewed for sanity - I'm not sure it really tests appropriately
+// for example, it should test that data is written the first time
+// then test that the counter/etc is actually removed when it doesn't get data..
+// - keen99
+
+
 var fs           = require('fs'),
     net          = require('net'),
     temp         = require('temp'),
@@ -79,7 +86,7 @@ module.exports = {
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
                ,  debug: false\n\
-               ,  deleteCounters: true\n\
+               ,  deleteIdleStats: true\n\
                ,  graphitePort: " + this.testport + "\n\
                ,  graphiteHost: \"127.0.0.1\"}";
 
