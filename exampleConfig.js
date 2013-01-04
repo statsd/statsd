@@ -41,6 +41,7 @@ Optional Variables:
   deleteTimers:     don't send values to graphite for inactive timers, as opposed to sending 0 [default: false]
   deleteSets:       don't send values to graphite for inactive sets, as opposed to sending 0 [default: false]
   deleteCounters:   don't send values to graphite for inactive counters, as opposed to sending 0 [default: false]
+
   console:
     prettyprint:    whether to prettyprint the console backend
                     output [true or false, default: true]
