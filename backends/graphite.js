@@ -137,8 +137,11 @@ var flush_stats = function graphite_flush(ts, metrics) {
       statString += the_key.join(".") + ' ' + statsd_metrics[key] + ts_suffix;
     }
   }
-
   post_stats(statString);
+  // lets debug log a few of our metrics
+  if (debug) {
+   util.log("DEBUG: numStats: " + numStats);
+  }
 };
 
 var backend_status = function graphite_status(writeCb) {

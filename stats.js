@@ -110,8 +110,9 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       clearInterval(debugInt);
     }
     debugInt = setInterval(function () {
-      l.log("Counters:\n" + util.inspect(counters) +
+      l.log("\nCounters:\n" + util.inspect(counters) +
                "\nTimers:\n" + util.inspect(timers) +
+               "\nSets:\n" + util.inspect(sets) +
                "\nGauges:\n" + util.inspect(gauges), 'debug');
     }, config.debugInterval || 10000);
   }
