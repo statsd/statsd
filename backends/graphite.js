@@ -199,7 +199,12 @@ exports.init = function graphite_init(startup_time, config, events) {
   useSuffixNames = useSuffixNames !== undefined ? useSuffixNames : false;
   suffixCounter = suffixCounter !== undefined ? suffixCounter : "counters";
   suffixTimer   = suffixTimer !== undefined ? suffixTimer : "timers";
+  // gauges is a special case.  to deconflict with possible keys and to keep change limited
+  // https://github.com/etsy/statsd/pull/215#issuecomment-12007571
   suffixGauge   = suffixGauge !== undefined ? suffixGauge : "gauges";
+  // append gauges to whatever suffix you've defined to give you suffixGauge/gauges.wsp 
+  // when it hits carbon
+  suffixGauge   = suffixGauge + ".gauges";
   suffixSet     = suffixSet !== undefined ? suffixSet : "sets";
 
   if (legacyNamespace === false) {
