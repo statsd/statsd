@@ -67,6 +67,11 @@ StatsD now also supports gauges, arbitrary values, which can be recorded.
 
     gaugor:333|g
 
+The gauge value is retained beyond a flush. In case the client stops updating the guage, 
+StatsD continues to send the last received value to the backend. You can choose to reset 
+gauges to 0 upon a flush, by setting `config.resetGauges` (applies only to graphite
+backend). 
+
 Sets
 ----
 StatsD supports counting unique occurences of events between flushes,
