@@ -78,6 +78,13 @@ function flushMetrics() {
     for (key in metrics.sets) {
       metrics.sets[key] = new set.Set();
     }
+
+    //Reset gauges 
+    conf.resetGauges = conf.resetGauges || false;
+    for (key in metrics.gauges){
+      metrics.gauges[key] = 0;
+    }
+
   });
 
   pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(metrics) {
