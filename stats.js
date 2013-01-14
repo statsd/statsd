@@ -61,7 +61,7 @@ function flushMetrics() {
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
     // Clear the counters
     conf.deleteCounters = conf.deleteCounters || false;
-    for (key in metrics.counters) {
+    for (var key in metrics.counters) {
       if (conf.deleteCounters) {
         delete(metrics.counters[key]);
       } else {
@@ -70,12 +70,12 @@ function flushMetrics() {
     }
 
     // Clear the timers
-    for (key in metrics.timers) {
+    for (var key in metrics.timers) {
       metrics.timers[key] = [];
     }
 
     // Clear the sets
-    for (key in metrics.sets) {
+    for (var key in metrics.sets) {
       metrics.sets[key] = new set.Set();
     }
   });
@@ -126,7 +126,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       counters["statsd.packets_received"]++;
       var metrics = msg.toString().split("\n");
 
-      for (midx in metrics) {
+      for (var midx in metrics) {
         if (config.dumpMessages) {
           l.log(metrics[midx].toString());
         }
@@ -226,8 +226,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             };
 
             // Loop through the base stats
-            for (group in stats) {
-              for (metric in stats[group]) {
+            for (var group in stats) {
+              for (var metric in stats[group]) {
                 stat_writer(group, metric, stats[group][metric]);
               }
             }
@@ -264,7 +264,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             break;
 
           case "delcounters":
-            for (index in cmdline) {
+            for (var index in cmdline) {
               delete counters[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
@@ -272,7 +272,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             break;
 
           case "deltimers":
-            for (index in cmdline) {
+            for (var index in cmdline) {
               delete timers[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
@@ -280,7 +280,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             break;
 
           case "delgauges":
-            for (index in cmdline) {
+            for (var index in cmdline) {
               delete gauges[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
@@ -332,7 +332,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var key;
         var sortedKeys = [];
 
-        for (key in keyCounter) {
+        for (var key in keyCounter) {
           sortedKeys.push([key, keyCounter[key]]);
         }
 
