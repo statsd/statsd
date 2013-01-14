@@ -124,7 +124,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
   var namespace = globalNamespace.concat('statsd');
   if (legacyNamespace === true) {
-    statString += 'statsd.numStats ' + numStats + ts_suffix;
+    statString += 'stats.statsd.numStats ' + numStats + ts_suffix;
     statString += 'stats.statsd.graphiteStats.calculationtime ' + (Date.now() - starttime) + ts_suffix;
     for (key in statsd_metrics) {
       statString += 'stats.statsd.' + key + ' ' + statsd_metrics[key] + ts_suffix;
