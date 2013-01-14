@@ -74,14 +74,8 @@ function flushMetrics() {
     for (key in metrics.counters) {
       if (conf.deleteCounters) {
       	if (key == packets_received || key == bad_lines_seen) {
-        //  if (conf.debug) {
-        //    l.log("resetting stats key: " + key);
-        //  }
           metrics.counters[key] = 0;
         } else {
-         //if (conf.debug) {
-         //  l.log("deleting key: " + key);
-         //}
       	 delete(metrics.counters[key]);	
         }
       } else {
