@@ -51,7 +51,7 @@ var post_stats = function graphite_post_stats(statString) {
       });
       graphite.on('connect', function() {
         var ts = Math.round(new Date().getTime() / 1000);
-        var namespace = globalNamespace.concat('statsd');
+        var namespace = globalNamespace.concat(prefixStats);
         statString += namespace.join(".") + '.graphiteStats.last_exception ' + last_exception + ' ' + ts + "\n";
         statString += namespace.join(".") + '.graphiteStats.last_flush ' + last_flush + ' ' + ts + "\n";
         this.write(statString);
@@ -122,12 +122,12 @@ var flush_stats = function graphite_flush(ts, metrics) {
     numStats += 1;
   }
 
-  var namespace = globalNamespace.concat('statsd');
+  var namespace = globalNamespace.concat(prefixStats);
   if (legacyNamespace === true) {
-    statString += 'statsd.numStats ' + numStats + ts_suffix;
-    statString += 'stats.statsd.graphiteStats.calculationtime ' + (Date.now() - starttime) + ts_suffix;
+    statString += prefixStats + '.numStats ' + numStats + ts_suffix;
+    statString += 'stats.' + prefixStats + '.graphiteStats.calculationtime ' + (Date.now() - starttime) + ts_suffix;
     for (key in statsd_metrics) {
-      statString += 'stats.statsd.' + key + ' ' + statsd_metrics[key] + ts_suffix;
+      statString += 'stats.' + prefixStats + '.' + key + ' ' + statsd_metrics[key] + ts_suffix;
     }
   } else {
     statString += namespace.join(".") + '.numStats ' + numStats + ts_suffix;
