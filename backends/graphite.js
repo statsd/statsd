@@ -142,7 +142,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
 };
 
 var backend_status = function graphite_status(writeCb) {
-  for (stat in graphiteStats) {
+  for (var stat in graphiteStats) {
     writeCb(null, 'graphite', stat, graphiteStats[stat]);
   }
 };
