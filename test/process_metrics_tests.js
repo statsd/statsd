@@ -144,7 +144,7 @@ module.exports = {
     // only 'abc' should have a bin_inf; also check all its counts,
     // and make sure it has no other bins
     test.equal(1, timer_data['abc']['histogram']['bin_1']);
-    test.equal(0, timer_data['abc']['histogram']['bin_2_21']);
+    test.equal(0, timer_data['abc']['histogram']['bin_2.21']);
     test.equal(4, timer_data['abc']['histogram']['bin_inf']);
     test.equal(3, _.size(timer_data['abc']['histogram']));
 
