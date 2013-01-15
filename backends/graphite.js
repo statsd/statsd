@@ -78,21 +78,17 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var gauges = metrics.gauges;
   var timers = metrics.timers;
   var sets = metrics.sets;
-  var counter_rates = metrics.counter_rates;
   var timer_data = metrics.timer_data;
   var statsd_metrics = metrics.statsd_metrics;
 
   for (key in counters) {
     var namespace = counterNamespace.concat(key);
     var value = counters[key];
-    var valuePerSecond = counter_rates[key]; // pre-calculated "per second" rate
 
     if (legacyNamespace === true) {
-      statString += namespace.join(".")   + ' ' + valuePerSecond + ts_suffix;
       statString += 'stats_counts.' + key + ' ' + value          + ts_suffix;
     } else {
-      statString += namespace.concat('rate').join(".")  + ' ' + valuePerSecond + ts_suffix;
-      statString += namespace.concat('count').join(".") + ' ' + value          + ts_suffix;
+      statString += namespace.join(".") + ' ' + value          + ts_suffix;
     }
 
     numStats += 1;
