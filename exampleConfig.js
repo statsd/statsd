@@ -61,7 +61,7 @@ Optional Variables:
                     e.g. [ { host: '10.10.10.10', port: 8125 },
                            { host: 'observer', port: 88125 } ]
 
-  repeaterProtocol: whether to use udp4 or udp4 for repeaters.
+  repeaterProtocol: whether to use udp4 or udp6 for repeaters.
                     ["udp4" or "udp6", default: "udp4"]
 */
 {
