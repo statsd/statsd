@@ -35,6 +35,8 @@ Optional Variables:
     percent:        percentage of frequent keys to log [%, default: 100]
     log:            location of log file for frequent keys [default: STDOUT]
   deleteCounters:   don't send values to graphite for inactive counters, as opposed to sending 0 [default: false]
+  prefixStats:      prefix to use for the statsd statistics data for this running instance of statsd [default: statsd]
+                    applies to both legacy and new namespacing
 
   console:
     prettyprint:    whether to prettyprint the console backend
@@ -59,14 +61,12 @@ Optional Variables:
                     e.g. [ { host: '10.10.10.10', port: 8125 },
                            { host: 'observer', port: 88125 } ]
 
-  repeaterProtocol: whether to use udp4 or udp4 for repeaters.
+  repeaterProtocol: whether to use udp4 or udp6 for repeaters.
                     ["udp4" or "udp6", default: "udp4"]
 */
 {
   graphitePort: 2003
-, graphiteHost: "graphite.host.com"
+, graphiteHost: "graphite.example.com"
 , port: 8125
 , backends: [ "./backends/graphite" ]
-, repeater: [ { host: "10.8.3.214", port: 8125 } ]
-, repeaterProtocol: "udp4"
 }

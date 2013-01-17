@@ -11,10 +11,7 @@ var dgram  = require('dgram')
 
 // initialize data structures with defaults for statsd stats
 var keyCounter = {};
-var counters = {
-  "statsd.packets_received": 0,
-  "statsd.bad_lines_seen": 0
-};
+var counters = {};
 var timers = {};
 var gauges = {};
 var sets = {};
@@ -61,7 +58,7 @@ function flushMetrics() {
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
     // Clear the counters
     conf.deleteCounters = conf.deleteCounters || false;
-    for (key in metrics.counters) {
+    for (var key in metrics.counters) {
       if (conf.deleteCounters) {
         delete(metrics.counters[key]);
       } else {
@@ -70,12 +67,12 @@ function flushMetrics() {
     }
 
     // Clear the timers
-    for (key in metrics.timers) {
+    for (var key in metrics.timers) {
       metrics.timers[key] = [];
     }
 
     // Clear the sets
-    for (key in metrics.sets) {
+    for (var key in metrics.sets) {
       metrics.sets[key] = new set.Set();
     }
   });
@@ -117,6 +114,17 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     }, config.debugInterval || 10000);
   }
 
+  // setup config for stats prefix
+  prefixStats       = config.prefixStats;
+  prefixStats     = prefixStats !== undefined ? prefixStats : "statsd";
+  //setup the names for the stats stored in counters{}
+  bad_lines_seen = prefixStats + ".bad_lines_seen";
+  packets_received = prefixStats + ".packets_received";
+
+  //now set to zero so we can increment them 
+  counters[bad_lines_seen] = 0;
+  counters[packets_received] = 0;
+
   if (server === undefined) {
 
     // key counting
@@ -124,10 +132,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
     server = dgram.createSocket('udp4', function (msg, rinfo) {
       backendEvents.emit('packet', msg, rinfo);
-      counters["statsd.packets_received"]++;
+      counters[packets_received]++;
       var metrics = msg.toString().split("\n");
 
-      for (midx in metrics) {
+      for (var midx in metrics) {
         if (config.dumpMessages) {
           l.log(metrics[midx].toString());
         }
@@ -153,7 +161,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           var fields = bits[i].split("|");
           if (fields[1] === undefined) {
               l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
-              counters["statsd.bad_lines_seen"]++;
+              counters[bad_lines_seen]++;
               stats['messages']['bad_lines_seen']++;
               continue;
           }
@@ -175,7 +183,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
                 sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
               } else {
                 l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"; has invalid sample rate');
-                counters["statsd.bad_lines_seen"]++;
+                counters[bad_lines_seen]++;
                 stats['messages']['bad_lines_seen']++;
                 continue;
               }
@@ -227,8 +235,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             };
 
             // Loop through the base stats
-            for (group in stats) {
-              for (metric in stats[group]) {
+            for (var group in stats) {
+              for (var metric in stats[group]) {
                 stat_writer(group, metric, stats[group][metric]);
               }
             }
@@ -265,7 +273,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             break;
 
           case "delcounters":
-            for (index in cmdline) {
+            for (var index in cmdline) {
               delete counters[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
@@ -273,7 +281,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             break;
 
           case "deltimers":
-            for (index in cmdline) {
+            for (var index in cmdline) {
               delete timers[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
@@ -281,7 +289,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             break;
 
           case "delgauges":
-            for (index in cmdline) {
+            for (var index in cmdline) {
               delete gauges[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
@@ -333,7 +341,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var key;
         var sortedKeys = [];
 
-        for (key in keyCounter) {
+        for (var key in keyCounter) {
           sortedKeys.push([key, keyCounter[key]]);
         }
 

@@ -1,4 +1,4 @@
-StatsD [![Build Status](https://secure.travis-ci.org/etsy/statsd.png)](http://travis-ci.org/etsy/statsd)
+StatsD [![Build Status](https://travis-ci.org/etsy/statsd.png?branch=backends-as-packages)](https://travis-ci.org/etsy/statsd)
 ======
 
 A network daemon that runs on the [Node.js][node] platform and

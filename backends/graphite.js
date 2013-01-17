@@ -13,7 +13,10 @@
  */
 
 var net = require('net'),
-   util = require('util');
+    logger = require('../lib/logger');
+
+// this will be instantiated to the logger
+var l;
 
 var debug;
 var flushInterval;
@@ -46,12 +49,12 @@ var post_stats = function graphite_post_stats(statString) {
       var graphite = net.createConnection(graphitePort, graphiteHost);
       graphite.addListener('error', function(connectionException){
         if (debug) {
-          util.log(connectionException);
+          l.log(connectionException);
         }
       });
       graphite.on('connect', function() {
         var ts = Math.round(new Date().getTime() / 1000);
-        var namespace = globalNamespace.concat('statsd');
+        var namespace = globalNamespace.concat(prefixStats);
         statString += namespace.join(".") + '.graphiteStats.last_exception ' + last_exception + ' ' + ts + "\n";
         statString += namespace.join(".") + '.graphiteStats.last_flush ' + last_flush + ' ' + ts + "\n";
         this.write(statString);
@@ -60,7 +63,7 @@ var post_stats = function graphite_post_stats(statString) {
       });
     } catch(e){
       if (debug) {
-        util.log(e);
+        l.log(e);
       }
       graphiteStats.last_exception = Math.round(new Date().getTime() / 1000);
     }
@@ -122,12 +125,12 @@ var flush_stats = function graphite_flush(ts, metrics) {
     numStats += 1;
   }
 
-  var namespace = globalNamespace.concat('statsd');
+  var namespace = globalNamespace.concat(prefixStats);
   if (legacyNamespace === true) {
-    statString += 'statsd.numStats ' + numStats + ts_suffix;
-    statString += 'stats.statsd.graphiteStats.calculationtime ' + (Date.now() - starttime) + ts_suffix;
+    statString += prefixStats + '.numStats ' + numStats + ts_suffix;
+    statString += 'stats.' + prefixStats + '.graphiteStats.calculationtime ' + (Date.now() - starttime) + ts_suffix;
     for (key in statsd_metrics) {
-      statString += 'stats.statsd.' + key + ' ' + statsd_metrics[key] + ts_suffix;
+      statString += 'stats.' + prefixStats + '.' + key + ' ' + statsd_metrics[key] + ts_suffix;
     }
   } else {
     statString += namespace.join(".") + '.numStats ' + numStats + ts_suffix;
@@ -145,12 +148,13 @@ var flush_stats = function graphite_flush(ts, metrics) {
 };
 
 var backend_status = function graphite_status(writeCb) {
-  for (stat in graphiteStats) {
+  for (var stat in graphiteStats) {
     writeCb(null, 'graphite', stat, graphiteStats[stat]);
   }
 };
 
 exports.init = function graphite_init(startup_time, config, events) {
+  l = new logger.Logger(config.log || {});
   debug = config.debug;
   graphiteHost = config.graphiteHost;
   graphitePort = config.graphitePort;
