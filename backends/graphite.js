@@ -141,9 +141,8 @@ var flush_stats = function graphite_flush(ts, metrics) {
     }
   }
   post_stats(statString);
-  // lets debug log a few of our metrics
   if (debug) {
-   util.log("DEBUG: numStats: " + numStats);
+   l.log("numStats: " + numStats);
   }
 };
 

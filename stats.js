@@ -27,7 +27,7 @@ function loadBackend(config, name) {
   var backendmod = require(name);
 
   if (config.debug) {
-    l.log("Loading backend: " + name, 'debug');
+    l.log("Loading backend: " + name, 'DEBUG');
   }
 
   var ret = backendmod.init(startup_time, config, backendEvents);
@@ -110,7 +110,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       l.log("\nCounters:\n" + util.inspect(counters) +
                "\nTimers:\n" + util.inspect(timers) +
                "\nSets:\n" + util.inspect(sets) +
-               "\nGauges:\n" + util.inspect(gauges), 'debug');
+               "\nGauges:\n" + util.inspect(gauges), 'DEBUG');
     }, config.debugInterval || 10000);
   }
 
