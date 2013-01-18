@@ -79,7 +79,6 @@ module.exports = {
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
                ,  debug: false\n\
-               ,  graphite: { legacyNamespace: false }\n\
                ,  graphitePort: " + this.testport + "\n\
                ,  graphiteHost: \"127.0.0.1\"}";
 

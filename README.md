@@ -345,7 +345,6 @@ possible to change these namespaces in the backend configuration options.
 The available configuration options (living under the `graphite` key) are:
 
 ```
-legacyNamespace:  use the legacy namespace [default: true]
 globalPrefix:     global prefix to use for sending stats to graphite [default: "stats"]
 prefixCounter:    graphite prefix for counter metrics [default: "counters"]
 prefixTimer:      graphite prefix for timer metrics [default: "timers"]

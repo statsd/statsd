@@ -80,7 +80,6 @@ module.exports = {
                ,  dumpMessages: false \n\
                ,  debug: false\n\
                ,  prefixStats: \"statsprefix\"\n\
-               ,  graphite: { legacyNamespace: false }\n\
                ,  graphitePort: " + this.testport + "\n\
                ,  graphiteHost: \"127.0.0.1\"}";
 
