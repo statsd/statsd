@@ -76,6 +76,9 @@ StatsD now also supports gauges, arbitrary values, which can be recorded.
 
     gaugor:333|g
 
+Gauges keep its value during statsd runtime if no new value is received. The
+value is sent to the backend every flush interval.
+
 Sets
 ----
 StatsD supports counting unique occurences of events between flushes,
