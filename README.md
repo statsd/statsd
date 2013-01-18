@@ -61,6 +61,15 @@ generate the following list of stats for each threshold:
 Where `$KEY` is the stats key you specify when sending to statsd, and `$PCT` is
 the percentile threshold.
 
+Low frequency timing
+--------------------
+
+    glump:4394|lf
+
+The glump took 4394 time units to complete this time. glump occurs less often
+than once per flush interval, so it doesn't make sense to keep all the derived
+stats as for high frequency timers.
+
 Gauges
 ------
 StatsD now also supports gauges, arbitrary values, which can be recorded.
@@ -297,6 +306,7 @@ metrics: {
     counters: counters,
     gauges: gauges,
     timers: timers,
+    timers_lf: timers_lf,
     sets: sets,
     counter_rates: counter_rates,
     timer_data: timer_data,

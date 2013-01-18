@@ -25,6 +25,7 @@ var globalPrefix;
 var prefixPersecond;
 var prefixCounter;
 var prefixTimer;
+var prefixTimerLf;
 var prefixGauge;
 var prefixSet;
 
@@ -32,6 +33,7 @@ var prefixSet;
 var globalNamespace  = [];
 var counterNamespace = [];
 var timerNamespace   = [];
+var timerLfNamespace = [];
 var gaugesNamespace  = [];
 var setsNamespace     = [];
 
@@ -76,6 +78,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var counters = metrics.counters;
   var gauges = metrics.gauges;
   var timers = metrics.timers;
+  var timers_lf = metrics.timers_lf;
   var sets = metrics.sets;
   var timer_data = metrics.timer_data;
   var statsd_metrics = metrics.statsd_metrics;
@@ -99,6 +102,12 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
       numStats += 1;
     }
+  }
+
+  for (key in timers_lf) {
+    var namespace = timersLfNamespace.concat(key);
+    statString += namespace.join(".") + ' ' + timers_lf[key] + ts_suffix;
+    numStats += 1;
   }
 
   for (key in gauges) {
@@ -138,6 +147,7 @@ exports.init = function graphite_init(startup_time, config, events) {
   globalPrefix    = config.graphite.globalPrefix;
   prefixCounter   = config.graphite.prefixCounter;
   prefixTimer     = config.graphite.prefixTimer;
+  prefixTimerLf   = config.graphite.prefixTimerLf;
   prefixGauge     = config.graphite.prefixGauge;
   prefixSet       = config.graphite.prefixSet;
 
@@ -145,6 +155,7 @@ exports.init = function graphite_init(startup_time, config, events) {
   globalPrefix  = globalPrefix !== undefined ? globalPrefix : "stats";
   prefixCounter = prefixCounter !== undefined ? prefixCounter : "counters";
   prefixTimer   = prefixTimer !== undefined ? prefixTimer : "timers";
+  prefixTimerLf = prefixTimerLf !== undefined ? prefixTimerLf : "timers_lf";
   prefixGauge   = prefixGauge !== undefined ? prefixGauge : "gauges";
   prefixSet     = prefixSet !== undefined ? prefixSet : "sets";
 
@@ -153,6 +164,7 @@ exports.init = function graphite_init(startup_time, config, events) {
     globalNamespace.push(globalPrefix);
     counterNamespace.push(globalPrefix);
     timerNamespace.push(globalPrefix);
+    timerLfNamespace.push(globalPrefix);
     gaugesNamespace.push(globalPrefix);
     setsNamespace.push(globalPrefix);
   }
@@ -162,6 +174,9 @@ exports.init = function graphite_init(startup_time, config, events) {
   }
   if (prefixTimer !== "") {
     timerNamespace.push(prefixTimer);
+  }
+  if (prefixTimerLf !== "") {
+    timerLfNamespace.push(prefixTimerLf);
   }
   if (prefixGauge !== "") {
     gaugesNamespace.push(prefixGauge);

@@ -33,6 +33,7 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
   var out = {
     counters: this.statsCache.counters,
     timers: this.statsCache.timers,
+    timers_lf: this.statsCache.timers_lf,
     gauges: metrics.gauges,
     timer_data: metrics.timer_data,
     counter_rates: metrics.counter_rates,

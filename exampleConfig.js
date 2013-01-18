@@ -51,6 +51,7 @@ Optional Variables:
     globalPrefix:     global prefix to use for sending stats to graphite [default: "stats"]
     prefixCounter:    graphite prefix for counter metrics [default: "counters"]
     prefixTimer:      graphite prefix for timer metrics [default: "timers"]
+    prefixTimerLf:    graphite prefix for low frequency timer metrics [default: "timers_lf"]
     prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
     prefixSet:        graphite prefix for set metrics [default: "sets"]
 
