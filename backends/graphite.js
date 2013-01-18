@@ -40,8 +40,6 @@ var setsNamespace     = [];
 var graphiteStats = {};
 
 var post_stats = function graphite_post_stats(statString) {
-  var last_flush = graphiteStats.last_flush || 0;
-  var last_exception = graphiteStats.last_exception || 0;
   if (graphiteHost) {
     try {
       var graphite = net.createConnection(graphitePort, graphiteHost);
@@ -51,10 +49,6 @@ var post_stats = function graphite_post_stats(statString) {
         }
       });
       graphite.on('connect', function() {
-        var ts = Math.round(new Date().getTime() / 1000);
-        var namespace = globalNamespace.concat(prefixStats);
-        statString += namespace.join(".") + '.graphiteStats.last_exception ' + last_exception + ' ' + ts + "\n";
-        statString += namespace.join(".") + '.graphiteStats.last_flush ' + last_flush + ' ' + ts + "\n";
         this.write(statString);
         this.end();
         graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
@@ -82,6 +76,9 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var sets = metrics.sets;
   var timer_data = metrics.timer_data;
   var statsd_metrics = metrics.statsd_metrics;
+
+  gauges[prefixStats + '.graphiteBackend.last_flush'] = graphiteStats.last_flush || 0
+  gauges[prefixStats + '.graphiteBackend.last_exception'] = graphiteStats.last_exception || 0
 
   for (key in counters) {
     var namespace = counterNamespace.concat(key);
@@ -122,9 +119,10 @@ var flush_stats = function graphite_flush(ts, metrics) {
     numStats += 1;
   }
 
-  var namespace = globalNamespace.concat(prefixStats);
-  statString += namespace.join(".") + '.numStats ' + numStats + ts_suffix;
-  statString += namespace.join(".") + '.graphiteStats.calculationtime ' + (Date.now() - starttime) + ts_suffix;
+  var namespace = gaugesNamespace.concat(prefixStats);
+  statString += namespace.join(".") + '.graphiteBackend.num_stats ' + numStats + ts_suffix;
+  var namespace = timerLfNamespace.concat(prefixStats);
+  statString += namespace.join(".") + '.graphiteBackend.calculation_time ' + (Date.now() - starttime) + ts_suffix;
   for (key in statsd_metrics) {
       var the_key = namespace.concat(key);
       statString += the_key.join(".") + ' ' + statsd_metrics[key] + ts_suffix;
