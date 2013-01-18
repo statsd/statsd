@@ -75,7 +75,6 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var timers_lf = metrics.timers_lf;
   var sets = metrics.sets;
   var timer_data = metrics.timer_data;
-  var statsd_metrics = metrics.statsd_metrics;
 
   gauges[prefixStats + '.graphiteBackend.last_flush'] = graphiteStats.last_flush || 0
   gauges[prefixStats + '.graphiteBackend.last_exception'] = graphiteStats.last_exception || 0
@@ -123,10 +122,6 @@ var flush_stats = function graphite_flush(ts, metrics) {
   statString += namespace.join(".") + '.graphiteBackend.num_stats ' + numStats + ts_suffix;
   var namespace = timerLfNamespace.concat(prefixStats);
   statString += namespace.join(".") + '.graphiteBackend.calculation_time ' + (Date.now() - starttime) + ts_suffix;
-  for (key in statsd_metrics) {
-      var the_key = namespace.concat(key);
-      statString += the_key.join(".") + ' ' + statsd_metrics[key] + ts_suffix;
-  }
 
   post_stats(statString);
 };

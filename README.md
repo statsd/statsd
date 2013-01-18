@@ -313,17 +313,16 @@ metrics: {
     sets: sets,
     counter_rates: counter_rates,
     timer_data: timer_data,
-    statsd_metrics: statsd_metrics,
     pctThreshold: pctThreshold
 }
   ```
 
-  The counter_rates and timer_data are precalculated statistics to simplify
-  the creation of backends, the statsd_metrics hash contains metrics generated
-  by statsd itself. Each backend module is passed the same set of
-  statistics, so a backend module should treat the metrics as immutable
-  structures. StatsD will reset timers and counters after each
-  listener has handled the event.
+  The counter_rates and timer_data are precalculated statistics to simplify the
+  creation of backends. statsd itself keeps the processing_time metric in
+  timers_lf as well as two counters "bad_lines_seen" and "packets_received" in
+  counters. Each backend module is passed the same set of statistics, so a
+  backend module should treat the metrics as immutable structures. StatsD will
+  reset timers, timers_lf and counters after each listener has handled the event.
 
 * Event: **'status'**
 
