@@ -20,22 +20,7 @@ var flushInterval;
 var graphiteHost;
 var graphitePort;
 
-// prefix configuration
-var globalPrefix;
-var prefixCounter;
-var prefixTimer;
-var prefixTimerLf;
-var prefixGauge;
-var prefixSet;
-
 // set up namespaces
-var globalNamespace  = [];
-var counterNamespace = [];
-var timerNamespace   = [];
-var timerLfNamespace = [];
-var gaugesNamespace  = [];
-var setsNamespace     = [];
-
 var graphiteStats = {};
 
 var post_stats = function graphite_post_stats(statString) {
@@ -62,6 +47,10 @@ var post_stats = function graphite_post_stats(statString) {
 }
 
 var flush_stats = function graphite_flush(ts, metrics) {
+  var get_metric_line = function(type, key, value) {
+    namespace = [key, type]
+    return namespace.join('.') + ' ' + value + ' ' + ts + "\n";
+  };
   var ts_suffix = ' ' + ts + "\n";
   var starttime = Date.now();
   var statString = '';
@@ -75,52 +64,40 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var sets = metrics.sets;
   var timer_data = metrics.timer_data;
 
-  gauges[prefixStats + '.graphiteBackend.last_flush'] = graphiteStats.last_flush || 0
-  gauges[prefixStats + '.graphiteBackend.last_exception'] = graphiteStats.last_exception || 0
 
   for (key in counters) {
-    var namespace = counterNamespace.concat(key);
-    var value = counters[key];
-
-    statString += namespace.join(".") + ' ' + value          + ts_suffix;
-
+    statString += get_metric_line('counter', key, counters[key])
     numStats += 1;
   }
 
   for (key in timer_data) {
     if (Object.keys(timer_data).length > 0) {
       for (timer_data_key in timer_data[key]) {
-        var namespace = timerNamespace.concat(key);
-        var the_key = namespace.join(".");
-        statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ts_suffix;
+        statString += get_metric_line('timer.' + timer_data_key, key, timer_data[key][timer_data_key])
       }
-
       numStats += 1;
     }
   }
 
   for (key in timers_lf) {
-    var namespace = timersLfNamespace.concat(key);
-    statString += namespace.join(".") + ' ' + timers_lf[key] + ts_suffix;
+    statString += get_metric_line('timer', key, timers_lf[key])
     numStats += 1;
   }
 
   for (key in gauges) {
-    var namespace = gaugesNamespace.concat(key);
-    statString += namespace.join(".") + ' ' + gauges[key] + ts_suffix;
+    statString += get_metric_line('gauge', key, gauges[key])
     numStats += 1;
   }
 
   for (key in sets) {
-    var namespace = setsNamespace.concat(key);
-    statString += namespace.join(".") + '.count ' + sets[key].values().length + ts_suffix;
+    statString += get_metric_line('set', key, sets[key].values().length)
     numStats += 1;
   }
 
-  var namespace = gaugesNamespace.concat(prefixStats);
-  statString += namespace.join(".") + '.graphiteBackend.num_stats ' + numStats + ts_suffix;
-  var namespace = timerLfNamespace.concat(prefixStats);
-  statString += namespace.join(".") + '.graphiteBackend.calculation_time ' + (Date.now() - starttime) + ts_suffix;
+  statString += get_metric_line('gauge', prefixStats + '.graphiteBackend.last_flush', graphiteStats.last_flush || 0)
+  statString += get_metric_line('gauge', prefixStats + '.graphiteBackend.last_exception', graphiteStats.last_exception || 0)
+  statString += get_metric_line('gauge', prefixStats + '.graphiteBackend.num_stats', numStats)
+  statString += get_metric_line('timer', prefixStats + '.graphiteBackend.calculation_time', (Date.now() - starttime))
 
   post_stats(statString);
 };
@@ -135,47 +112,6 @@ exports.init = function graphite_init(startup_time, config, events) {
   debug = config.debug;
   graphiteHost = config.graphiteHost;
   graphitePort = config.graphitePort;
-  config.graphite = config.graphite || {};
-  globalPrefix    = config.graphite.globalPrefix;
-  prefixCounter   = config.graphite.prefixCounter;
-  prefixTimer     = config.graphite.prefixTimer;
-  prefixTimerLf   = config.graphite.prefixTimerLf;
-  prefixGauge     = config.graphite.prefixGauge;
-  prefixSet       = config.graphite.prefixSet;
-
-  // set defaults for prefixes
-  globalPrefix  = globalPrefix !== undefined ? globalPrefix : "stats";
-  prefixCounter = prefixCounter !== undefined ? prefixCounter : "counters";
-  prefixTimer   = prefixTimer !== undefined ? prefixTimer : "timers";
-  prefixTimerLf = prefixTimerLf !== undefined ? prefixTimerLf : "timers_lf";
-  prefixGauge   = prefixGauge !== undefined ? prefixGauge : "gauges";
-  prefixSet     = prefixSet !== undefined ? prefixSet : "sets";
-
-
-  if (globalPrefix !== "") {
-    globalNamespace.push(globalPrefix);
-    counterNamespace.push(globalPrefix);
-    timerNamespace.push(globalPrefix);
-    timerLfNamespace.push(globalPrefix);
-    gaugesNamespace.push(globalPrefix);
-    setsNamespace.push(globalPrefix);
-  }
-
-  if (prefixCounter !== "") {
-    counterNamespace.push(prefixCounter);
-  }
-  if (prefixTimer !== "") {
-    timerNamespace.push(prefixTimer);
-  }
-  if (prefixTimerLf !== "") {
-    timerLfNamespace.push(prefixTimerLf);
-  }
-  if (prefixGauge !== "") {
-    gaugesNamespace.push(prefixGauge);
-  }
-  if (prefixSet !== "") {
-    setsNamespace.push(prefixSet);
-  }
 
   graphiteStats.last_flush = startup_time;
   graphiteStats.last_exception = startup_time;

@@ -246,8 +246,8 @@ Graphite:
   exception thrown whilst flushing to graphite
 
 Those statistics will also be sent to graphite under the namespaces
-`stats.statsd.graphiteStats.last_exception` and
-`stats.statsd.graphiteStats.last_flush`.
+`statsd.graphiteBackend.last_exception.gauge` and
+`statsd.graphiteBackend.last_flush.gauge`.
 
 A simple nagios check can be found in the utils/ directory that can be used to
 check metric thresholds, for example the number of seconds since the last
@@ -350,32 +350,21 @@ metrics: {
 
 Metric namespacing
 -------------------
-The metric namespacing in the Graphite backend is configurable with regard to
-the prefixes. Per default all stats are put under `stats` in Graphite, which
-makes it easier to consolidate them all under one schema. However it is
-possible to change these namespaces in the backend configuration options.
-The available configuration options (living under the `graphite` key) are:
+StatsD postfixes each metric according to its type:
 
 ```
-globalPrefix:     global prefix to use for sending stats to graphite [default: "stats"]
-prefixCounter:    graphite prefix for counter metrics [default: "counters"]
-prefixTimer:      graphite prefix for timer metrics [default: "timers"]
-prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
-prefixSet:        graphite prefix for set metrics [default: "sets"]
+counters:         .counter
+gauges:           .gauge
+timers:           .timer.(mean|sum|upper|lower|std|count|mean_90|upper_90|sum_90)
+timers_lf:        .timer
+sets:             .set
 ```
 
-If you decide not to use the legacy namespacing, besides the obvious changes
-in the prefixing, there will also be a breaking change in the way counters are
-submitted. So far counters didn't live under any namespace and were also a bit
-confusing due to the way they record rate and absolute counts. In the legacy
-setting rates were recorded under `stats.counter_name` directly, whereas the
-absolute count could be found under `stats_count.counter_name`. With disabling
-the legacy namespacing those values can be found (with default prefixing)
-under `stats.counters.counter_name.rate` and
-`stats.counters.counter_name.count` now.
+Furthermore, all StatsD-internal metrics are prefixed with 'statsd.', in line
+with carbon metrics that are prefixed with 'carbon.'.
 
 The number of elements in sets will be recorded under the metric
-`stats.sets.set_name.count` (where "sets" is the prefixSet).
+`set_name.set`.
 
 Inspiration
 -----------
