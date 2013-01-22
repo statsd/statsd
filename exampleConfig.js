@@ -54,6 +54,12 @@ Optional Variables:
     prefixTimer:      graphite prefix for timer metrics [default: "timers"]
     prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
     prefixSet:        graphite prefix for set metrics [default: "sets"]
+	useSuffixNames:   use the suffix namespacing instead of prefix (requires legacyNamespace=false) [default: false]
+    suffixCounter:    graphite suffix for counter metrics [default: "counters"]
+    suffixTimer:      graphite suffix for timer metrics [default: "timers"]
+    suffixGauge:      graphite suffix for gauge metrics [default: "gauges"]
+    suffixSet:        graphite suffix for set metrics [default: "sets"]
+
 
   repeater:         an array of hashes of the for host: and port:
                     that details other statsd servers to which the received
