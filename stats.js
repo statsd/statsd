@@ -13,6 +13,7 @@ var dgram  = require('dgram')
 var keyCounter = {};
 var counters = {};
 var timers = {};
+var timer_counters = {};
 var gauges = {};
 var sets = {};
 var counter_rates = {};
@@ -48,6 +49,7 @@ function flushMetrics() {
     counters: counters,
     gauges: gauges,
     timers: timers,
+    timer_counters: timer_counters,
     sets: sets,
     counter_rates: counter_rates,
     timer_data: timer_data,
@@ -69,6 +71,7 @@ function flushMetrics() {
     // Clear the timers
     for (var key in metrics.timers) {
       metrics.timers[key] = [];
+      metrics.timer_counters[key] = 0;
     }
 
     // Clear the sets
@@ -158,6 +161,16 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         for (var i = 0; i < bits.length; i++) {
           var sampleRate = 1;
           var fields = bits[i].split("|");
+          if (fields[2]) {
+            if (fields[2].match(/^@([\d\.]+)/)) {
+              sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+            } else {
+              l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"; has invalid sample rate');
+              counters[bad_lines_seen]++;
+              stats['messages']['bad_lines_seen']++;
+              continue;
+            }
+          }
           if (fields[1] === undefined) {
               l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
               counters[bad_lines_seen]++;
@@ -167,8 +180,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           if (fields[1].trim() == "ms") {
             if (! timers[key]) {
               timers[key] = [];
+              timer_counters[key] = 0;
             }
             timers[key].push(Number(fields[0] || 0));
+            timer_counters[key] += (1 / sampleRate);
           } else if (fields[1].trim() == "g") {
             gauges[key] = Number(fields[0] || 0);
           } else if (fields[1].trim() == "s") {
@@ -177,16 +192,6 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             }
             sets[key].insert(fields[0] || '0');
           } else {
-            if (fields[2]) {
-              if (fields[2].match(/^@([\d\.]+)/)) {
-                sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
-              } else {
-                l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"; has invalid sample rate');
-                counters[bad_lines_seen]++;
-                stats['messages']['bad_lines_seen']++;
-                continue;
-              }
-            }
             if (! counters[key]) {
               counters[key] = 0;
             }

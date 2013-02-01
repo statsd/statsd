@@ -190,7 +190,7 @@ module.exports = {
   },
 
   timers_are_valid: function (test) {
-    test.expect(3);
+    test.expect(5);
 
     var testvalue = 100;
     var me = this;
@@ -216,6 +216,39 @@ module.exports = {
             };
             test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
 
+            var count_test = function(post, metric){
+              var mykey = 'stats.timers.a_test_value.' + metric;
+              return _.first(_.filter(_.pluck(post, mykey), function (e) { return e }));
+            };
+            test.equals(count_test(hashes, 'count_ps'), 5, 'count_ps should be 5');
+            test.equals(count_test(hashes, 'count'), 1, 'count should be 1');
+
+            test.done();
+          });
+      });
+    });
+  },
+
+  sampled_timers_are_valid: function (test) {
+    test.expect(2);
+
+    var testvalue = 100;
+    var me = this;
+    this.acceptor.once('connection',function(c){
+      statsd_send('a_test_value:' + testvalue + '|ms|@0.1',me.sock,'127.0.0.1',8125,function(){
+          collect_for(me.acceptor,me.myflush*2,function(strings){
+            var hashes = _.map(strings, function(x) {
+              var chunks = x.split(' ');
+              var data = {};
+              data[chunks[0]] = chunks[1];
+              return data;
+            });
+            var count_test = function(post, metric){
+              var mykey = 'stats.timers.a_test_value.' + metric;
+              return _.first(_.filter(_.pluck(post, mykey), function (e) { return e }));
+            };
+            test.equals(count_test(hashes, 'count_ps'), 50, 'count_ps should be 50');
+            test.equals(count_test(hashes, 'count'), 10, 'count should be 10');
             test.done();
           });
       });
