@@ -59,18 +59,18 @@ function flushMetrics() {
   // After all listeners, reset the stats
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
     // Clear the counters
-    conf.deleteCounters = conf.deleteCounters || false;
     for (var key in metrics.counters) {
-      if (conf.deleteCounters) {
-        delete(metrics.counters[key]);
-      } else {
-        metrics.counters[key] = 0;
-      }
+      delete(metrics.counters[key]);
+    }
+
+    // Clear the gauges
+    for (var key in metrics.gauges) {
+      delete(metrics.gauges[key]);
     }
 
     // Clear the timers
     for (var key in metrics.timers) {
-      metrics.timers[key] = [];
+      delete(metrics.timers[key]);
     }
 
     // Clear low frequency timers
@@ -80,7 +80,7 @@ function flushMetrics() {
 
     // Clear the sets
     for (var key in metrics.sets) {
-      metrics.sets[key] = new set.Set();
+      delete(metrics.sets[key]);
     }
   });
 
@@ -284,38 +284,6 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
           case "gauges":
             stream.write(util.inspect(gauges) + "\n");
-            stream.write("END\n\n");
-            break;
-
-          case "delcounters":
-            for (var index in cmdline) {
-              delete counters[cmdline[index]];
-              stream.write("deleted: " + cmdline[index] + "\n");
-            }
-            stream.write("END\n\n");
-            break;
-
-          case "deltimers":
-            for (var index in cmdline) {
-              delete timers[cmdline[index]];
-              stream.write("deleted: " + cmdline[index] + "\n");
-            }
-            stream.write("END\n\n");
-            break;
-
-          case "deltimers_lf":
-            for (var index in cmdline) {
-              delete timers_lf[cmdline[index]];
-              stream.write("deleted: " + cmdline[index] + "\n");
-            }
-            stream.write("END\n\n");
-            break;
-
-          case "delgauges":
-            for (var index in cmdline) {
-              delete gauges[cmdline[index]];
-              stream.write("deleted: " + cmdline[index] + "\n");
-            }
             stream.write("END\n\n");
             break;
 
