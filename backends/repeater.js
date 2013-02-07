@@ -8,7 +8,7 @@ function RepeaterBackend(startupTime, config, emitter){
         dgram.createSocket('udp6') :
         dgram.createSocket('udp4');
   // Attach DNS error handler
-  sock.on('error', function (err) {
+  this.sock.on('error', function (err) {
     console.log('Repeater error: ' + err);
   });
   // attach
