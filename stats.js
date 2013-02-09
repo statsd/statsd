@@ -131,6 +131,16 @@ var stats = {
 // Global for the logger
 var l;
 
+function delete_stats(stats_type, cmdline, stream) {
+
+  //for each metric requested on the command line
+  for (var index in cmdline) {
+    delete stats_type[cmdline[index]];
+    stream.write("deleted: " + metric + "\n");
+  }
+  stream.write("END\n\n");
+}
+
 config.configFile(process.argv[2], function (config, oldConfig) {
   conf = config;
   l = new logger.Logger(config.log || {});
@@ -307,27 +317,15 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             break;
 
           case "delcounters":
-            for (var counter_index in cmdline) {
-              delete counters[cmdline[counter_index]];
-              stream.write("deleted: " + cmdline[counter_index] + "\n");
-            }
-            stream.write("END\n\n");
+            delete_stats(counters, cmdline, stream);
             break;
 
           case "deltimers":
-            for (var timer_index in cmdline) {
-              delete timers[cmdline[timer_index]];
-              stream.write("deleted: " + cmdline[timer_index] + "\n");
-            }
-            stream.write("END\n\n");
+            delete_stats(timers, cmdline, stream);
             break;
 
           case "delgauges":
-            for (var gauge_index in cmdline) {
-              delete gauges[cmdline[gauge_index]];
-              stream.write("deleted: " + cmdline[gauge_index] + "\n");
-            }
-            stream.write("END\n\n");
+            delete_stats(gauges, cmdline, stream);
             break;
 
           case "quit":
