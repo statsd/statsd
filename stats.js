@@ -135,10 +135,45 @@ function delete_stats(stats_type, cmdline, stream) {
 
   //for each metric requested on the command line
   for (var index in cmdline) {
-    delete stats_type[cmdline[index]];
-    stream.write("deleted: " + metric + "\n");
+    
+    //get a list of deletable metrics that match the request
+    deletable = stats_to_delete(stats_type, cmdline[index]);
+    
+    //warn if no matches
+    if (deletable.length == 0) {
+      stream.write("metric " + cmdline[index] + " not found\n");
+    }
+    
+    //delete all requested metrics
+    for (var del_idx in deletable) {
+      delete stats_type[deletable[del_idx]];
+      stream.write("deleted: " + deletable[del_idx] + "\n");
+    }
   }
   stream.write("END\n\n");
+}
+
+function stats_to_delete(stats_type, bucket){
+  deletable = []
+
+  //typical case: one-off deletion
+  if (bucket in stats_type) {
+    deletable.push(bucket);
+  }
+
+  //special case: delete a whole 'folder' (and subfolders) of stats
+  if (bucket.slice(-2) == ".*") {
+    var folder = bucket.slice(0,-1);
+    
+    for (var name in stats_type) {
+      //check if stat is in bucket, ie~ name starts with folder
+      if (name.substring(0, folder.length) == folder) {
+        deletable.push(name);
+      }
+    }
+  }
+  
+  return deletable;
 }
 
 config.configFile(process.argv[2], function (config, oldConfig) {
