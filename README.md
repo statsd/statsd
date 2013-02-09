@@ -226,6 +226,11 @@ The stats output currently will give you:
 Each backend will also publish a set of statistics, prefixed by its
 module name.
 
+You can use this to delete buckets no longer in use. For example, if you were hosting statsd at 10.10.10.10:
+
+    #to delete counter sandbox.test.temporary
+    echo "delcounters sandbox.test.temporary" | nc 10.10.10.10 8126
+
 Graphite:
 
 * graphite.last_flush: the number of seconds elapsed since the last successful
