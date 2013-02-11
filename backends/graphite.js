@@ -99,10 +99,17 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
   for (key in timer_data) {
     if (Object.keys(timer_data).length > 0) {
+      var namespace = timerNamespace.concat(key);
+      var the_key = namespace.join(".");
       for (timer_data_key in timer_data[key]) {
-        var namespace = timerNamespace.concat(key);
-        var the_key = namespace.join(".");
-        statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ' ' + ts + "\n";
+        if (typeof(timer_data_key) === 'string') {
+          statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ' ' + ts + "\n";
+        } else {
+          for (timer_data_sub_key in timer_data[key][timer_data_key]) {
+            statString += the_key + '.' + timer_data_key + '.' + timer_data_sub_key + ' ' +
+                          timer_data[key][timer_data_key][timer_data_sub_key] + ' ' + ts + "\n";
+          }
+        }
       }
 
       numStats += 1;

@@ -76,6 +76,7 @@ module.exports = {
                ,  batch: 200 \n\
                ,  flushInterval: " + this.myflush + " \n\
                ,  percentThreshold: 90\n\
+               ,  timer: {histogram: [ { metric: \"a_test_value\", bins: [10] } ]}\n\
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
                ,  debug: false\n\
@@ -214,6 +215,7 @@ module.exports = {
               var mykey = 'stats.timers.a_test_value.mean_90';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
+            //TODO: test here that one of the histogram datapoints is also correct
             test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
 
             test.done();
