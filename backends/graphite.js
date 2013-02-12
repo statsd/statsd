@@ -44,6 +44,8 @@ var graphiteStats = {};
 var post_stats = function graphite_post_stats(statString) {
   var last_flush = graphiteStats.last_flush || 0;
   var last_exception = graphiteStats.last_exception || 0;
+  var flush_time = graphiteStats.flush_time || 0;
+  var flush_length = graphiteStats.flush_length || 0;
   if (graphiteHost) {
     try {
       var graphite = net.createConnection(graphitePort, graphiteHost);
@@ -54,11 +56,17 @@ var post_stats = function graphite_post_stats(statString) {
       });
       graphite.on('connect', function() {
         var ts = Math.round(new Date().getTime() / 1000);
+        var ts_suffix = ' ' + ts + "\n";
         var namespace = globalNamespace.concat(prefixStats);
-        statString += namespace.join(".") + '.graphiteStats.last_exception ' + last_exception + ' ' + ts + "\n";
-        statString += namespace.join(".") + '.graphiteStats.last_flush ' + last_flush + ' ' + ts + "\n";
+        statString += namespace.join(".") + '.graphiteStats.last_exception ' + last_exception + ts_suffix;
+        statString += namespace.join(".") + '.graphiteStats.last_flush '     + last_flush     + ts_suffix;
+        statString += namespace.join(".") + '.graphiteStats.flush_time '     + flush_time     + ts_suffix;
+        statString += namespace.join(".") + '.graphiteStats.flush_length '   + flush_length   + ts_suffix;
+        var starttime = Date.now();
         this.write(statString);
         this.end();
+        graphiteStats.flush_time = (Date.now() - starttime);
+        graphiteStats.flush_length = statString.length;
         graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
       });
     } catch(e){
@@ -203,6 +211,8 @@ exports.init = function graphite_init(startup_time, config, events) {
 
   graphiteStats.last_flush = startup_time;
   graphiteStats.last_exception = startup_time;
+  graphiteStats.flush_time = 0;
+  graphiteStats.flush_length = 0;
 
   flushInterval = config.flushInterval;
 
