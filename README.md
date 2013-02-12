@@ -237,6 +237,8 @@ Graphite:
   flush to graphite
 * graphite.last_exception: the number of seconds elapsed since the last
   exception thrown whilst flushing to graphite
+* graphite.flush_length: the length of the string sent to graphite
+* graphite.flush_time: the time it took to send the data to graphite
 
 Those statistics will also be sent to graphite under the namespaces
 `stats.statsd.graphiteStats.last_exception` and
