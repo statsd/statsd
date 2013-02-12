@@ -27,9 +27,6 @@ Optional Variables:
   debugInterval:    interval to print debug information [ms, default: 10000]
   dumpMessages:     log all incoming messages
   flushInterval:    interval (in ms) to flush to Graphite
-  percentThreshold: for time information, calculate the Nth percentile(s)
-                    (can be a single value or list of floating-point values)
-                    [%, default: 90]
   keyFlush:         log the most frequently sent keys [object, default: undefined]
     interval:       how often to log frequent keys [ms, default: 0]
     percent:        percentage of frequent keys to log [%, default: 100]
@@ -63,6 +60,26 @@ Optional Variables:
 
   repeaterProtocol: whether to use udp4 or udp6 for repeaters.
                     ["udp4" or "udp6", default: "udp4"]
+
+  timer:
+    percentThreshold: calculate the Nth percentile(s)
+                    (can be a single value or list of floating-point values)
+                    [%, default: 90]
+    histogram:      an array of mappings of strings (to match metrics) and
+                    corresponding ordered non-inclusive upper limits of bins.
+                    For all matching metrics, histograms are maintained over
+                    time by writing the frequencies for all bins.
+                    'inf' means infinity. A lower limit of 0 is assumed.
+                    default: [], meaning no histograms for any timer.
+                    First match wins.  examples:
+                    * histogram to only track render durations, with unequal
+                      class intervals and catchall for outliers:
+                      [ { metric: 'render', bins: [ 0.01, 0.1, 1, 10, 'inf'] } ]
+                    * histogram for all timers except 'foo' related,
+                      equal class interval and catchall for outliers:
+                     [ { metric: 'foo', bins: [] },
+                       { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
+
 */
 {
   graphitePort: 2003
