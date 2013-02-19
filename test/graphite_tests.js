@@ -76,6 +76,7 @@ module.exports = {
                ,  batch: 200 \n\
                ,  flushInterval: " + this.myflush + " \n\
                ,  percentThreshold: 90\n\
+               ,  histogram: [ { metric: \"a_test_value\", bins: [1000] } ]\n\
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
                ,  debug: false\n\
@@ -190,7 +191,7 @@ module.exports = {
   },
 
   timers_are_valid: function (test) {
-    test.expect(5);
+    test.expect(6);
 
     var testvalue = 100;
     var me = this;
@@ -214,6 +215,11 @@ module.exports = {
               var mykey = 'stats.timers.a_test_value.mean_90';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
+            var testtimerhistogramvalue_test = function(post){
+              var mykey = 'stats.timers.a_test_value.histogram.bin_1000';
+              return _.include(_.keys(post),mykey) && (post[mykey] == 1);
+            };
+            test.ok(_.any(hashes,testtimerhistogramvalue_test), 'stats.timers.a_test_value.mean should be ' + 1);
             test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
 
             var count_test = function(post, metric){

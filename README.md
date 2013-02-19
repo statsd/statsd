@@ -61,6 +61,34 @@ generate the following list of stats for each threshold:
 Where `$KEY` is the stats key you specify when sending to statsd, and `$PCT` is
 the percentile threshold.
 
+Use the `config.histogram` setting to instruct statsd to maintain histograms
+over time.  Specify which metrics to match and a corresponding list of
+ordered non-inclusive upper limits of bins (class intervals).
+(use `inf` to denote infinity; a lower limit of 0 is assumed)
+Each `flushInterval`, statsd will store how many values (absolute frequency)
+fall within each bin (class interval), for all matching metrics.
+Examples:
+
+* no histograms for any timer (default): `[]`
+* histogram to only track render durations,
+  with unequal class intervals and catchall for outliers:
+
+        [ { metric: 'render', bins: [ 0.01, 0.1, 1, 10, 'inf'] } ]
+
+* histogram for all timers except 'foo' related,
+  with equal class interval and catchall for outliers:
+
+        [ { metric: 'foo', bins: [] },
+          { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
+
+Note:
+
+* first match for a metric wins.
+* bin upper limits may contain decimals.
+* this is actually more powerful than what's strictly considered
+histograms, as you can make each bin arbitrarily wide,
+i.e. class intervals of different sizes.
+
 Gauges
 ------
 StatsD now also supports gauges, arbitrary values, which can be recorded.
