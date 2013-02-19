@@ -64,8 +64,7 @@ Optional Variables:
   repeaterProtocol: whether to use udp4 or udp6 for repeaters.
                     ["udp4" or "udp6", default: "udp4"]
 
-  timer:
-    histogram:      an array of mappings of strings (to match metrics) and
+    histogram:      for timers, an array of mappings of strings (to match metrics) and
                     corresponding ordered non-inclusive upper limits of bins.
                     For all matching metrics, histograms are maintained over
                     time by writing the frequencies for all bins.
