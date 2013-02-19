@@ -53,7 +53,8 @@ function flushMetrics() {
     sets: sets,
     counter_rates: counter_rates,
     timer_data: timer_data,
-    pctThreshold: pctThreshold
+    pctThreshold: pctThreshold,
+    histogram: conf.histogram
   }
 
   // After all listeners, reset the stats
@@ -124,7 +125,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   bad_lines_seen = prefixStats + ".bad_lines_seen";
   packets_received = prefixStats + ".packets_received";
 
-  //now set to zero so we can increment them 
+  //now set to zero so we can increment them
   counters[bad_lines_seen] = 0;
   counters[packets_received] = 0;
 

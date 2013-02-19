@@ -63,6 +63,22 @@ Optional Variables:
 
   repeaterProtocol: whether to use udp4 or udp6 for repeaters.
                     ["udp4" or "udp6", default: "udp4"]
+
+    histogram:      for timers, an array of mappings of strings (to match metrics) and
+                    corresponding ordered non-inclusive upper limits of bins.
+                    For all matching metrics, histograms are maintained over
+                    time by writing the frequencies for all bins.
+                    'inf' means infinity. A lower limit of 0 is assumed.
+                    default: [], meaning no histograms for any timer.
+                    First match wins.  examples:
+                    * histogram to only track render durations, with unequal
+                      class intervals and catchall for outliers:
+                      [ { metric: 'render', bins: [ 0.01, 0.1, 1, 10, 'inf'] } ]
+                    * histogram for all timers except 'foo' related,
+                      equal class interval and catchall for outliers:
+                     [ { metric: 'foo', bins: [] },
+                       { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
+
 */
 {
   graphitePort: 2003
