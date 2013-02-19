@@ -148,8 +148,10 @@ var flush_stats = function graphite_flush(ts, metrics) {
       statString += the_key.join(".") + ' ' + statsd_metrics[key] + ts_suffix;
     }
   }
-
   post_stats(statString);
+  if (debug) {
+   l.log("numStats: " + numStats);
+  }
 };
 
 var backend_status = function graphite_status(writeCb) {
