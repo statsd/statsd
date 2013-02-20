@@ -60,9 +60,13 @@ function flushMetrics() {
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
     // Clear the counters
     conf.deleteCounters = conf.deleteCounters || false;
-    for (var key in metrics.counters) {
+    for (key in metrics.counters) {
       if (conf.deleteCounters) {
-        delete(metrics.counters[key]);
+      	if ((key.indexOf("packets_received") != -1) || (key.indexOf("bad_lines_seen") != -1) {
+          metrics.counters[key] = 0;
+        } else {
+      	 delete(metrics.counters[key]);
+        }
       } else {
         metrics.counters[key] = 0;
       }
@@ -124,7 +128,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   bad_lines_seen = prefixStats + ".bad_lines_seen";
   packets_received = prefixStats + ".packets_received";
 
-  //now set to zero so we can increment them 
+  //now set to zero so we can increment them
   counters[bad_lines_seen] = 0;
   counters[packets_received] = 0;
 
