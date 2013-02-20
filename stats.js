@@ -53,7 +53,8 @@ function flushMetrics() {
     sets: sets,
     counter_rates: counter_rates,
     timer_data: timer_data,
-    pctThreshold: pctThreshold
+    pctThreshold: pctThreshold,
+    histogram: conf.histogram
   }
 
   // After all listeners, reset the stats
