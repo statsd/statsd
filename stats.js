@@ -62,7 +62,7 @@ function flushMetrics() {
     conf.deleteCounters = conf.deleteCounters || false;
     for (key in metrics.counters) {
       if (conf.deleteCounters) {
-        if ((key.indexOf("packets_received") != -1) || (key.indexOf("bad_lines_seen") != -1) {
+        if ((key.indexOf("packets_received") != -1) || (key.indexOf("bad_lines_seen") != -1)) {
           metrics.counters[key] = 0;
         } else {
          delete(metrics.counters[key]);
