@@ -9,7 +9,7 @@
 # that you were first sending so many packets of which only a fraction were being processed and shown in these counts, 
 # that even after sampling more statsd still can't process them all and your count stays in the same range.
 
-graphite_url=http://dfvimeographite2.df.vimeows.com
+graphite_url=http://<your graphite url>
 whisper_dir=/var/lib/carbon/whisper
 timers_subdir=stats/timers
 
