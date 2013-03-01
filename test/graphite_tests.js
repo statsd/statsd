@@ -298,5 +298,65 @@ module.exports = {
           });
       });
     });
+  },
+
+  gauges_are_valid: function(test) {
+    test.expect(2);
+
+    var testvalue = 70;
+    var me = this;
+    this.acceptor.once('connection', function(c) {
+      statsd_send('a_test_value:' + testvalue + '|g', me.sock, '127.0.0.1', 8125, function() {
+        collect_for(me.acceptor, me.myflush*2, function(strings) {
+          test.ok(strings.length > 0, 'should receive some data');
+          var hashes = _.map(strings, function(x) {
+            var chunks = x.split(' ');
+            var data = {};
+            data[chunks[0]] = chunks[1];
+            return data;
+          });
+
+          var gaugevalue_test = function(post) {
+            var mykey = 'stats.gauges.a_test_value';
+            return _.include(_.keys(post), mykey) && (post[mykey] == testvalue);
+          };
+          test.ok(_.any(hashes, gaugevalue_test), 'stats.gauges.a_test_value should be ' + testvalue);
+
+          test.done();
+        });
+      });
+    });
+  },
+
+  gauge_modifications_are_valid: function(test) {
+    test.expect(2);
+
+    var teststartvalue = 50;
+    var testdeltavalue = '-3';
+    var testresult = teststartvalue + Number(testdeltavalue);
+    var me = this;
+    this.acceptor.once('connection', function(c) {
+      statsd_send('test_value:' + teststartvalue + '|g', me.sock, '127.0.0.1', 8125, function() {
+        statsd_send('test_value:' + testdeltavalue + '|g', me.sock, '127.0.0.1', 8125, function() {
+          collect_for(me.acceptor, me.myflush * 2, function(strings) {
+            test.ok(strings.length > 0, 'should receive some data');
+            var hashes = _.map(strings, function(x) {
+              var chunks = x.split(' ');
+              var data = {};
+              data[chunks[0]] = chunks[1];
+              return data;
+            });
+
+            var gaugevalue_test = function(post) {
+              var mykey = 'stats.gauges.test_value';
+              return _.include(_.keys(post), mykey) && (post[mykey] == testresult);
+            };
+            test.ok(_.any(hashes, gaugevalue_test), 'stats.gauges.test_value should be ' + testresult);
+
+            test.done();
+          });
+        });
+      });
+    });
   }
 }
