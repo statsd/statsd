@@ -301,7 +301,7 @@ module.exports = {
   },
 
   gauges_are_valid: function(test) {
-    test.expect(3);
+    test.expect(2);
 
     var testvalue = 70;
     var me = this;
@@ -315,11 +315,6 @@ module.exports = {
             data[chunks[0]] = chunks[1];
             return data;
           });
-          var numstat_test = function(post) {
-            var mykey = 'statsd.numStats';
-            return _.include(_.keys(post), mykey) && (post[mykey] == 1);
-          };
-          test.ok(_.any(hashes, numstat_test), 'statsd.numStats should be 1');
 
           var gaugevalue_test = function(post) {
             var mykey = 'stats.gauges.a_test_value';
@@ -334,7 +329,7 @@ module.exports = {
   },
 
   gauge_modifications_are_valid: function(test) {
-    test.expect(3);
+    test.expect(2);
 
     var teststartvalue = 50;
     var testdeltavalue = '-3';
@@ -351,11 +346,6 @@ module.exports = {
               data[chunks[0]] = chunks[1];
               return data;
             });
-            var numstat_test = function(post) {
-              var mykey = 'statsd.numStats';
-              return _.include(_.keys(post), mykey) && (post[mykey] == 1);
-            };
-            test.ok(_.any(hashes, numstat_test), 'statsd.numStats should be 1');
 
             var gaugevalue_test = function(post) {
               var mykey = 'stats.gauges.test_value';
