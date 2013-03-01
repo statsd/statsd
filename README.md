@@ -95,6 +95,19 @@ StatsD now also supports gauges, arbitrary values, which can be recorded.
 
     gaugor:333|g
 
+Adding a sign to the gauge value will change the value, rather than setting it.
+
+    gaugor:-10|g
+    gaugor:+4|g
+
+So if `gaugor` was `333`, those commands would set it to `333 - 10 + 4`, or
+`327`.
+
+Note:
+
+This implies you can't explicitly set a gauge to a negative number
+without first setting it to zero.
+
 Sets
 ----
 StatsD supports counting unique occurences of events between flushes,
