@@ -32,12 +32,12 @@ var prefixGauge;
 var prefixSet;
 
 // set up namespaces
-var legacyNamespace = true;
+var legacyNamespace  = true;
 var globalNamespace  = [];
 var counterNamespace = [];
 var timerNamespace   = [];
 var gaugesNamespace  = [];
-var setsNamespace     = [];
+var setsNamespace    = [];
 
 var graphiteStats = {};
 
