@@ -117,7 +117,9 @@ var flush_stats = function graphite_flush(ts, metrics) {
         statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ts_suffix;
       } else {
         for (var timer_data_sub_key in timer_data[key][timer_data_key]) {
-          l.log(timer_data[key][timer_data_key][timer_data_sub_key].toString());
+          if (debug) {
+            l.log(timer_data[key][timer_data_key][timer_data_sub_key].toString());
+          }
           statString += the_key + '.' + timer_data_key + '.' + timer_data_sub_key + ' ' +
                         timer_data[key][timer_data_key][timer_data_sub_key] + ts_suffix;
         }
