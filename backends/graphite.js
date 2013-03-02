@@ -110,10 +110,9 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   for (key in timer_data) {
+    var namespace = timerNamespace.concat(key);
+    var the_key = namespace.join(".");
     for (timer_data_key in timer_data[key]) {
-      var namespace = timerNamespace.concat(key);
-      var the_key = namespace.join(".");
-
       if (typeof(timer_data[key][timer_data_key]) === 'number') {
         statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ts_suffix;
       } else {
