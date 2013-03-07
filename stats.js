@@ -19,7 +19,7 @@ var sets = {};
 var counter_rates = {};
 var timer_data = {};
 var pctThreshold = null;
-var debugInt, flushInterval, keyFlushInt, server, mgmtServer;
+var flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 var backendEvents = new events.EventEmitter();
 
@@ -103,34 +103,17 @@ var l;
 
 config.configFile(process.argv[2], function (config, oldConfig) {
   conf = config;
-  if (! config.debug && debugInt) {
-    clearInterval(debugInt);
-    debugInt = false;
-  }
-
   l = new logger.Logger(config.log || {});
 
-  if (config.debug) {
-    if (debugInt !== undefined) {
-      clearInterval(debugInt);
-    }
-    debugInt = setInterval(function () {
-      l.log("\nCounters:\n" + util.inspect(counters) +
-               "\nTimers:\n" + util.inspect(timers) +
-               "\nSets:\n" + util.inspect(sets) +
-               "\nGauges:\n" + util.inspect(gauges), 'DEBUG');
-    }, config.debugInterval || 10000);
-  }
-
   // setup config for stats prefix
-  prefixStats       = config.prefixStats;
-  prefixStats     = prefixStats !== undefined ? prefixStats : "statsd";
+  prefixStats = config.prefixStats;
+  prefixStats = prefixStats !== undefined ? prefixStats : "statsd";
   //setup the names for the stats stored in counters{}
-  bad_lines_seen = prefixStats + ".bad_lines_seen";
+  bad_lines_seen   = prefixStats + ".bad_lines_seen";
   packets_received = prefixStats + ".packets_received";
 
   //now set to zero so we can increment them
-  counters[bad_lines_seen] = 0;
+  counters[bad_lines_seen]   = 0;
   counters[packets_received] = 0;
 
   if (server === undefined) {
