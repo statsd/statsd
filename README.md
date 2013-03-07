@@ -140,8 +140,7 @@ Debugging
 
 There are additional config variables available for debugging:
 
-* `debug` - log exceptions and periodically print out information on counters and timers
-* `debugInterval` - interval for printing out information on counters and timers
+* `debug` - log exceptions and print out more diagnostic info
 * `dumpMessages` - print debug info on incoming messages
 
 For more information, check the `exampleConfig.js`.
@@ -161,7 +160,7 @@ StatsD includes the following built-in backends:
 * [Graphite][graphite] (`graphite`): An open-source
   time-series data store that provides visualization through a web-browser.
 * Console (`console`): Outputs the received
-  metrics to stdout (see what's going on during development).
+  metrics to stdout (see what's going on during development or debugging).
 * Repeater (`repeater`): Utilizes the `packet` emit API to
   forward raw packets retrieved by StatsD to multiple backend StatsD instances.
 
