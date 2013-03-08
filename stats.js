@@ -124,7 +124,12 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     server = dgram.createSocket('udp4', function (msg, rinfo) {
       backendEvents.emit('packet', msg, rinfo);
       counters[packets_received]++;
-      var metrics = msg.toString().split("\n");
+      var packet_data = msg.toString();
+      if (packet_data.indexOf("\n") > -1) {
+        var metrics = packet_data.split("\n");
+      } else {
+        var metrics = [ packet_data ] ;
+      }
 
       for (var midx in metrics) {
         if (config.dumpMessages) {
