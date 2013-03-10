@@ -413,6 +413,20 @@ under `stats.counters.counter_name.rate` and
 The number of elements in sets will be recorded under the metric
 `stats.sets.set_name.count` (where "sets" is the prefixSet).
 
+IPv6
+----
+
+Here's an example on how to configure the UDP listener to listen on an IPv6 address:
+
+```
+{
+, address: "::1"
+, address_ipv6: true
+}
+```
+
+By default, if the `address_ipv6` configuration option is not set (or set to `false`), the socket will use IPv4.
+
 Inspiration
 -----------
 
