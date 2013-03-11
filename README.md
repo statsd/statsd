@@ -59,8 +59,7 @@ Debugging
 
 There are additional config variables available for debugging:
 
-* `debug` - log exceptions and periodically print out information on counters and timers
-* `debugInterval` - interval for printing out information on counters and timers
+* `debug` - log exceptions and print out more diagnostic info
 * `dumpMessages` - print debug info on incoming messages
 
 For more information, check the `exampleConfig.js`.
