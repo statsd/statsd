@@ -48,7 +48,7 @@ More Specific Topics
 --------
 * [Metric Types](./docs/metric_types.md)
 * [Graphite Integration](./docs/graphite.md)
-* [Supported Backends](./docs/backends.md)
+* [Supported Backends](./docs/backend.md)
 * [Admin TCP Interface](./docs/admin_interface.md)
 * [Backend Interface](./docs/backend_interface.md)
 * [Metric Namespacing](./docs/namespacing.md)
