@@ -32,12 +32,12 @@ var prefixGauge;
 var prefixSet;
 
 // set up namespaces
-var legacyNamespace = true;
+var legacyNamespace  = true;
 var globalNamespace  = [];
 var counterNamespace = [];
 var timerNamespace   = [];
 var gaugesNamespace  = [];
-var setsNamespace     = [];
+var setsNamespace    = [];
 
 var timerRegEx;
 
@@ -59,11 +59,11 @@ var post_stats = function graphite_post_stats(statString) {
       graphite.on('connect', function() {
         var ts = Math.round(new Date().getTime() / 1000);
         var ts_suffix = ' ' + ts + "\n";
-        var namespace = globalNamespace.concat(prefixStats);
-        statString += namespace.join(".") + '.graphiteStats.last_exception ' + last_exception + ts_suffix;
-        statString += namespace.join(".") + '.graphiteStats.last_flush '     + last_flush     + ts_suffix;
-        statString += namespace.join(".") + '.graphiteStats.flush_time '     + flush_time     + ts_suffix;
-        statString += namespace.join(".") + '.graphiteStats.flush_length '   + flush_length   + ts_suffix;
+        var namespace = globalNamespace.concat(prefixStats).join(".");
+        statString += namespace + '.graphiteStats.last_exception ' + last_exception + ts_suffix;
+        statString += namespace + '.graphiteStats.last_flush '     + last_flush     + ts_suffix;
+        statString += namespace + '.graphiteStats.flush_time '     + flush_time     + ts_suffix;
+        statString += namespace + '.graphiteStats.flush_length '   + flush_length   + ts_suffix;
         var starttime = Date.now();
         this.write(statString);
         this.end();
@@ -78,7 +78,7 @@ var post_stats = function graphite_post_stats(statString) {
       graphiteStats.last_exception = Math.round(new Date().getTime() / 1000);
     }
   }
-}
+};
 
 var flush_stats = function graphite_flush(ts, metrics) {
   var ts_suffix = ' ' + ts + "\n";
@@ -112,29 +112,27 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   for (key in timer_data) {
-    if (Object.keys(timer_data).length > 0) {
+    var namespace = timerNamespace.concat(key);
+    var the_key = namespace.join(".");
+    for (timer_data_key in timer_data[key]) {
+      if (!timerRegEx.test(timer_data_key)) {
+	    continue;
+	  }
       var namespace = timerNamespace.concat(key);
       var the_key = namespace.join(".");
-      for (timer_data_key in timer_data[key]) {
-	    if (!timerRegEx.test(timer_data_key)) {
-	      continue;
-		}
-        var namespace = timerNamespace.concat(key);
-        var the_key = namespace.join(".");
-
-        if (typeof(timer_data[key][timer_data_key]) === 'number') {
-          statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ts_suffix;
-        } else {
-          for (timer_data_sub_key in timer_data[key][timer_data_key]) {
+      if (typeof(timer_data[key][timer_data_key]) === 'number') {
+        statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ts_suffix;
+      } else {
+        for (var timer_data_sub_key in timer_data[key][timer_data_key]) {
+          if (debug) {
             l.log(timer_data[key][timer_data_key][timer_data_sub_key].toString());
-            statString += the_key + '.' + timer_data_key + '.' + timer_data_sub_key + ' ' +
-                          timer_data[key][timer_data_key][timer_data_sub_key] + ts_suffix;
           }
+          statString += the_key + '.' + timer_data_key + '.' + timer_data_sub_key + ' ' +
+                        timer_data[key][timer_data_key][timer_data_sub_key] + ts_suffix;
         }
       }
-
-      numStats += 1;
     }
+    numStats += 1;
   }
 
   for (key in gauges) {
