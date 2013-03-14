@@ -34,6 +34,12 @@ Optional Variables:
     interval:       how often to log frequent keys [ms, default: 0]
     percent:        percentage of frequent keys to log [%, default: 100]
     log:            location of log file for frequent keys [default: STDOUT]
+  deleteIdleStats:  don't send values to graphite for inactive counters, sets, gauges, or timeers
+                    as opposed to sending 0.  For gauges, this unsets the gauge (instead of sending
+                    the previous value). Can be indivdually overriden. [default: false]
+  deleteGauges  :   don't send values to graphite for inactive gauges, as opposed to sending the previous value [default: false]
+  deleteTimers:     don't send values to graphite for inactive timers, as opposed to sending 0 [default: false]
+  deleteSets:       don't send values to graphite for inactive sets, as opposed to sending 0 [default: false]
   deleteCounters:   don't send values to graphite for inactive counters, as opposed to sending 0 [default: false]
   prefixStats:      prefix to use for the statsd statistics data for this running instance of statsd [default: statsd]
                     applies to both legacy and new namespacing
