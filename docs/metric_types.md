@@ -38,6 +38,9 @@ generate the following list of stats for each threshold:
 Where `$KEY` is the stats key you specify when sending to statsd, and `$PCT` is
 the percentile threshold.
 
+If the count at flush is 0 then you can opt to send no metric at all for this timer,
+by setting `config.deleteTimers`.
+
 Use the `config.histogram` setting to instruct statsd to maintain histograms
 over time.  Specify which metrics to match and a corresponding list of
 ordered non-inclusive upper limits of bins (class intervals).
@@ -72,6 +75,9 @@ StatsD now also supports gauges, arbitrary values, which can be recorded.
 
     gaugor:333|g
 
+If the gauge is not updated at the next flush, it will send the previous value. You can opt to send
+no metric at all for this gauge, by setting `config.deleteGauge`
+
 Adding a sign to the gauge value will change the value, rather than setting it.
 
     gaugor:-10|g
@@ -91,6 +97,9 @@ StatsD supports counting unique occurences of events between flushes,
 using a Set to store all occuring events.
 
     uniques:765|s
+
+If the count at flush is 0 then you can opt to send no metric at all for this set, by
+setting `config.deleteSets`.
 
 Multi-Metric Packets
 --------------------
