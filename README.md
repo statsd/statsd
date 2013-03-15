@@ -46,12 +46,12 @@ Installation and Configuration
 
 More Specific Topics
 --------
-* [Metric Types](./docs/metric_types.md)
-* [Graphite Integration](./docs/graphite.md)
-* [Supported Backends](./docs/backend.md)
-* [Admin TCP Interface](./docs/admin_interface.md)
-* [Backend Interface](./docs/backend_interface.md)
-* [Metric Namespacing](./docs/namespacing.md)
+* [Metric Types](https://github.com/etsy/statsd/blob/master/docs/metric_types.md)
+* [Graphite Integration](https://github.com/etsy/statsd/blob/master/docs/graphite.md)
+* [Supported Backends](https://github.com/etsy/statsd/blob/master/docs/backend.md)
+* [Admin TCP Interface](https://github.com/etsy/statsd/blob/master/docs/admin_interface.md)
+* [Backend Interface](https://github.com/etsy/statsd/blob/master/docs/backend_interface.md)
+* [Metric Namespacing](https://github.com/etsy/statsd/blob/master/docs/namespacing.md)
 
 
 Debugging
