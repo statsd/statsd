@@ -44,3 +44,4 @@ queues and third-party services.
 - [statsd aggregation backend](https://github.com/wanelo/gossip_girl)
 - [zabbix-backend](https://github.com/parkerd/statsd-zabbix-backend)
 - [opentsdb backend](https://github.com/emurphy/statsd-opentsdb-backend)
+- [leftronic backend](https://github.com/sreuter/statsd-leftronic-backend)
