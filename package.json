@@ -12,7 +12,7 @@
     "type": "git",
     "url": "https://github.com/etsy/statsd.git"
   },
-  "version": "0.5.0",
+  "version": "0.6.0",
   "dependencies": {
   },
   "devDependencies": {
