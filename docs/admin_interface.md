@@ -9,6 +9,7 @@ available:
 
 * stats - some stats about the running server
 * counters - a dump of all the current counters
+* gauges - a dump of all the current gauges
 * timers - a dump of the current timers
 
 The stats output currently will give you:
