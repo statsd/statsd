@@ -116,10 +116,8 @@ var flush_stats = function graphite_flush(ts, metrics) {
     var the_key = namespace.join(".");
     for (timer_data_key in timer_data[key]) {
       if (!timerRegEx.test(timer_data_key)) {
-	    continue;
-	  }
-      var namespace = timerNamespace.concat(key);
-      var the_key = namespace.join(".");
+        continue;
+      }
       if (typeof(timer_data[key][timer_data_key]) === 'number') {
         statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ts_suffix;
       } else {
