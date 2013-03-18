@@ -1,4 +1,5 @@
-StatsD [![Build Status](https://travis-ci.org/etsy/statsd.png?branch=backends-as-packages)](https://travis-ci.org/etsy/statsd)
+![Statsd Logo][statsd_logo]
+StatsD [![Build Status][travis-ci_status_img]][travis-ci_statsd]
 ======
 
 A network daemon that runs on the [Node.js][node] platform and
@@ -13,9 +14,9 @@ Inspiration
 
 StatsD was inspired (heavily) by the project (of the same name) at Flickr.
 Here's a post where Cal Henderson described it in depth:
-[Counting and timing](http://code.flickr.com/blog/2008/10/27/counting-timing/).
+[Counting and timing][counting-timing]
 Cal re-released the code recently:
-[Perl StatsD](https://github.com/iamcal/Flickr-StatsD)
+[Perl StatsD][Flicker-StatsD]
 
 Key Concepts
 --------
@@ -46,12 +47,12 @@ Installation and Configuration
 
 More Specific Topics
 --------
-* [Metric Types](https://github.com/etsy/statsd/blob/master/docs/metric_types.md)
-* [Graphite Integration](https://github.com/etsy/statsd/blob/master/docs/graphite.md)
-* [Supported Backends](https://github.com/etsy/statsd/blob/master/docs/backend.md)
-* [Admin TCP Interface](https://github.com/etsy/statsd/blob/master/docs/admin_interface.md)
-* [Backend Interface](https://github.com/etsy/statsd/blob/master/docs/backend_interface.md)
-* [Metric Namespacing](https://github.com/etsy/statsd/blob/master/docs/namespacing.md)
+* [Metric Types][docs_metric_types]
+* [Graphite Integration][docs_graphite]
+* [Supported Backends][docs_backend]
+* [Admin TCP Interface][docs_admin_interface]
+* [Backend Interface][docs_backend_interface]
+* [Metric Namespacing][docs_namespacing]
 
 
 Debugging
@@ -101,16 +102,26 @@ fork StatsD from here: http://github.com/etsy/statsd
 
 We'll do our best to get your changes in!
 
-[graphite]: http://graphite.wikidot.com
-[etsy]: http://www.etsy.com
-[blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
-[node]: http://nodejs.org
-[nodemods]: http://nodejs.org/api/modules.html
-[udp]: http://en.wikipedia.org/wiki/User_Datagram_Protocol
-
-
 Contributors
 -----------------
 
 In lieu of a list of contributors, check out the commit history for the project:
 https://github.com/etsy/statsd/graphs/contributors
+
+[graphite]: http://graphite.wikidot.com
+[etsy]: http://www.etsy.com
+[blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
+[node]: http://nodejs.org
+[nodemods]: http://nodejs.org/api/modules.html
+[counting-timing]: http://code.flickr.com/blog/2008/10/27/counting-timing/
+[Flicker-StatsD]: https://github.com/iamcal/Flickr-StatsD
+[udp]: http://en.wikipedia.org/wiki/User_Datagram_Protocol
+[statsd_logo]: https://www.etsy.com/images/github/github-statsd.png
+[docs_metric_types]: https://github.com/etsy/statsd/blob/master/docs/metric_types.md
+[docs_graphite]: https://github.com/etsy/statsd/blob/master/docs/graphite.md
+[docs_backend]: https://github.com/etsy/statsd/blob/master/docs/backend.md
+[docs_admin_interface]: https://github.com/etsy/statsd/blob/master/docs/admin_interface.md
+[docs_backend_interface]: https://github.com/etsy/statsd/blob/master/docs/backend_interface.md
+[docs_namespacing]: https://github.com/etsy/statsd/blob/master/docs/namespacing.md
+[travis-ci_status_img]: https://travis-ci.org/etsy/statsd.png?branch=backends-as-packages
+[travis-ci_statsd]: https://travis-ci.org/etsy/statsd
