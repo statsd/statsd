@@ -115,7 +115,6 @@ https://github.com/etsy/statsd/graphs/contributors
 [counting-timing]: http://code.flickr.com/blog/2008/10/27/counting-timing/
 [Flicker-StatsD]: https://github.com/iamcal/Flickr-StatsD
 [udp]: http://en.wikipedia.org/wiki/User_Datagram_Protocol
-[statsd_logo]: https://www.etsy.com/images/github/github-statsd.png
 [docs_metric_types]: https://github.com/etsy/statsd/blob/master/docs/metric_types.md
 [docs_graphite]: https://github.com/etsy/statsd/blob/master/docs/graphite.md
 [docs_backend]: https://github.com/etsy/statsd/blob/master/docs/backend.md
