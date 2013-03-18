@@ -1,4 +1,3 @@
-![Statsd Logo][statsd_logo]
 StatsD [![Build Status][travis-ci_status_img]][travis-ci_statsd]
 ======
 
