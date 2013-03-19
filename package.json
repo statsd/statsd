@@ -16,17 +16,16 @@
   "dependencies": {
   },
   "devDependencies": {
-    "nodeunit": "0.6.x",
-    "async": "0.1.x",
-    "underscore": "1.2.x",
+    "nodeunit": "0.7.x",
+    "underscore": "1.4.x",
     "temp": "0.4.x"
   },
   "optionalDependencies": {
-    "node-syslog":"1.1.3",
+    "node-syslog":"1.1.7",
     "winser": "=0.0.11"
   },
   "engines": {
-    "node" : ">=0.4"
+    "node" : ">=0.6"
   },
   "bin": { "statsd": "./bin/statsd" }
 }
