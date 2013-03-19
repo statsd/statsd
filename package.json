@@ -16,8 +16,7 @@
   "dependencies": {
   },
   "devDependencies": {
-    "nodeunit": "0.6.x",
-    "async": "0.1.x",
+    "nodeunit": "0.7.x",
     "underscore": "1.2.x",
     "temp": "0.4.x"
   },
