@@ -17,8 +17,8 @@
   },
   "devDependencies": {
     "nodeunit": "0.7.x",
-    "underscore": "1.2.x",
-    "temp": "0.4.x"
+    "underscore": "1.4.x",
+    "temp": "0.5.x"
   },
   "optionalDependencies": {
     "node-syslog":"1.1.7",
