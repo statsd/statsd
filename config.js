@@ -88,7 +88,7 @@ Optional Variables:
 */
 {
   graphitePort: 2003
-, graphiteHost: "graphite.example.com"
+, graphiteHost: "localhost"
 , port: 8125
-, backends: [ "./backends/graphite" ]
+, backends: [ "./backends/graphite", "./backends/console" ]
 }

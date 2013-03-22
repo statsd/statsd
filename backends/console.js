@@ -8,7 +8,7 @@ function ConsoleBackend(startupTime, config, emitter){
 
   this.statsCache = {
     counters: {},
-    timers: {}
+    //timers: {}
   };
 
   // attach
@@ -32,7 +32,7 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
 
   var out = {
     counters: this.statsCache.counters,
-    timers: this.statsCache.timers,
+    timers: metrics.timers,
     gauges: metrics.gauges,
     timer_data: metrics.timer_data,
     counter_rates: metrics.counter_rates,
