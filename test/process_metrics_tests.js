@@ -195,7 +195,7 @@ module.exports = {
   },
     timers_multiple_times_even: function(test) {
     test.expect(1);
-    this.metrics.timers['a'] = [100, 200, 300, 400];
+    this.metrics.timers['a'] = [300, 200, 400, 100];
     pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(250, timer_data.median);
