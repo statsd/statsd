@@ -45,8 +45,12 @@ Optional Variables:
                     applies to both legacy and new namespacing
 
   console:
-    prettyprint:    whether to prettyprint the console backend
-                    output [true or false, default: true]
+    prettyprint:     whether to prettyprint the console backend
+                     output [true or false, default: true]
+    useCounterCache: whether to use cache for console.js counters or not
+                     values [true or false]
+    useTimerCache:   whether to use cache for console.js timers or not
+                     values [true or false]
 
   log:              log settings [object, default: undefined]
     backend:        where to log: stdout or syslog [string, default: stdout]
@@ -88,6 +92,7 @@ Optional Variables:
 */
 {
   graphitePort: 2003
+, console: {useCounterCache: true, useTimerCache: false}
 , graphiteHost: "localhost"
 , port: 8125
 , backends: [ "./backends/graphite", "./backends/console" ]
