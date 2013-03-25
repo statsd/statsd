@@ -92,6 +92,7 @@ Optional Variables:
 */
 {
   graphitePort: 2003
+, console: { useCounterCache : true, useTimerCache : false}
 , graphiteHost: "localhost"
 , port: 8125
 , backends: [ "./backends/graphite", "./backends/console", "./backends/http" ]

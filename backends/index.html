@@ -1,14 +1,33 @@
 <html>
   <head>
+    <style type="text/css">
+      #counters{
+        width: 700px;
+        height: 600px;
+        overflow: scroll;
+        margin-left: 300px;
+        background-color: #d6d6c2;
+        text-shadow:1px -1px 1px #333333;
+        box-shadow:2px 2px 2px 2px #333333;
+      }
+    </style>
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript">
       var socket = io.connect('http://localhost:8000');
       socket.on("counters", function(metrics){
-        console.log(metrics);
+        document.getElementById("counters").innerHTML = "<h1>Stats</h1>";
+        for(metric in metrics){
+          document.getElementById("counters").innerHTML += "<b><h3>" + metric + "</h3></b>";
+          for(key in metrics[metric]){
+            document.getElementById("counters").innerHTML += "  " + key + " : " + metrics[metric][key] + "</br>";
+          }
+        }
       });
-      console.log("hello");
     </script>
   </head>
   <body>
+    <div id="counters">
+      <h1>Stats</h1>
+    </div>
   </body>
 </html>
