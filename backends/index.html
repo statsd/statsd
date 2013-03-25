@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+      var socket = io.connect('http://localhost:8000');
+      socket.on("counters", function(metrics){
+        console.log(metrics);
+      });
+      console.log("hello");
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
