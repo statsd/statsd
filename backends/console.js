@@ -5,7 +5,6 @@ function ConsoleBackend(startupTime, config, emitter){
   this.lastFlush = startupTime;
   this.lastException = startupTime;
   this.config = config.console || {};
-  console.log(this.config)
   this.statsCache = {
     counters: {},
     timers: {}
