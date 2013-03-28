@@ -22,6 +22,7 @@ var pctThreshold = null;
 var flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 var backendEvents = new events.EventEmitter();
+var healthStatus = config.healthStatus || 'up';
 
 // Load and init the backend from the backends/ directory.
 function loadBackend(config, name) {
@@ -234,7 +235,6 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     });
 
     mgmtServer = net.createServer(function(stream) {
-      var healthStatus = config.healthStatus || 'up';
       stream.setEncoding('ascii');
 
       stream.on('error', function(err) {
@@ -414,4 +414,14 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }, keyFlushInterval);
     }
   }
+});
+
+process.on('SIGTERM', function() {
+  if (config.debug) {
+    l.log('Going Down in ' + flushInterval + 'ms');
+  }
+  healthStatus = 'down';
+  setTimeout(function() {
+    process.exit();
+  }, flushInterval);
 });
