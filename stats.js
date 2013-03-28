@@ -234,6 +234,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     });
 
     mgmtServer = net.createServer(function(stream) {
+      var healthStatus = config.healthStatus || 'up';
       stream.setEncoding('ascii');
 
       stream.on('error', function(err) {
@@ -246,7 +247,19 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
         switch(cmd) {
           case "help":
-            stream.write("Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, quit\n\n");
+            stream.write("Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, health, quit\n\n");
+            break;
+
+          case "health":
+            if (cmdline.length > 0) {
+              var cmdaction = cmdline[0].toLowerCase();
+              if (cmdaction === 'up') {
+                healthStatus = 'up';
+              } else if (cmdaction === 'down') {
+                healthStatus = 'down';
+              }
+            }
+            stream.write("health: " + healthStatus + "\n");
             break;
 
           case "stats":
