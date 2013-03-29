@@ -22,6 +22,7 @@
   },
   "optionalDependencies": {
     "node-syslog":"1.1.7",
+    "hashring":"1.0.1",
     "winser": "=0.0.11"
   },
   "engines": {
