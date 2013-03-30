@@ -45,3 +45,6 @@ queues and third-party services.
 - [zabbix-backend](https://github.com/parkerd/statsd-zabbix-backend)
 - [opentsdb backend](https://github.com/emurphy/statsd-opentsdb-backend)
 - [leftronic backend](https://github.com/sreuter/statsd-leftronic-backend)
+
+
+[graphite]: http://graphite.wikidot.com
