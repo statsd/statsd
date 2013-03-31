@@ -163,7 +163,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       for (var midx in metrics) {
-        if (metrics[midx].length == 0) {
+        if (metrics[midx].length === 0) {
           continue;
         }
         if (config.dumpMessages) {
