@@ -38,7 +38,7 @@ To fix that, simply ensure your flush interval is at least as long as the highes
 
 ### Storage Aggregation
 
-The next step is ensuring your data isn't corrupted or discarded when downsampled. Continuing with the example above, take for instance the downsampling of .mean values calculated for all stastd timers: 
+The next step is ensuring your data isn't corrupted or discarded when downsampled. Continuing with the example above, take for instance the downsampling of .mean values calculated for all statsd timers: 
 
 Graphite should downsample up to 6 samples representing 10-second mean values into a single value signfying the mean for a 1-minute timespan. This is simple: just average all samples to get the new value, and this is exactly the default method applied by Graphite. However, what about the .count metric also sent for timers? Each sample contains the count of occurences per flush interval, so you want these samples summed-up, not averaged! 
 
