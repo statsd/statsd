@@ -29,10 +29,8 @@ You can use this to delete buckets no longer in use. For example, if you were ho
 
 Graphite:
 
-* graphite.last_flush: the number of seconds elapsed since the last successful
-  flush to graphite
-* graphite.last_exception: the number of seconds elapsed since the last
-  exception thrown whilst flushing to graphite
+* graphite.last_flush: unix timestamp of last successful flush to graphite
+* graphite.last_exception: unix timestamp of last exception thrown whilst flushing to graphite
 * graphite.flush_length: the length of the string sent to graphite
 * graphite.flush_time: the time it took to send the data to graphite
 
