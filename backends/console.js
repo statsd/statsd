@@ -5,7 +5,6 @@ function ConsoleBackend(startupTime, config, emitter){
   this.lastFlush = startupTime;
   this.lastException = startupTime;
   this.config = config.console || {};
-
   this.statsCache = {
     counters: {},
     timers: {}
@@ -31,8 +30,8 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
   });
 
   var out = {
-    counters: this.statsCache.counters,
-    timers: this.statsCache.timers,
+    counters: this.config.useCounterCache === true ? this.statsCache.counters : metrics.counters,
+    timers: this.config.useTimerCache === true ? this.statsCache.timers : metrics.timers,
     gauges: metrics.gauges,
     timer_data: metrics.timer_data,
     counter_rates: metrics.counter_rates,
