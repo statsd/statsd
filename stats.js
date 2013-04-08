@@ -417,11 +417,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 });
 
 process.on('SIGTERM', function() {
-  if (config.debug) {
-    l.log('Going Down in ' + flushInterval + 'ms');
+  if (conf.debug) {
+    util.log('Starting Final Flush');
   }
   healthStatus = 'down';
-  setTimeout(function() {
-    process.exit();
-  }, flushInterval);
+  process.exit();
+});
+
+process.on('exit', function () {
+  flushMetrics();
 });
