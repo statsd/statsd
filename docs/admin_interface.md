@@ -11,6 +11,7 @@ available:
 * counters - a dump of all the current counters
 * gauges - a dump of all the current gauges
 * timers - a dump of the current timers
+* health - a way to set the health status of statsd
 
 The stats output currently will give you:
 
@@ -42,4 +43,8 @@ A simple nagios check can be found in the utils/ directory that can be used to
 check metric thresholds, for example the number of seconds since the last
 successful flush to graphite.
 
+The health output:
+* the health command alone allows you to see the current health status.
+* using health up or health down, you can change the current health status.
+* the healthStatus configuration option allows you to set the default health status at start.
 
