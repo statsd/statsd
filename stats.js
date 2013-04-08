@@ -22,6 +22,7 @@ var pctThreshold = null;
 var flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 var backendEvents = new events.EventEmitter();
+var healthStatus = config.healthStatus || 'up';
 
 // Load and init the backend from the backends/ directory.
 function loadBackend(config, name) {
@@ -249,7 +250,19 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
         switch(cmd) {
           case "help":
-            stream.write("Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, quit\n\n");
+            stream.write("Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, health, quit\n\n");
+            break;
+
+          case "health":
+            if (cmdline.length > 0) {
+              var cmdaction = cmdline[0].toLowerCase();
+              if (cmdaction === 'up') {
+                healthStatus = 'up';
+              } else if (cmdaction === 'down') {
+                healthStatus = 'down';
+              }
+            }
+            stream.write("health: " + healthStatus + "\n");
             break;
 
           case "stats":
@@ -404,4 +417,16 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }, keyFlushInterval);
     }
   }
+});
+
+process.on('SIGTERM', function() {
+  if (conf.debug) {
+    util.log('Starting Final Flush');
+  }
+  healthStatus = 'down';
+  process.exit();
+});
+
+process.on('exit', function () {
+  flushMetrics();
 });
