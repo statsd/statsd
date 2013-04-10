@@ -8,7 +8,7 @@ Create a proxyConfig.js file
   cp exampleProxyConfig.js proxyConfig.js
 
 Once you have a config file run:
-  node proxy.js
+  node proxy.js proxyConfig.js
 
 
 It uses a consistent hashring to send the unique metric names to the same statsd instances so that
