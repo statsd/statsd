@@ -11,22 +11,29 @@ available:
 * counters - a dump of all the current counters
 * gauges - a dump of all the current gauges
 * timers - a dump of the current timers
+* delcounters - delete a counter or folder of counters
+* delgauges - delete a gauge or folder of gauges 
+* deltimers - delete a timer or folder of timers
 * health - a way to set the health status of statsd
 
 The stats output currently will give you:
 
 * uptime: the number of seconds elapsed since statsd started
-* messages.last_msg_seen: the number of elapsed seconds since statsd received a
-  message
+* messages.last_msg_seen: the number of elapsed seconds since statsd received a message
 * messages.bad_lines_seen: the number of bad lines seen since startup
 
-Each backend will also publish a set of statistics, prefixed by its
-module name.
-
-You can use this to delete buckets no longer in use. For example, if you were hosting statsd at 10.10.10.10:
+You can use the del commands to delete an individual metric like this :
 
     #to delete counter sandbox.test.temporary
-    echo "delcounters sandbox.test.temporary" | nc 10.10.10.10 8126
+    echo "delcounters sandbox.test.temporary" | nc 127.0.0.1 8126
+
+Or you can use the del command to delete a folder of metrics like this :
+
+    #to delete counters sandbox.test.*
+    echo "delcounters sandbox.test.*" | nc 127.0.0.1 8126
+    
+
+Each backend will also publish a set of statistics, prefixed by its module name.
 
 Graphite:
 
