@@ -1,15 +1,15 @@
 /*
  * Flush stats to graphite (http://graphite.wikidot.com/).
  *
- * To enable this backend, include 'graphite' in the backends
+ * To enable this backend, include 'graphite-http' in the backends
  * configuration array:
  *
- *   backends: ['graphite']
+ *   backends: ['graphite-http']
  *
  * This backend supports the following config options:
  *
- *   graphiteHost: Hostname of graphite server.
- *   graphitePort: Port to contact graphite server at.
+ *   bridgeURL: URL of the HTTP bridge, with trailing slash.
+ *   api_key: API key, appended to URL.
  */
 
 var net = require('net'),
