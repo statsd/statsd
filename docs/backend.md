@@ -41,6 +41,7 @@ queues and third-party services.
 - [monitis backend](https://github.com/jeremiahshirk/statsd-monitis-backend)
 - [instrumental backend](https://github.com/collectiveidea/statsd-instrumental-backend)
 - [hosted graphite backend](https://github.com/hostedgraphite/statsdplugin)
+- [graphite http backend](https://github.com/bmhatfield/statsd-http-backend)
 - [statsd aggregation backend](https://github.com/wanelo/gossip_girl)
 - [zabbix-backend](https://github.com/parkerd/statsd-zabbix-backend)
 - [opentsdb backend](https://github.com/emurphy/statsd-opentsdb-backend)
