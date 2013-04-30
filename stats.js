@@ -9,7 +9,8 @@ var dgram  = require('dgram')
   , logger = require('./lib/logger')
   , set = require('./lib/set')
   , pm = require('./lib/process_metrics')
-  , mgmt = require('./lib/mgmt_console');
+  , mgmt = require('./lib/mgmt_console')
+  , ipfilter = require('./lib/ipfilter');
 
 
 // initialize data structures with defaults for statsd stats
@@ -134,10 +135,12 @@ var stats = {
 
 // Global for the logger
 var l;
+var filter;
 
 config.configFile(process.argv[2], function (config, oldConfig) {
   conf = config;
   l = new logger.Logger(config.log || {});
+  filter = new ipfilter.IpFilter(config);
 
   // setup config for stats prefix
   prefixStats = config.prefixStats;
@@ -157,6 +160,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
     var udp_version = config.address_ipv6 ? 'udp6' : 'udp4';
     server = dgram.createSocket(udp_version, function (msg, rinfo) {
+	  // Reject datagrams from not allowed sources
+      if (! filter.check_allowed(rinfo)) {
+        return;
+      }
       backendEvents.emit('packet', msg, rinfo);
       counters[packets_received]++;
       var packet_data = msg.toString();
