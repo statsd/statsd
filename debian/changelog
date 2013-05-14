@@ -1,3 +1,10 @@
+statsd (0.0.3-1) unstable; urgency=low
+
+  * avoid running daemon as root
+  * install docs and examples
+
+ -- Marc Fournier <marc.fournier@camptocamp.com>  Tue, 14 May 2013 21:22:45 +0200
+
 statsd (0.0.3) unstable; urgency=low
 
   * removed rdio references from init scripts and config
