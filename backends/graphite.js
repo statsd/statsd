@@ -1,3 +1,5 @@
+/*jshint node:true, laxcomma:true */
+
 /*
  * Flush stats to graphite (http://graphite.wikidot.com/).
  *
