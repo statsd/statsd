@@ -1,3 +1,5 @@
+/*jshint node:true, laxcomma:true */
+
 var dgram  = require('dgram')
   , util    = require('util')
   , net    = require('net')
@@ -7,7 +9,7 @@ var dgram  = require('dgram')
   , logger = require('./lib/logger')
   , set = require('./lib/set')
   , pm = require('./lib/process_metrics')
-  , mgmt = require('./lib/mgmt_console')
+  , mgmt = require('./lib/mgmt_console');
 
 
 // initialize data structures with defaults for statsd stats
