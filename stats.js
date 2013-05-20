@@ -410,6 +410,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   }
 });
 
+process.title = 'statsd';
+
 process.on('SIGTERM', function() {
   if (conf.debug) {
     util.log('Starting Final Flush');
