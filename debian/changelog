@@ -1,3 +1,10 @@
+statsd (0.0.6-1) unstable; urgency=low
+
+  * Update packaging for 0.0.6
+  * Bump nodejs dependancy to 0.6 per pcakage.json
+
+ -- Kiall Mac Innes <kiall@hp.com>  Thu, 27 Jun 2013 19:17:00 +0100
+
 statsd (0.0.3-1) unstable; urgency=low
 
   * avoid running daemon as root
