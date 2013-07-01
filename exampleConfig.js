@@ -22,6 +22,9 @@ Optional Variables:
   address:          address to listen on over UDP [default: 0.0.0.0]
   address_ipv6:     defines if the address is an IPv4 or IPv6 address [true or false, default: false]
   port:             port to listen for messages on over UDP [default: 8125]
+  fromOnly:         restrict allowed client by their IP source address [object, default: undefined]
+    family:         restrict by IP family ['ipv4' or 'ipv6', default: undefined]
+    addresses:      array of allowed client IP addresses or range (with .../bits syntax) [default: undefined]
   mgmt_address:     address to run the management TCP interface on
                     [default: 0.0.0.0]
   mgmt_port:        port to run the management TCP interface on [default: 8126]

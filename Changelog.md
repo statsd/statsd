@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.6.1 (04/30/2013)
+- added possibility to filter incomming datagrams by source IP address
+
 ## v0.6.0 (03/15/2013)
 - added new metric types : sets, gauge deltas, histograms
 - added ability to delete idle stats

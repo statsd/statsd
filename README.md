@@ -52,6 +52,7 @@ More Specific Topics
 * [Admin TCP Interface][docs_admin_interface]
 * [Backend Interface][docs_backend_interface]
 * [Metric Namespacing][docs_namespacing]
+* [Security][docs_security]
 
 
 Debugging

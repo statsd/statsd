@@ -12,8 +12,9 @@
     "type": "git",
     "url": "https://github.com/etsy/statsd.git"
   },
-  "version": "0.6.0",
+  "version": "0.6.1",
   "dependencies": {
+    "ipaddr.js": "~0.1.1"
   },
   "devDependencies": {
     "nodeunit": "0.7.x",
@@ -21,11 +22,13 @@
     "temp": "0.4.x"
   },
   "optionalDependencies": {
-    "node-syslog":"1.1.7",
+    "node-syslog": "1.1.7",
     "winser": "=0.0.11"
   },
   "engines": {
-    "node" : ">=0.6"
+    "node": ">=0.6"
   },
-  "bin": { "statsd": "./bin/statsd" }
+  "bin": {
+    "statsd": "./bin/statsd"
+  }
 }
