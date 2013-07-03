@@ -170,7 +170,7 @@ module.exports = {
     var me = this;
     this.acceptor.once('connection',function(c){
       statsd_send('a_bad_test_value|z',me.sock,'127.0.0.1',8125,function(){
-          collect_for(me.acceptor,me.myflush*2,function(strings){
+          collect_for(me.acceptor,me.myflush*3,function(strings){
             test.ok(strings.length > 0,'should receive some data');
             var hashes = _.map(strings, function(x) {
               var chunks = x.split(' ');
@@ -203,7 +203,7 @@ module.exports = {
     var me = this;
     this.acceptor.once('connection',function(c){
       statsd_send('a_test_value:' + testvalue + '|ms',me.sock,'127.0.0.1',8125,function(){
-          collect_for(me.acceptor,me.myflush*2,function(strings){
+          collect_for(me.acceptor,me.myflush*3,function(strings){
             test.ok(strings.length > 0,'should receive some data');
             var hashes = _.map(strings, function(x) {
               var chunks = x.split(' ');
@@ -213,9 +213,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 3');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 2');
 
             var testtimervalue_test = function(post){
               var mykey = 'stats.timers.a_test_value.mean_90';
@@ -236,7 +236,7 @@ module.exports = {
     var me = this;
     this.acceptor.once('connection',function(c){
       statsd_send('a_test_value:' + testvalue + '|c',me.sock,'127.0.0.1',8125,function(){
-          collect_for(me.acceptor,me.myflush*2,function(strings){
+          collect_for(me.acceptor,me.myflush*3,function(strings){
             test.ok(strings.length > 0,'should receive some data');
             var hashes = _.map(strings, function(x) {
               var chunks = x.split(' ');
@@ -246,9 +246,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 3');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 2');
 
             var testavgvalue_test = function(post){
               var mykey = 'stats.a_test_value';
