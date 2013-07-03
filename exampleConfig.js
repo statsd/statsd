@@ -28,6 +28,8 @@ Optional Variables:
   title :           Allows for overriding the process title. [default: statsd]
                     if set to false, will not override the process title and let the OS set it.
                     The length of the title has to be less than or equal to the binary name + cli arguments
+                    NOTE: This does not work on Mac's with node versions prior to v0.10
+
   healthStatus:     default health status to be returned and statsd process starts ['up' or 'down', default: 'up']
   dumpMessages:     log all incoming messages
   flushInterval:    interval (in ms) to flush to Graphite
