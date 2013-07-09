@@ -11,7 +11,11 @@
  * This backend supports the following config options:
  *
  *   graphiteHost: Hostname of graphite server.
- *   graphitePort: Port to contact graphite server at.
+ *   graphitePort: Port for the graphite text collector. Defaults to 2003.
+ *   graphitePicklePort: Port for the graphite pickle collector. Defaults to 2004.
+ *   graphiteProtocol: Either 'text' or 'pickle'. Defaults to 'text'.
+ * 
+ * If graphiteHost is not specified, metrics are processed but discarded.
  */
 
 var net = require('net'),
@@ -24,6 +28,8 @@ var debug;
 var flushInterval;
 var graphiteHost;
 var graphitePort;
+var graphitePicklePort;
+var graphiteProtocol;
 
 // prefix configuration
 var globalPrefix;
@@ -51,7 +57,8 @@ var post_stats = function graphite_post_stats(stats) {
 
   if (graphiteHost) {
     try {
-      var graphite = net.createConnection(graphitePort, graphiteHost);
+      var port = graphiteProtocol == 'pickle' ? graphitePicklePort : graphitePort;
+      var graphite = net.createConnection(port, graphiteHost);
       graphite.addListener('error', function(connectionException){
         if (debug) {
           l.log(connectionException);
@@ -64,7 +71,8 @@ var post_stats = function graphite_post_stats(stats) {
         stats.add(namespace + '.graphiteStats.last_flush', last_flush, ts);
         stats.add(namespace + '.graphiteStats.flush_time', flush_time, ts);
         stats.add(namespace + '.graphiteStats.flush_length', flush_length, ts);
-        var stats_payload = stats.toText();
+
+        var stats_payload = graphiteProtocol == 'pickle' ? stats.toPickle() : stats.toText();
 
         var starttime = Date.now();
         this.write(stats_payload);
@@ -108,6 +116,10 @@ function Stats() {
 
   this.toText = function() {
     return s.metrics.map(function(m) { return m.toText(); }).join('\n') + '\n';
+  };
+
+  this.toPickle = function() {
+    return '\n';
   };
 }
 
@@ -207,7 +219,9 @@ exports.init = function graphite_init(startup_time, config, events) {
   l = new logger.Logger(config.log || {});
   debug = config.debug;
   graphiteHost = config.graphiteHost;
-  graphitePort = config.graphitePort;
+  graphitePort = config.graphitePort || 2003;
+  graphitePicklePort = config.graphitePicklePort || 2004;
+  graphiteProtocol = config.graphiteProtocol || 'text';
   config.graphite = config.graphite || {};
   globalPrefix    = config.graphite.globalPrefix;
   prefixCounter   = config.graphite.prefixCounter;
