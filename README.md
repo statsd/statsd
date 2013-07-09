@@ -75,6 +75,10 @@ eliminate race conditions but it may be possible to encounter a stuck state. If
 doing dev work, a `killall statsd` will kill any stray test servers in the
 background (don't do this on a production machine!).
 
+Be sure to install the test dependencies:
+
+    npm install nodeunit temp underscore
+
 Tests can be executed with `./run_tests.sh`.
 
 
