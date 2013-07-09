@@ -1,15 +1,17 @@
 /*
-Graphite Required Variables:
+Graphite Required Variable:
 
-(Leave these unset to avoid sending stats to Graphite.
- Set debug flag and leave these unset to run in 'dry' debug mode -
+(Leave this unset to avoid sending stats to Graphite.
+ Set debug flag and leave this unset to run in 'dry' debug mode -
  useful for testing statsd clients without a Graphite server.)
 
   graphiteHost:     hostname or IP of Graphite server
-  graphitePort:     port of Graphite server
 
 Optional Variables:
 
+  graphitePort:     port for the graphite text collector [default: 2003]
+  graphitePicklePort: port for the graphite pickle collector [default: 2004]
+  graphiteProtocol: either 'text' or 'pickle' [default: text]
   backends:         an array of backends to load. Each backend must exist
                     by name in the directory backends/. If not specified,
                     the default graphite backend will be loaded. 
