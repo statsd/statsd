@@ -91,6 +91,15 @@ var post_stats = function graphite_post_stats(stats) {
   }
 };
 
+// Minimally necessary pickle opcodes.
+var MARK = '(',
+    STOP = '.',
+    LONG = 'L',
+    STRING = 'S',
+    APPEND = 'a',
+    LIST = 'l',
+    TUPLE = 't';
+
 // A single measurement for sending to graphite.
 function Metric(key, value, ts) {
   var m = this;
@@ -103,6 +112,10 @@ function Metric(key, value, ts) {
   // a trailing newline.
   this.toText = function() {
     return m.key + " " + m.value + " " + m.ts;
+  };
+
+  this.toPickle = function() {
+    return MARK + STRING + '\'' + m.key + '\'\n' + MARK + LONG + m.ts + 'L\n' + STRING + '\'' + m.value + '\'\n' + TUPLE + TUPLE + APPEND;
   };
 }
 
@@ -119,7 +132,17 @@ function Stats() {
   };
 
   this.toPickle = function() {
-    return '\n';
+    var body = MARK + LIST + s.metrics.map(function(m) { return m.toPickle(); }).join('') + STOP;
+
+    // The first four bytes of the graphite pickle format
+    // contain the length of the rest of the payload.
+    // We use Buffer because this is binary data.
+    var buf = new Buffer(4 + body.length);
+
+    buf.writeUInt32BE(body.length,0);
+    buf.write(body,4);
+
+    return buf;
   };
 }
 
