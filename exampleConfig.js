@@ -11,7 +11,7 @@ Optional Variables:
 
   graphitePort:     port for the graphite text collector [default: 2003]
   graphitePicklePort: port for the graphite pickle collector [default: 2004]
-  graphiteProtocol: either 'text' or 'pickle' [default: text]
+  graphiteProtocol: either 'text' or 'pickle' [default: 'text']
   backends:         an array of backends to load. Each backend must exist
                     by name in the directory backends/. If not specified,
                     the default graphite backend will be loaded. 
