@@ -176,7 +176,7 @@ module.exports = {
               var mykey = 'stats.statsd.numStats';
               return _.include(_.keys(post),mykey) && (post[mykey] == 2);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 0');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 2');
 
             var bad_lines_seen_value_test = function(post){
               var mykey = 'stats.counters.statsd.bad_lines_seen.count';
@@ -209,7 +209,7 @@ module.exports = {
               var mykey = 'stats.statsd.numStats';
               return _.include(_.keys(post),mykey) && (post[mykey] == 3);
             };
-            test.ok(_.any(hashes,numstat_test), 'stats.statsd.numStats should be 1');
+            test.ok(_.any(hashes,numstat_test), 'stats.statsd.numStats should be 3');
 
             var testtimervalue_test = function(post){
               var mykey = 'stats.timers.a_test_value.mean_90';
@@ -219,8 +219,8 @@ module.exports = {
               var mykey = 'stats.timers.a_test_value.histogram.bin_1000';
               return _.include(_.keys(post),mykey) && (post[mykey] == 1);
             };
-            test.ok(_.any(hashes,testtimerhistogramvalue_test), 'stats.timers.a_test_value.mean should be ' + 1);
-            test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
+            test.ok(_.any(hashes,testtimerhistogramvalue_test), 'stats.timers.a_test_value.histogram.bin_1000 should be ' + 1);
+            test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean_90 should be ' + testvalue);
 
             var count_test = function(post, metric){
               var mykey = 'stats.timers.a_test_value.' + metric;
