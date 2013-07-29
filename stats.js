@@ -120,7 +120,13 @@ function flushMetrics() {
   });
 
   pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(metrics) {
-    backendEvents.emit('flush', time_stamp, metrics);
+    if (conf.composition) {
+      require(conf.composition)(metrics, function(m) {
+        backendEvents.emit('flush', time_stamp, m);
+      });
+    } else {
+      backendEvents.emit('flush', time_stamp, metrics);
+    }
   });
 
 }
