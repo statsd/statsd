@@ -9,7 +9,8 @@ var dgram  = require('dgram')
   , logger = require('./lib/logger')
   , set = require('./lib/set')
   , pm = require('./lib/process_metrics')
-  , mgmt = require('./lib/mgmt_console');
+  , mgmt = require('./lib/mgmt_console')
+  , ce = require('./lib/composition_engine');
 
 
 // initialize data structures with defaults for statsd stats
@@ -120,8 +121,10 @@ function flushMetrics() {
   });
 
   pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(metrics) {
-    if (conf.composition) {
-      require(conf.composition)(metrics, function(m) {
+    if (conf.compositions && conf.compositions.source) {
+
+      var compositions = require(conf.compositions.source);
+      ce(compositions, metrics, function(m) {
         backendEvents.emit('flush', time_stamp, m);
       });
     } else {
