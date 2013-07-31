@@ -1,6 +1,7 @@
 var dgram    = require('dgram')
   , net      = require('net')
   , events   = require('events')
+  , logger = require('./lib/logger')
   , hashring = require('hashring')
   , configlib   = require('./lib/config');
 
@@ -8,11 +9,13 @@ var packet   = new events.EventEmitter();
 var node_status = [];
 var node_ring = {};
 var config;
+var l;  // logger
 
 configlib.configFile(process.argv[2], function (conf, oldConfig) {
   config = conf;
   var udp_version = config.udp_version
     ,       nodes = config.nodes;
+  l = new logger.Logger(config.log || {});
 
   //load the node_ring object with the available nodes and a weight of 100
   // weight is currently arbitrary but the same for all
@@ -58,13 +61,17 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     var statsd_host = ring.get(key);
 
     // break the retreived host to pass to the send function
-    var host_config = statsd_host.split(':');
+    if (statsd_host === undefined) {
+      l.log('Warning: No backend statsd nodes available!');
+    } else {
+      var host_config = statsd_host.split(':');
 
-    var client = dgram.createSocket(udp_version);
-    // Send the mesg to the backend
-    client.send(msg, 0, msg.length, host_config[1], host_config[0], function(err, bytes) {
-      client.close();
-    });
+      var client = dgram.createSocket(udp_version);
+      // Send the mesg to the backend
+      client.send(msg, 0, msg.length, host_config[1], host_config[0], function(err, bytes) {
+        client.close();
+      });
+    }
   });
 
   // Bind the listening udp server to the configured port and host
@@ -97,6 +104,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
           node_status[node_id]++;
         }
         if (node_status[node_id] < 2) {
+          l.log('Removing node ' + node_id + ' from the ring.');
           ring.remove(node_id);
         }
       } else {
@@ -116,10 +124,11 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
           node_status[node_id]++;
         }
         if (node_status[node_id] < 2) {
+          l.log('Removing node ' + node_id + ' from the ring.');
           ring.remove(node_id);
         }
       } else {
-        util.log('Errored with ' + e.code);
+        l.log('Errored with ' + e.code);
       }
     });
   }
