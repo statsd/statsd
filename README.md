@@ -72,7 +72,7 @@ A test framework has been added using node-unit and some custom code to start
 and manipulate statsd. Please add tests under test/ for any new features or bug
 fixes encountered. Testing a live server can be tricky, attempts were made to
 eliminate race conditions but it may be possible to encounter a stuck state. If
-doing dev work, a `killall node` will kill any stray test servers in the
+doing dev work, a `killall statsd` will kill any stray test servers in the
 background (don't do this on a production machine!).
 
 Tests can be executed with `./run_tests.sh`.

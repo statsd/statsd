@@ -1,7 +1,7 @@
 # Changelog
 
 ## v0.6.0 (03/15/2013)
-- added new metric types : sets, guage deltas, histograms
+- added new metric types : sets, gauge deltas, histograms
 - added ability to delete idle stats
 - added support for configurable namespacing
 - added standard Deviation to timers stats (.std)

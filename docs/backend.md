@@ -32,16 +32,19 @@ queues and third-party services.
 
 ## Available Third-party backends
 - [amqp-backend](https://github.com/mrtazz/statsd-amqp-backend)
+- [datadog-backend](https://github.com/datadog/statsd)
 - [ganglia-backend](https://github.com/jbuchbinder/statsd-ganglia-backend)
+- [hosted graphite backend](https://github.com/hostedgraphite/statsdplugin)
+- [instrumental backend](https://github.com/collectiveidea/statsd-instrumental-backend)
+- [leftronic backend](https://github.com/sreuter/statsd-leftronic-backend)
 - [librato-backend](https://github.com/librato/statsd-librato-backend)
+- [mongo-backend](https://github.com/dynmeth/mongo-statsd-backend)
+- [monitis backend](https://github.com/jeremiahshirk/statsd-monitis-backend)
+- [opentsdb backend](https://github.com/emurphy/statsd-opentsdb-backend)
 - [socket.io-backend](https://github.com/Chatham/statsd-socket.io)
 - [statsd-backend](https://github.com/dynmeth/statsd-backend)
-- [mongo-backend](https://github.com/dynmeth/mongo-statsd-backend)
-- [datadog-backend](https://github.com/datadog/statsd)
-- [monitis backend](https://github.com/jeremiahshirk/statsd-monitis-backend)
-- [instrumental backend](https://github.com/collectiveidea/statsd-instrumental-backend)
-- [hosted graphite backend](https://github.com/hostedgraphite/statsdplugin)
+- [statsd http backend](https://github.com/bmhatfield/statsd-http-backend)
 - [statsd aggregation backend](https://github.com/wanelo/gossip_girl)
 - [zabbix-backend](https://github.com/parkerd/statsd-zabbix-backend)
-- [opentsdb backend](https://github.com/emurphy/statsd-opentsdb-backend)
-- [leftronic backend](https://github.com/sreuter/statsd-leftronic-backend)
+
+[graphite]: http://graphite.wikidot.com
