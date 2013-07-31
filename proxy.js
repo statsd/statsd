@@ -2,7 +2,6 @@ var dgram    = require('dgram')
   , net      = require('net')
   , events   = require('events')
   , logger = require('./lib/logger')
-  , util    = require('util')
   , hashring = require('hashring')
   , configlib   = require('./lib/config');
 
