@@ -26,7 +26,7 @@
     "winser": "=0.0.11"
   },
   "engines": {
-    "node" : ">=0.6"
+    "node" : ">=0.8"
   },
   "bin": { "statsd": "./bin/statsd" }
 }

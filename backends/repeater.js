@@ -1,8 +1,12 @@
-var util = require('util'),
-    dgram = require('dgram'),
-    logger = require('../lib/logger');
+/*jshint node:true, laxcomma:true */
+
+var util = require('util')
+  , dgram = require('dgram')
+  , logger = require('../lib/logger');
+
 var l;
 var debug;
+
 function RepeaterBackend(startupTime, config, emitter){
   var self = this;
   this.config = config.repeater || [];
@@ -17,7 +21,7 @@ function RepeaterBackend(startupTime, config, emitter){
   });
   // attach
   emitter.on('packet', function(packet, rinfo) { self.process(packet, rinfo); });
-};
+}
 
 RepeaterBackend.prototype.process = function(packet, rinfo) {
   var self = this;

@@ -1,6 +1,19 @@
 #!/bin/sh
 
-if [ "`stat -c %G /var/log/statsd`" != 'nogroup' ]; then
-    chown root.nogroup /var/log/statsd
-    chmod 770 /var/log/statsd
+set -e
+
+if [ "$1" = configure ]; then
+
+  if ! getent passwd _statsd > /dev/null; then
+    adduser --system --quiet --home /nonexistent --no-create-home \
+      --shell /bin/false --force-badname --group --gecos "StatsD User" _statsd
+  fi
+
+  if ! dpkg-statoverride --list /var/run/statsd >/dev/null 2>&1; then
+    dpkg-statoverride --update --add _statsd _statsd 0755 /var/run/statsd
+  fi
+
+  if ! dpkg-statoverride --list /var/log/statsd >/dev/null 2>&1; then
+    dpkg-statoverride --update --add _statsd _statsd 0755 /var/log/statsd
+  fi
 fi
