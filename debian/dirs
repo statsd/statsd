@@ -1,1 +1,2 @@
 var/log/statsd
+var/run/statsd
