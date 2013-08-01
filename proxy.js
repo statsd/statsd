@@ -3,6 +3,7 @@ var dgram    = require('dgram')
   , events   = require('events')
   , logger = require('./lib/logger')
   , hashring = require('hashring')
+  , util = require('util')
   , configlib   = require('./lib/config');
 
 var packet   = new events.EventEmitter();
@@ -87,6 +88,22 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     });
   }
 
+  // Flush stats on nodes. Necessary when a node joins the ring and ownership of keys changes.
+  function nodesResetStats() {
+    nodes.forEach(function(element, index, array) {
+      resetStats(element);
+    });
+  }
+
+  // reset a node's stats
+  function resetStats(node) {
+    var client = net.connect({port: node.adminport, host: node.host},
+         function() {
+           l.log('Reset stats on ' + node.host + ':' + node.port);
+           client.write('delcounters\r\ndeltimers\r\ndelgauges\r\n');
+    });
+  }
+
   // Perform health check on node
   function healthcheck(node) {
     var node_id = node.host + ':' + node.port;
@@ -114,6 +131,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
             new_server[node_id] = 100;
             l.log('Adding node ' + node_id + ' to the ring.');
             ring.add(new_server);
+            nodesResetStats();
           }
         }
         node_status[node_id] = 0;
