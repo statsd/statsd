@@ -109,9 +109,12 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
         }
       } else {
         if (node_status[node_id] !== undefined) {
-          var new_server = {};
-          new_server[node_id] = 100;
-          ring.add(new_server);
+          if (node_status[node_id] > 0) {
+            var new_server = {};
+            new_server[node_id] = 100;
+            l.log('Adding node ' + node_id + ' to the ring.');
+            ring.add(new_server);
+          }
         }
         node_status[node_id] = 0;
       }
@@ -128,7 +131,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
           ring.remove(node_id);
         }
       } else {
-        l.log('Errored with ' + e.code);
+        l.log('Error during healthcheck on node ' + node_id + ' with ' + e.code);
       }
     });
   }
