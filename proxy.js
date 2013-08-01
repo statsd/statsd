@@ -30,6 +30,8 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
       'replicas': 0
     });
 
+  var checkThreshold = config.checkThreshold || 3;
+
   // Do an initial rount of health checks prior to starting up the server
   doHealthChecks();
 
@@ -103,7 +105,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
         } else {
           node_status[node_id]++;
         }
-        if (node_status[node_id] < 2) {
+        if (node_status[node_id] == checkThreshold) {
           l.log('Removing node ' + node_id + ' from the ring.');
           ring.remove(node_id);
         }
@@ -126,7 +128,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
         } else {
           node_status[node_id]++;
         }
-        if (node_status[node_id] < 2) {
+        if (node_status[node_id] == checkThreshold) {
           l.log('Removing node ' + node_id + ' from the ring.');
           ring.remove(node_id);
         }
