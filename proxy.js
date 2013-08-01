@@ -166,3 +166,5 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
   }
 
 });
+
+process.title = 'statsd-proxy';
