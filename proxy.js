@@ -90,17 +90,28 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
 
   // Flush stats on nodes. Necessary when a node joins the ring and ownership of keys changes.
   function nodesResetStats() {
-    nodes.forEach(function(element, index, array) {
-      resetStats(element);
+    nodes.forEach(function(node, index, array) {
+      l.log('Reset stats on ' + node.host + ':' + node.port);
+      resetStats(node, 'delcounters');
+      resetStats(node, 'deltimers');
+      resetStats(node, 'delgauges');
     });
   }
 
   // reset a node's stats
-  function resetStats(node) {
+  function resetStats(node, cmd) {
     var client = net.connect({port: node.adminport, host: node.host},
          function() {
-           l.log('Reset stats on ' + node.host + ':' + node.port);
-           client.write('delcounters\r\ndeltimers\r\ndelgauges\r\n');
+           client.write(cmd + '\r\n');
+    });
+    client.on('data', function(data) {
+      var response = data.toString();
+      if (response.indexOf('ERROR') > 0) {
+        l.log('Received ERROR response while issuing ' + cmd + ' command to ' + node.host + ':' + node.port);
+      }
+    });
+    client.on('error', function(e) {
+      l.log('Error occurred while issuing ' + cmd + ' command to ' + node.host + ':' + node.port + ', error: ' + e.code);
     });
   }
 
