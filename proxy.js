@@ -30,6 +30,8 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
       'replicas': 0
     });
 
+  var checkThreshold = config.checkThreshold || 3;
+
   // Do an initial rount of health checks prior to starting up the server
   doHealthChecks();
 
@@ -77,9 +79,6 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
   // Bind the listening udp server to the configured port and host
   server.bind(config.port, config.host || undefined);
 
-
-  var checkThreshold = config.checkThreshold || 3;
-
   // Set the interval for healthchecks
   setInterval(doHealthChecks, config.checkInterval || 10000);
 
@@ -106,7 +105,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
         } else {
           node_status[node_id]++;
         }
-        if (node_status[node_id] >= checkThreshold) {
+        if (node_status[node_id] == checkThreshold) {
           l.log('Removing node ' + node_id + ' from the ring.');
           ring.remove(node_id);
         }
@@ -126,7 +125,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
         } else {
           node_status[node_id]++;
         }
-        if (node_status[node_id] >= checkThreshold) {
+        if (node_status[node_id] == checkThreshold) {
           l.log('Removing node ' + node_id + ' from the ring.');
           ring.remove(node_id);
         }
