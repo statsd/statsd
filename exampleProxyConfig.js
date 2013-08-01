@@ -26,5 +26,6 @@ udp_version: 'udp4',
 host:  '0.0.0.0',
 port: '8125',
 checkInterval: 1000,
+checkThreshold: 3,
 cacheSize: 10000
 }

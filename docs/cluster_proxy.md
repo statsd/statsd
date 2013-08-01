@@ -30,4 +30,4 @@ host          the host ip to listen on
 port          the port the proxy listens on
 
 checkInterval the interval between healthchecks
-
+checkThreshold the number of healthcheck failures before a node is removed
