@@ -76,11 +76,9 @@ module.exports = {
                ,  batch: 200 \n\
                ,  flushInterval: " + this.myflush + " \n\
                ,  percentThreshold: 90\n\
-               ,  histogram: [ { metric: \"a_test_value\", bins: [1000] } ]\n\
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
                ,  debug: false\n\
-               ,  graphite: { legacyNamespace: false }\n\
                ,  graphitePort: " + this.testport + "\n\
                ,  graphiteHost: \"127.0.0.1\"}";
 
@@ -150,48 +148,15 @@ module.exports = {
           data[chunks[0]] = chunks[1];
           return data;
         });
-        test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'stats.statsd.numStats'),'graphite output includes numStats');
-        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'stats.statsd.numStats' })['stats.statsd.numStats'],2);
+        test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'statsd.numStats'),'graphite output includes numStats');
+        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'statsd.numStats' })['statsd.numStats'],2);
         test.done();
       });
     });
   },
 
-  send_malformed_post: function (test) {
-    test.expect(3);
-
-    var testvalue = 1;
-    var me = this;
-    this.acceptor.once('connection',function(c){
-      statsd_send('a_bad_test_value|z',me.sock,'127.0.0.1',8125,function(){
-          collect_for(me.acceptor,me.myflush*2,function(strings){
-            test.ok(strings.length > 0,'should receive some data');
-            var hashes = _.map(strings, function(x) {
-              var chunks = x.split(' ');
-              var data = {};
-              data[chunks[0]] = chunks[1];
-              return data;
-            });
-            var numstat_test = function(post){
-              var mykey = 'stats.statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
-            };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 0');
-
-            var bad_lines_seen_value_test = function(post){
-              var mykey = 'stats.counters.statsd.bad_lines_seen.count';
-              return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
-            };
-            test.ok(_.any(hashes,bad_lines_seen_value_test), 'stats.counters.statsd.bad_lines_seen.count should be ' + testvalue);
-
-            test.done();
-          });
-      });
-    });
-  },
-
   timers_are_valid: function (test) {
-    test.expect(6);
+    test.expect(3);
 
     var testvalue = 100;
     var me = this;
@@ -206,55 +171,17 @@ module.exports = {
               return data;
             });
             var numstat_test = function(post){
-              var mykey = 'stats.statsd.numStats';
+              var mykey = 'statsd.numStats';
               return _.include(_.keys(post),mykey) && (post[mykey] == 3);
             };
-            test.ok(_.any(hashes,numstat_test), 'stats.statsd.numStats should be 1');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
 
             var testtimervalue_test = function(post){
               var mykey = 'stats.timers.a_test_value.mean_90';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
-            var testtimerhistogramvalue_test = function(post){
-              var mykey = 'stats.timers.a_test_value.histogram.bin_1000';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 1);
-            };
-            test.ok(_.any(hashes,testtimerhistogramvalue_test), 'stats.timers.a_test_value.mean should be ' + 1);
             test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
 
-            var count_test = function(post, metric){
-              var mykey = 'stats.timers.a_test_value.' + metric;
-              return _.first(_.filter(_.pluck(post, mykey), function (e) { return e }));
-            };
-            test.equals(count_test(hashes, 'count_ps'), 5, 'count_ps should be 5');
-            test.equals(count_test(hashes, 'count'), 1, 'count should be 1');
-
-            test.done();
-          });
-      });
-    });
-  },
-
-  sampled_timers_are_valid: function (test) {
-    test.expect(2);
-
-    var testvalue = 100;
-    var me = this;
-    this.acceptor.once('connection',function(c){
-      statsd_send('a_test_value:' + testvalue + '|ms|@0.1',me.sock,'127.0.0.1',8125,function(){
-          collect_for(me.acceptor,me.myflush*2,function(strings){
-            var hashes = _.map(strings, function(x) {
-              var chunks = x.split(' ');
-              var data = {};
-              data[chunks[0]] = chunks[1];
-              return data;
-            });
-            var count_test = function(post, metric){
-              var mykey = 'stats.timers.a_test_value.' + metric;
-              return _.first(_.filter(_.pluck(post, mykey), function (e) { return e }));
-            };
-            test.equals(count_test(hashes, 'count_ps'), 50, 'count_ps should be 50');
-            test.equals(count_test(hashes, 'count'), 10, 'count should be 10');
             test.done();
           });
       });
@@ -277,85 +204,25 @@ module.exports = {
               return data;
             });
             var numstat_test = function(post){
-              var mykey = 'stats.statsd.numStats';
+              var mykey = 'statsd.numStats';
               return _.include(_.keys(post),mykey) && (post[mykey] == 3);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 3');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
 
             var testavgvalue_test = function(post){
-              var mykey = 'stats.counters.a_test_value.rate';
+              var mykey = 'stats.a_test_value';
               return _.include(_.keys(post),mykey) && (post[mykey] == (testvalue/(me.myflush / 1000)));
             };
-            test.ok(_.any(hashes,testavgvalue_test), 'a_test_value.rate should be ' + (testvalue/(me.myflush / 1000)));
+            test.ok(_.any(hashes,testavgvalue_test), 'stats.a_test_value should be ' + (testvalue/(me.myflush / 1000)));
 
             var testcountvalue_test = function(post){
-              var mykey = 'stats.counters.a_test_value.count';
+              var mykey = 'stats_counts.a_test_value';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
-            test.ok(_.any(hashes,testcountvalue_test), 'a_test_value.count should be ' + testvalue);
+            test.ok(_.any(hashes,testcountvalue_test), 'stats_counts.a_test_value should be ' + testvalue);
 
             test.done();
           });
-      });
-    });
-  },
-
-  gauges_are_valid: function(test) {
-    test.expect(2);
-
-    var testvalue = 70;
-    var me = this;
-    this.acceptor.once('connection', function(c) {
-      statsd_send('a_test_value:' + testvalue + '|g', me.sock, '127.0.0.1', 8125, function() {
-        collect_for(me.acceptor, me.myflush*2, function(strings) {
-          test.ok(strings.length > 0, 'should receive some data');
-          var hashes = _.map(strings, function(x) {
-            var chunks = x.split(' ');
-            var data = {};
-            data[chunks[0]] = chunks[1];
-            return data;
-          });
-
-          var gaugevalue_test = function(post) {
-            var mykey = 'stats.gauges.a_test_value';
-            return _.include(_.keys(post), mykey) && (post[mykey] == testvalue);
-          };
-          test.ok(_.any(hashes, gaugevalue_test), 'stats.gauges.a_test_value should be ' + testvalue);
-
-          test.done();
-        });
-      });
-    });
-  },
-
-  gauge_modifications_are_valid: function(test) {
-    test.expect(2);
-
-    var teststartvalue = 50;
-    var testdeltavalue = '-3';
-    var testresult = teststartvalue + Number(testdeltavalue);
-    var me = this;
-    this.acceptor.once('connection', function(c) {
-      statsd_send('test_value:' + teststartvalue + '|g', me.sock, '127.0.0.1', 8125, function() {
-        statsd_send('test_value:' + testdeltavalue + '|g', me.sock, '127.0.0.1', 8125, function() {
-          collect_for(me.acceptor, me.myflush * 2, function(strings) {
-            test.ok(strings.length > 0, 'should receive some data');
-            var hashes = _.map(strings, function(x) {
-              var chunks = x.split(' ');
-              var data = {};
-              data[chunks[0]] = chunks[1];
-              return data;
-            });
-
-            var gaugevalue_test = function(post) {
-              var mykey = 'stats.gauges.test_value';
-              return _.include(_.keys(post), mykey) && (post[mykey] == testresult);
-            };
-            test.ok(_.any(hashes, gaugevalue_test), 'stats.gauges.test_value should be ' + testresult);
-
-            test.done();
-          });
-        });
       });
     });
   }

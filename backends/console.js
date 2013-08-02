@@ -1,3 +1,5 @@
+/*jshint node:true, laxcomma:true */
+
 var util = require('util');
 
 function ConsoleBackend(startupTime, config, emitter){
@@ -6,34 +8,27 @@ function ConsoleBackend(startupTime, config, emitter){
   this.lastException = startupTime;
   this.config = config.console || {};
 
-  this.statsCache = {
-    counters: {},
-    timers: {}
-  };
-
   // attach
   emitter.on('flush', function(timestamp, metrics) { self.flush(timestamp, metrics); });
   emitter.on('status', function(callback) { self.status(callback); });
-};
+}
 
 ConsoleBackend.prototype.flush = function(timestamp, metrics) {
-  var self = this;
   console.log('Flushing stats at', new Date(timestamp * 1000).toString());
 
-  // merge with previously sent values
-  Object.keys(self.statsCache).forEach(function(type) {
-    if(!metrics[type]) return;
-    Object.keys(metrics[type]).forEach(function(name) {
-      var value = metrics[type][name];
-      self.statsCache[type][name] || (self.statsCache[type][name] = 0);
-      self.statsCache[type][name] += value;
-    });
-  });
-
   var out = {
-    counter: this.statsCache.counters,
-    timers: this.statsCache.timers,
+    counters: metrics.counters,
+    timers: metrics.timers,
     gauges: metrics.gauges,
+    timer_data: metrics.timer_data,
+    counter_rates: metrics.counter_rates,
+    sets: function (vals) {
+      var ret = {};
+      for (var val in vals) {
+        ret[val] = vals[val].values();
+      }
+      return ret;
+    }(metrics.sets),
     pctThreshold: metrics.pctThreshold
   };
 

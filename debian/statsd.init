@@ -21,10 +21,12 @@ fi
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="StatsD"
 NAME=statsd
+USER=_statsd
 DAEMON=$NODE_BIN
 DAEMON_ARGS="/usr/share/statsd/stats.js /etc/statsd/localConfig.js 2>&1 >> /var/log/statsd/statsd.log "
-PIDFILE=/var/run/$NAME.pid
+PIDFILE=/var/run/$NAME/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
+CHDIR="/usr/share/statsd"
 
 # Exit if the package is not installed
 # [ -x "$DAEMON" ] || exit 0
@@ -48,9 +50,9 @@ do_start()
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
-	start-stop-daemon --start --quiet -m --pidfile $PIDFILE --startas $DAEMON --background --test > /dev/null \
+	start-stop-daemon --start --quiet -m --pidfile $PIDFILE --startas $DAEMON --chuid $USER:$USER --background --test > /dev/null \
 		|| return 1
-	start-stop-daemon --start --quiet -m --pidfile $PIDFILE --startas $DAEMON --background -- \
+	start-stop-daemon --start --quiet -m --pidfile $PIDFILE --startas $DAEMON --chuid $USER:$USER --background --chdir $CHDIR -- \
 		$DAEMON_ARGS > /dev/null 2> /var/log/$NAME-stderr.log \
 		|| return 2
 	# Add code here, if necessary, that waits for the process to be ready
@@ -145,9 +147,11 @@ case "$1" in
 		;;
 	esac
 	;;
+  status)
+    status_of_proc $DAEMON "$NAME"
+    ;;
   *)
-	#echo "Usage: $SCRIPTNAME {start|stop|restart|reload|force-reload}" >&2
-	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+	echo "Usage: $SCRIPTNAME {start|stop|restart|status|force-reload}" >&2
 	exit 3
 	;;
 esac

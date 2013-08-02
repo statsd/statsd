@@ -5,8 +5,7 @@ start on startup
 stop on shutdown
 
 script
-    # We found $HOME is needed. Without it, we ran into problems
-    export HOME="/root"
+    chdir /usr/share/statsd
 
-    exec sudo -u nobody /usr/share/statsd/scripts/start
+    exec sudo -u _statsd /usr/share/statsd/scripts/start
 end script

@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.6.0 (03/15/2013)
+- added new metric types : sets, gauge deltas, histograms
+- added ability to delete idle stats
+- added support for configurable namespacing
+- added standard Deviation to timers stats (.std)
+- added last_flush_time and last_flush_length metrics to graphite backend
+- added ipv6 support
+- added Statsd repeater backend
+- added helper script to decide which timers to sample down
+- added Windows service support
+- added Scala example
+- added support for sampling timers.
+- added build testing on node 0.8, 0.9, and 0.10
+- fixed broken config file watching.
+- fixed for DNS errors from UDP socket
+- fixed for TCP client goes away crash.
+- removed debugInterval in favor of Console backend debugging
+- updated and reorganized Docs
+- updated examples scripts
+- improved the quality of randomness used for sampling.
+- moved  config.js to /lib folder to avoid confusion
+
 ## v0.5.0 (07/20/2012)
 - add support for logging to syslog
 - add basic metrics gathering for StatsD and Graphite backend itself

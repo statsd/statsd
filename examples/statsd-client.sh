@@ -5,8 +5,8 @@
 #
 # Alexander Fortin <alexander.fortin@gmail.com>
 #
-STATSD="127.0.0.1"
-PORT="8125"
+host="${STATSD_HOST:-127.0.0.1}"
+port="${STATSD_PORT:-8125}"
 
 if [ $# -ne 1 ]
 then
@@ -15,10 +15,10 @@ then
 fi
 
 # Setup UDP socket with statsd server
-exec 3<> /dev/udp/${STATSD}/${PORT}
+exec 3<> /dev/udp/$host/$port
 
 # Send data
-echo "$1" >&3
+printf "$1" >&3
 
 # Close UDP socket
 exec 3<&-

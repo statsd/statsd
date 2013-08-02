@@ -1,7 +1,7 @@
 StatsD Example Clients
 ======================
 
-Here's a bunch of example code contributed by the communinty for interfacing with statsd in a variety of languages.
+Here's a bunch of example code contributed by the community for interfacing with statsd in a variety of languages.
 
     Etsy/StatsD.pm    - perl module
     perl-example.pl   - perl using Etsy/StatsD module
@@ -12,6 +12,7 @@ Here's a bunch of example code contributed by the communinty for interfacing wit
     ruby_example.rb   - Ruby
     statsd.erl        - Erlang
     statsd-client.sh  - Bash
+    StatsD.scala      - Scala
 
 Third Party StatsD Libraries
 ============================
