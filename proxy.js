@@ -106,7 +106,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     });
     client.on('data', function(data) {
       var response = data.toString();
-      if (response.indexOf('ERROR') > 0) {
+      if (response.indexOf('ERROR') >= 0) {
         l.log('Received ERROR response while issuing ' + cmd + ' command to ' + node.host + ':' + node.port);
       }
     });
