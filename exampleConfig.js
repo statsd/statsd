@@ -32,6 +32,8 @@ Optional Variables:
                     (can be a single value or list of floating-point values)
                     negative values mean to use "top" Nth percentile(s) values
                     [%, default: 90]
+  flush_counts:     send stats_counts metrics [default: true]
+
   keyFlush:         log the most frequently sent keys [object, default: undefined]
     interval:       how often to log frequent keys [ms, default: 0]
     percent:        percentage of frequent keys to log [%, default: 100]
