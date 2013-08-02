@@ -9,6 +9,7 @@ var dgram  = require('dgram')
   , logger = require('./lib/logger')
   , set = require('./lib/set')
   , pm = require('./lib/process_metrics')
+  , process_mgmt = require('./lib/process_mgmt')
   , mgmt = require('./lib/mgmt_console');
 
 
@@ -137,6 +138,9 @@ var l;
 
 config.configFile(process.argv[2], function (config, oldConfig) {
   conf = config;
+
+  process_mgmt.init(config);
+
   l = new logger.Logger(config.log || {});
 
   // setup config for stats prefix
@@ -408,16 +412,6 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }, keyFlushInterval);
     }
   }
-});
-
-process.title = 'statsd';
-
-process.on('SIGTERM', function() {
-  if (conf.debug) {
-    util.log('Starting Final Flush');
-  }
-  healthStatus = 'down';
-  process.exit();
 });
 
 process.on('exit', function () {
