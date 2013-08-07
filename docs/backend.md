@@ -42,6 +42,7 @@ queues and third-party services.
 - [monitis backend](https://github.com/jeremiahshirk/statsd-monitis-backend)
 - [opentsdb backend](https://github.com/emurphy/statsd-opentsdb-backend)
 - [socket.io-backend](https://github.com/Chatham/statsd-socket.io)
+- [stackdriver backend](https://github.com/Stackdriver/stackdriver-statsd-backend)
 - [statsd-backend](https://github.com/dynmeth/statsd-backend)
 - [statsd http backend](https://github.com/bmhatfield/statsd-http-backend)
 - [statsd aggregation backend](https://github.com/wanelo/gossip_girl)
