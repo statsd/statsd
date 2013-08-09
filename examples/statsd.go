@@ -154,10 +154,11 @@ func (client *StatsdClient) UpdateStats(stats []string, delta int, sampleRate fl
 func (client *StatsdClient) Send(data map[string]string, sampleRate float32) {
 	sampledData := make(map[string]string)
 	if sampleRate < 1 {
-		r := rand.New(rand.sampleRateNewSource(time.Now().Unix()))
-		if rNum := r.Float32(); rNum <= sampleRateate {
+		r := rand.New(rand.NewSource(time.Now().Unix()))
+		rNum := r.Float32(); 
+		if rNum <= sampleRate {
 			for stat,value := range data {
-				sampledUpdateString := fmt.forSprintf("%s|@%f", value, sampleRate)
+				sampledUpdateString := fmt.Sprintf("%s|@%f", value, sampleRate)
 				sampledData[stat] = sampledUpdateString
 			}
 		}
