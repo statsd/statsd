@@ -20,6 +20,30 @@ module.exports = {
     test.done();
   },
 
+  counter_deltas_positive_are_not_valid: function (test) {
+    var res = helpers.is_valid_packet(['+10', 'c']);
+    test.equals(res, false);
+    test.done();
+  },
+
+  counter_deltas_negative_are_not_valid: function (test) {
+    var res = helpers.is_valid_packet(['-10', 'c']);
+    test.equals(res, false);
+    test.done();
+  },
+
+  gauges_delta_positive_are_valid: function (test) {
+    var res = helpers.is_valid_packet(['+10', 'g']);
+    test.equals(res, true);
+    test.done();
+  },
+
+  gauges_delta_negative_are_valid: function (test) {
+    var res = helpers.is_valid_packet(['-10', 'g']);
+    test.equals(res, true);
+    test.done();
+  },
+
   correct_packet: function (test) {
     var res = helpers.is_valid_packet(['345345', 'ms', '@1.0']);
     test.equals(res, true);
