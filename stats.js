@@ -4,6 +4,7 @@ var dgram  = require('dgram')
   , util    = require('util')
   , net    = require('net')
   , config = require('./lib/config')
+  , helpers = require('./lib/helpers')
   , fs     = require('fs')
   , events = require('events')
   , logger = require('./lib/logger')
@@ -42,6 +43,7 @@ function loadBackend(config, name) {
     process.exit(1);
   }
 }
+
 
 // global for conf
 var conf;
@@ -197,22 +199,16 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         for (var i = 0; i < bits.length; i++) {
           var sampleRate = 1;
           var fields = bits[i].split("|");
-          if (fields[2]) {
-            if (fields[2].match(/^@([\d\.]+)/)) {
-              sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
-            } else {
-              l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"; has invalid sample rate');
-              counters[bad_lines_seen]++;
-              stats.messages.bad_lines_seen++;
-              continue;
-            }
-          }
-          if (fields[1] === undefined) {
+          if (!helpers.is_valid_packet(fields)) {
               l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
               counters[bad_lines_seen]++;
               stats.messages.bad_lines_seen++;
               continue;
           }
+          if (fields[2]) {
+            sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+          }
+
           var metric_type = fields[1].trim();
           if (metric_type === "ms") {
             if (! timers[key]) {
@@ -306,7 +302,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             backendEvents.emit('status', function(err, name, stat, val) {
               if (err) {
                 l.log("Failed to read stats for backend " +
-                         name + ": " + err);
+                        name + ": " + err);
               } else {
                 stat_writer(name, stat, val);
               }
