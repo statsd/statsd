@@ -89,7 +89,7 @@ This means:
 * For all other databases, average the values (mean) when rolling up data, and
   store a None if less than 30% of the datapoints were received
 
-Pay close attention to xFilesFactor: if your flush interval is long enough so there are not enough samples to satisfy this minimum factor, your data would simply be lost in the first downsampling cycle. However, setting a very low factor would also produce a misleading result, since you would probably agree that if you only have a single 10-second mean value sample reported in a 10-minute timeframe, this single sample alone should not normally be downsampled into a 10-minute mean value. For counts, however, every count should count ;-), hence the zero factor.
+Pay close attention to xFilesFactor: if your flush interval is not long enough so there are not enough samples to satisfy this minimum factor, your data would simply be lost in the first downsampling cycle. However, setting a very low factor would also produce a misleading result, since you would probably agree that if you only have a single 10-second mean value sample reported in a 10-minute timeframe, this single sample alone should not normally be downsampled into a 10-minute mean value. For counts, however, every count should count ;-), hence the zero factor.
 
 **Notes:**
 
