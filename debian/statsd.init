@@ -41,6 +41,12 @@ CHDIR="/usr/share/statsd"
 # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
 . /lib/lsb/init-functions
 
+# Create PIDDIR on runtime
+if [ ! -d /var/run/$NAME ] then
+  mkdir /var/run/$NAME
+  chown $USER /var/run/$NAME
+fi
+
 #
 # Function that starts the daemon/service
 #
