@@ -42,7 +42,8 @@ CHDIR="/usr/share/statsd"
 . /lib/lsb/init-functions
 
 # Create PIDDIR on runtime
-if [ ! -d /var/run/$NAME ] then
+if [ ! -d /var/run/$NAME ];
+then
   mkdir /var/run/$NAME
   chown $USER /var/run/$NAME
 fi
