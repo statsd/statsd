@@ -151,10 +151,14 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
     if (legacyNamespace === true) {
       statString += namespace.join(".")   + globalSuffix + valuePerSecond + ts_suffix;
-      statString += 'stats_counts.' + key + globalSuffix + value          + ts_suffix;
+      if (flush_counts) {
+        statString += 'stats_counts.' + key + globalSuffix + value + ts_suffix;
+      }
     } else {
       statString += namespace.concat('rate').join(".")  + globalSuffix + valuePerSecond + ts_suffix;
-      statString += namespace.concat('count').join(".") + globalSuffix + value          + ts_suffix;
+      if (flush_counts) {
+        statString += namespace.concat('count').join(".") + globalSuffix + value + ts_suffix;
+      }
     }
 
     numStats += 1;
