@@ -25,6 +25,11 @@ Optional Variables:
   mgmt_address:     address to run the management TCP interface on
                     [default: 0.0.0.0]
   mgmt_port:        port to run the management TCP interface on [default: 8126]
+  title :           Allows for overriding the process title. [default: statsd]
+                    if set to false, will not override the process title and let the OS set it.
+                    The length of the title has to be less than or equal to the binary name + cli arguments
+                    NOTE: This does not work on Mac's with node versions prior to v0.10
+
   healthStatus:     default health status to be returned and statsd process starts ['up' or 'down', default: 'up']
   dumpMessages:     log all incoming messages
   flushInterval:    interval (in ms) to flush to Graphite
@@ -32,6 +37,8 @@ Optional Variables:
                     (can be a single value or list of floating-point values)
                     negative values mean to use "top" Nth percentile(s) values
                     [%, default: 90]
+  flush_counts:     send stats_counts metrics [default: true]
+
   keyFlush:         log the most frequently sent keys [object, default: undefined]
     interval:       how often to log frequent keys [ms, default: 0]
     percent:        percentage of frequent keys to log [%, default: 100]

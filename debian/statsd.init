@@ -1,8 +1,8 @@
 #! /bin/sh
 ### BEGIN INIT INFO
 # Provides:          statsd
-# Required-Start:    $network $local_fs
-# Required-Stop:
+# Required-Start:    $remote_fs $network $local_fs
+# Required-Stop:     $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 ### END INIT INFO
@@ -40,6 +40,13 @@ CHDIR="/usr/share/statsd"
 # Define LSB log_* functions.
 # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
 . /lib/lsb/init-functions
+
+# Create PIDDIR on runtime
+if [ ! -d /var/run/$NAME ];
+then
+  mkdir /var/run/$NAME
+  chown $USER /var/run/$NAME
+fi
 
 #
 # Function that starts the daemon/service
