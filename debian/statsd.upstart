@@ -7,5 +7,5 @@ stop on shutdown
 script
     chdir /usr/share/statsd
 
-    exec sudo -u _statsd /usr/share/statsd/scripts/start
+    exec sudo -u _statsd /usr/share/statsd/debian/scripts/start
 end script
