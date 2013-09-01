@@ -69,6 +69,9 @@ Optional Variables:
     prefixTimer:      graphite prefix for timer metrics [default: "timers"]
     prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
     prefixSet:        graphite prefix for set metrics [default: "sets"]
+    globalSuffix:     global suffix to use for sending stats to graphite [default: ""]
+                      This is particularly useful for sending per host stats by
+                      settings this value to: require('os').hostname().split('.')[0]
 
   repeater:         an array of hashes of the for host: and port:
                     that details other statsd servers to which the received
