@@ -15,6 +15,8 @@
  */
 
 var net = require('net'),
+    tls = require('tls'),
+    fs = require('fs'),
     logger = require('../lib/logger');
 
 // this will be instantiated to the logger
@@ -25,6 +27,9 @@ var flushInterval;
 var graphiteHost;
 var graphitePort;
 var flush_counts;
+var graphiteKey;
+var graphiteCert;
+var graphiteCa;
 
 // prefix configuration
 var globalPrefix;
@@ -52,13 +57,8 @@ var post_stats = function graphite_post_stats(statString) {
   var flush_length = graphiteStats.flush_length || 0;
   if (graphiteHost) {
     try {
-      var graphite = net.createConnection(graphitePort, graphiteHost);
-      graphite.addListener('error', function(connectionException){
-        if (debug) {
-          l.log(connectionException);
-        }
-      });
-      graphite.on('connect', function() {
+      var graphite;
+      var on_connect = function() {
         var ts = Math.round(new Date().getTime() / 1000);
         var ts_suffix = ' ' + ts + "\n";
         var namespace = globalNamespace.concat(prefixStats).join(".");
@@ -73,8 +73,54 @@ var post_stats = function graphite_post_stats(statString) {
         graphiteStats.flush_time = (Date.now() - starttime);
         graphiteStats.flush_length = statString.length;
         graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
-      });
-    } catch(e){
+      };
+      if (graphiteKey) {
+          var key, cert, ca, n, tls_connect;
+          tls_connect = function() {
+              n--;
+              if (n == 0) {
+                  var options = {key: key, cert: cert };
+                  if (ca) {
+                      options.ca = [ca];
+                  }
+                  graphite = tls.connect(graphitePort, graphiteHost, options, on_connect);
+                  graphite.addListener('error', function(connectionException) {
+                    if (debug) {
+                      l.log(connectionException);
+                    }
+                  });
+              }
+          };
+          if (graphiteCa) {
+            n = 3;
+            fs.readFile(graphiteCa, function(err, data) {
+                if (err) throw err;
+                ca = data;
+                tls_connect();
+            });
+          } else {
+            n = 2;
+          }
+          fs.readFile(graphiteKey, function(err, data) {
+            if (err) throw err;
+            key = data;
+            tls_connect();
+          });
+          fs.readFile(graphiteCert, function(err, data) {
+            if (err) throw err;
+            cert = data;
+            tls_connect();
+          });
+      } else {
+        graphite = net.createConnection(graphitePort, graphiteHost);
+        graphite.on('connect', on_connect);
+        graphite.addListener('error', function(connectionException) {
+          if (debug) {
+              l.log(connectionException);
+          }
+        });
+      }
+    } catch(e) {
       if (debug) {
         l.log(e);
       }
@@ -182,6 +228,9 @@ exports.init = function graphite_init(startup_time, config, events) {
   debug = config.debug;
   graphiteHost = config.graphiteHost;
   graphitePort = config.graphitePort;
+  graphiteKey  = config.graphiteKey;
+  graphiteCert = config.graphiteCert;
+  graphiteCa   = config.graphiteCa;
   config.graphite = config.graphite || {};
   globalPrefix    = config.graphite.globalPrefix;
   prefixCounter   = config.graphite.prefixCounter;
