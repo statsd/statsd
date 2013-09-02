@@ -58,12 +58,7 @@ Let's see now how to configure downsampling in Graphite's conf/storage-aggregati
     aggregationMethod = min
 
     [max]
-    pattern = \.upper$
-    xFilesFactor = 0.1
-    aggregationMethod = max
-    
-    [max_percentile]
-    pattern = \.upper_\d+$
+    pattern = \.upper(_\d+)?$
     xFilesFactor = 0.1
     aggregationMethod = max
 
