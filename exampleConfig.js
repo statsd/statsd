@@ -73,6 +73,11 @@ Optional Variables:
                       This is particularly useful for sending per host stats by
                       settings this value to: require('os').hostname().split('.')[0]
 
+    secureCert:     use a secure connection to your graphite server, authenticated with a certificate.
+                    If this key is set, statsd will use a secure connection.
+    secureKey:      you will need your private key, too
+    secureCa:       for self-signed certificate, you need the CA public key.
+
   repeater:         an array of hashes of the for host: and port:
                     that details other statsd servers to which the received
                     packets should be "repeated" (duplicated to).

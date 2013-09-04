@@ -73,6 +73,9 @@ var post_stats = function graphite_post_stats(statString) {
         graphiteStats.flush_time = (Date.now() - starttime);
         graphiteStats.flush_length = statString.length;
         graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
+        if (debug) {
+            l.log("securly sent " + statString.length + " bytes in " + graphiteStats.flush_time + " s");
+        }
       };
       if (graphiteKey) {
           var key, cert, ca, n, tls_connect;
@@ -228,9 +231,6 @@ exports.init = function graphite_init(startup_time, config, events) {
   debug = config.debug;
   graphiteHost = config.graphiteHost;
   graphitePort = config.graphitePort;
-  graphiteKey  = config.graphiteKey;
-  graphiteCert = config.graphiteCert;
-  graphiteCa   = config.graphiteCa;
   config.graphite = config.graphite || {};
   globalPrefix    = config.graphite.globalPrefix;
   prefixCounter   = config.graphite.prefixCounter;
@@ -239,6 +239,9 @@ exports.init = function graphite_init(startup_time, config, events) {
   prefixSet       = config.graphite.prefixSet;
   globalSuffix    = config.graphite.globalSuffix;
   legacyNamespace = config.graphite.legacyNamespace;
+  graphiteKey     = config.graphite.secureKey;
+  graphiteCert    = config.graphite.secureCert;
+  graphiteCa      = config.graphite.secureCa;
 
   // set defaults for prefixes & suffix
   globalPrefix  = globalPrefix !== undefined ? globalPrefix : "stats";
