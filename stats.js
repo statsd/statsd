@@ -21,6 +21,9 @@ var timers = {};
 var timer_counters = {};
 var gauges = {};
 var sets = {};
+var derives = {};
+var derives_lastval = {};
+var derives_lasttime = {};
 var counter_rates = {};
 var timer_data = {};
 var pctThreshold = null;
@@ -58,6 +61,9 @@ function flushMetrics() {
     timers: timers,
     timer_counters: timer_counters,
     sets: sets,
+    derives: derives,
+    derives_lastval: derives_lastval,
+    derives_lasttime: derives_lasttime,
     counter_rates: counter_rates,
     timer_data: timer_data,
     pctThreshold: pctThreshold,
@@ -75,6 +81,7 @@ function flushMetrics() {
       conf.deleteTimers = conf.deleteTimers !== undefined ? conf.deleteTimers : true;
       conf.deleteSets = conf.deleteSets !== undefined ? conf.deleteSets : true;
       conf.deleteGauges = conf.deleteGauges !== undefined ? conf.deleteGauges : true;
+      conf.deleteDerives = conf.deleteDerives !== undefined ? conf.deleteDerives : true;
     }
 
     // Clear the counters
@@ -113,7 +120,15 @@ function flushMetrics() {
       }
     }
 
-	// normally gauges are not reset.  so if we don't delete them, continue to persist previous value
+    // Clear the Derives 
+    conf.deleteDerives = conf.deleteDerives || false;
+    for (var derive_key in metrics.derives) {
+      if (conf.deleteDerives) {
+        delete(metrics.derives[derive_key]); // still need to keep derives_lasttime and _lastval
+      }
+    }
+    
+    // normally gauges are not reset.  so if we don't delete them, continue to persist previous value
     conf.deleteGauges = conf.deleteGauges || false;
     if (conf.deleteGauges) {
       for (var gauge_key in metrics.gauges) {
@@ -228,7 +243,16 @@ config.configFile(process.argv[2], function (config, oldConfig) {
               sets[key] = new set.Set();
             }
             sets[key].insert(fields[0] || '0');
-          } else {
+          } else if (metric_type === "d") {
+            var now = new Date();
+            var timestamp = now.getTime();
+            if (derives_lastval[key] && (fields[0] >= derives_lastval[key]) && (timestamp !== derives_lasttime[key])) {
+              derives[key] = (fields[0] - derives_lastval[key]) / (timestamp - derives_lasttime[key]) * 1000.0;
+            }
+            derives_lastval[key] = parseFloat(fields[0]) || 0;
+            derives_lasttime[key] = timestamp;
+          }
+          else {
             if (! counters[key]) {
               counters[key] = 0;
             }
@@ -253,7 +277,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
         switch(cmd) {
           case "help":
-            stream.write("Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, health, quit\n\n");
+            stream.write("Commands: stats, counters, timers, gauges, derives, delcounters, deltimers, delgauges, delderives, health, quit\n\n");
             break;
 
           case "health":
@@ -325,6 +349,12 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             stream.write("END\n\n");
             break;
 
+          case "derives":
+            stream.write("current: " + util.inspect(derives) + "\n");
+            stream.write("last:    " + util.inspect(derives_lastval) + "\n");
+            stream.write("lasttime:" + util.inspect(derives_lasttime) + "\n");
+            break;
+            
           case "delcounters":
             mgmt.delete_stats(counters, cmdline, stream);
             break;
@@ -337,6 +367,10 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             mgmt.delete_stats(gauges, cmdline, stream);
             break;
 
+          case "delderives":
+            mgmt.delete_stats(derives, cmdline, stream);
+            break;
+            
           case "quit":
             stream.end();
             break;

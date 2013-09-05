@@ -41,6 +41,10 @@ class Statsd
     Statsd.update_stats(stats, value, sample_rate, 'g')
   end
 
+  def self.derives(stats, value, sample_rate=1)
+    Statsd.update_stats(stats, value, sample_rate, 'd')
+  end
+
   def self.sets(stats, value, sample_rate=1)
     Statsd.update_stats(stats, value, sample_rate, 's')
   end

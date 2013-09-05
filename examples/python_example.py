@@ -9,6 +9,7 @@ class StatsdClient(object):
     SC_COUNT = "c"
     SC_GAUGE = "g"
     SC_SET = "s"
+    SC_DERIVE = "d"
 
     def __init__(self, host='localhost', port=8125):
         """
@@ -37,6 +38,16 @@ class StatsdClient(object):
         >>> client.gauge(('example.gauge41', 'example.gauge43'), 47)
         """
         self.update_stats(stats, value, self.SC_GAUGE)
+
+    def derive(self, stats, value):
+        """
+        Log derives
+
+        >>> client = StatsdClient()
+        >>> client.gauge('example.derive', 47)
+        >>> client.gauge(('example.derive41', 'example.derive43'), 47)
+        """
+        self.update_stats(stats, value, self.SC_DERIVE)
 
     def set(self, stats, value):
         """

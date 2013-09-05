@@ -101,6 +101,21 @@ using a Set to store all occuring events.
 If the count at flush is 0 then you can opt to send no metric at all for this set, by
 setting `config.deleteSets`.
 
+Derives
+-------
+StatsD supports counters that are constantly increasing, but you're interested
+in the rate of change.  The information passed to backends is the difference between 
+submitted and previous values, divided by the time between the submissions;
+value = (current - previous) / (now - previoustime)
+In the case that current is less than previous, a negative value is not generated
+but the last is recorded so it can be used in the next calculation.  This deals
+with counter resets and counter wrapping.  As the previous value is required to
+calculate the rate, the derive value is only available after the 2nd and subsequent
+metric is passed to statsd. 
+
+     deriveval:1234|d
+
+
 Multi-Metric Packets
 --------------------
 StatsD supports receiving multiple metrics in a single packet by separating them

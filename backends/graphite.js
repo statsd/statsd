@@ -33,6 +33,7 @@ var prefixCounter;
 var prefixTimer;
 var prefixGauge;
 var prefixSet;
+var prefixDerive;
 var globalSuffix;
 
 // set up namespaces
@@ -42,6 +43,7 @@ var counterNamespace = [];
 var timerNamespace   = [];
 var gaugesNamespace  = [];
 var setsNamespace    = [];
+var derivesNamespace = [];
 
 var graphiteStats = {};
 
@@ -94,6 +96,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var gauges = metrics.gauges;
   var timers = metrics.timers;
   var sets = metrics.sets;
+  var derives = metrics.derives;
   var counter_rates = metrics.counter_rates;
   var timer_data = metrics.timer_data;
   var statsd_metrics = metrics.statsd_metrics;
@@ -149,6 +152,12 @@ var flush_stats = function graphite_flush(ts, metrics) {
     numStats += 1;
   }
 
+  for (key in derives) {
+    var namespace = derivesNamespace.concat(key);
+    statString += namespace.join(".") + globalSuffix + derives[key] + ts_suffix;
+    numStats += 1;
+  }
+  
   var namespace = globalNamespace.concat(prefixStats);
   if (legacyNamespace === true) {
     statString += prefixStats + '.numStats' + globalSuffix + numStats + ts_suffix;
@@ -188,6 +197,7 @@ exports.init = function graphite_init(startup_time, config, events) {
   prefixTimer     = config.graphite.prefixTimer;
   prefixGauge     = config.graphite.prefixGauge;
   prefixSet       = config.graphite.prefixSet;
+  prefixDerive    = config.graphite.prefixDerive;
   globalSuffix    = config.graphite.globalSuffix;
   legacyNamespace = config.graphite.legacyNamespace;
 
@@ -197,6 +207,7 @@ exports.init = function graphite_init(startup_time, config, events) {
   prefixTimer   = prefixTimer !== undefined ? prefixTimer : "timers";
   prefixGauge   = prefixGauge !== undefined ? prefixGauge : "gauges";
   prefixSet     = prefixSet !== undefined ? prefixSet : "sets";
+  prefixDerive  = prefixDerive !== undefined ? prefixDerive : "derives";
   legacyNamespace = legacyNamespace !== undefined ? legacyNamespace : true;
 
   // In order to unconditionally add this string, it either needs to be
@@ -211,6 +222,7 @@ exports.init = function graphite_init(startup_time, config, events) {
       timerNamespace.push(globalPrefix);
       gaugesNamespace.push(globalPrefix);
       setsNamespace.push(globalPrefix);
+      derivesNamespace.push(globalPrefix);
     }
 
     if (prefixCounter !== "") {
@@ -225,12 +237,16 @@ exports.init = function graphite_init(startup_time, config, events) {
     if (prefixSet !== "") {
       setsNamespace.push(prefixSet);
     }
+    if (prefixDerive !== "") {
+      derivesNamespace.push(prefixDerive);
+    }
   } else {
       globalNamespace = ['stats'];
       counterNamespace = ['stats'];
       timerNamespace = ['stats', 'timers'];
       gaugesNamespace = ['stats', 'gauges'];
       setsNamespace = ['stats', 'sets'];
+      derivesNamespace = ['stats', 'derives'];
   }
 
   graphiteStats.last_flush = startup_time;

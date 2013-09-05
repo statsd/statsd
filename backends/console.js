@@ -29,6 +29,9 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
       }
       return ret;
     }(metrics.sets),
+    derives: metrics.derives,
+    derives_lastval: metrics.derives_lastval,
+    derives_lasttime: metrics.derives_lasttime,
     pctThreshold: metrics.pctThreshold
   };
 
