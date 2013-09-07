@@ -18,7 +18,4 @@ if [ "$1" = configure ]; then
     dpkg-statoverride --update --add _statsd _statsd 0755 /var/run/statsd
   fi
 
-  if ! dpkg-statoverride --list /var/log/statsd >/dev/null 2>&1; then
-    dpkg-statoverride --update --add _statsd _statsd 0755 /var/log/statsd
-  fi
 fi

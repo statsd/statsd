@@ -6,11 +6,7 @@ if [ "$1" = purge ]; then
 
   update-rc.d statsd remove >/dev/null || true
 
-  rm -rf /var/log/statsd /var/run/statsd
-
-  if dpkg-statoverride --list /var/log/statsd >/dev/null 2>&1; then
-    dpkg-statoverride --remove /var/log/statsd
-  fi
+  rm -rf /var/run/statsd
 
   if dpkg-statoverride --list /var/run/statsd >/dev/null 2>&1; then
     dpkg-statoverride --remove /var/run/statsd
