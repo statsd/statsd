@@ -3,4 +3,3 @@ lib/*.js /usr/share/statsd/lib
 backends/*.js  /usr/share/statsd/backends
 lib/*.js  /usr/share/statsd/lib
 debian/localConfig.js	/etc/statsd
-debian/scripts/start	/usr/share/statsd/scripts
