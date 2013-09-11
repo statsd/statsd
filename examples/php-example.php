@@ -28,6 +28,17 @@ class StatsD {
     }
 
     /**
+     * Sets one or more derives
+     *
+     * @param string|array $stats The metric(s) to set.
+     * @param float $value The value for the stats.
+     **/
+    public static function derives($stats, $value) {
+        StatsD::updateStats($stats, $value, 1, 'd');
+    }
+
+
+    /**
      * A "Set" is a count of unique events.
      * This data type acts like a counter, but supports counting
      * of unique occurences of values between flushes. The backend

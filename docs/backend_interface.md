@@ -32,12 +32,16 @@ metrics: {
     counters: counters,
     gauges: gauges,
     timers: timers,
+    timer_counters: timer_counters,
     sets: sets,
+    derives: derives,
+    derives_lastval: derives_lastval,
+    derives_lasttime: derives_lasttime,
     counter_rates: counter_rates,
     timer_data: timer_data,
-    statsd_metrics: statsd_metrics,
-    pctThreshold: pctThreshold
-}
+    pctThreshold: pctThreshold,
+    histogram: conf.histogram
+  };
   ```
 
   The counter_rates and timer_data are precalculated statistics to simplify

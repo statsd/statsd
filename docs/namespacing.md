@@ -13,6 +13,7 @@ prefixCounter:    graphite prefix for counter metrics [default: "counters"]
 prefixTimer:      graphite prefix for timer metrics [default: "timers"]
 prefixGauge:      graphite prefix for gauge metrics [default: "gauges"]
 prefixSet:        graphite prefix for set metrics [default: "sets"]
+prefixDerive:     graphite prefix for derive metrics [default: "derives"]
 ```
 
 If you decide not to use the legacy namespacing, besides the obvious changes

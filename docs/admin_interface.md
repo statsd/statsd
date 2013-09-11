@@ -11,9 +11,11 @@ available:
 * counters - a dump of all the current counters
 * gauges - a dump of all the current gauges
 * timers - a dump of the current timers
+* derives - a dump of the current derives
 * delcounters - delete a counter or folder of counters
 * delgauges - delete a gauge or folder of gauges 
 * deltimers - delete a timer or folder of timers
+* delderives - delete a derives or folder of derives
 * health - a way to set the health status of statsd
 
 The stats output currently will give you:
