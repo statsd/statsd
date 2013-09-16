@@ -16,4 +16,4 @@ respawn
 respawn limit 10 5
 
 chdir /usr/share/statsd
-exec /usr/bin/nodejs stats.js /etc/statsd/localConfig.js
+exec /usr/bin/node stats.js /etc/statsd/localConfig.js
