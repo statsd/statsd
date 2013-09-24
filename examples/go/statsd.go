@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// The StatsdClient type defines the relevant properties of a StatsD connection.
 type StatsdClient struct {
 	Host string
 	Port int
@@ -15,6 +16,7 @@ type StatsdClient struct {
 }
 
 // Factory method to initialize udp connection
+//
 // Usage:
 //
 //     import "statsd"
@@ -41,6 +43,7 @@ func (client *StatsdClient) Close() {
 }
 
 // Log timing information (in milliseconds) without sampling
+//
 // Usage:
 //
 //     import (
@@ -61,6 +64,7 @@ func (client *StatsdClient) Timing(stat string, time int64) {
 }
 
 // Log timing information (in milliseconds) with sampling
+//
 // Usage:
 //
 //     import (
@@ -81,6 +85,7 @@ func (client *StatsdClient) TimingWithSampleRate(stat string, time int64, sample
 }
 
 // Increments one stat counter without sampling
+//
 // Usage:
 //
 //     import "statsd"
@@ -92,6 +97,7 @@ func (client *StatsdClient) Increment(stat string) {
 }
 
 // Increments one stat counter with sampling
+//
 // Usage:
 //
 //     import "statsd"
@@ -103,6 +109,7 @@ func (client *StatsdClient) IncrementWithSampling(stat string, sampleRate float3
 }
 
 // Decrements one stat counter without sampling
+//
 // Usage:
 //
 //     import "statsd"
@@ -114,6 +121,7 @@ func (client *StatsdClient) Decrement(stat string) {
 }
 
 // Decrements one stat counter with sampling
+//
 // Usage:
 //
 //     import "statsd"
