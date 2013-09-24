@@ -42,7 +42,7 @@ Example usage:
 	package main
 
 	import (
-		"github.com/marpaia/statsd/examples/go"
+		"github.com/etsy/statsd/examples/go"
 		"time"
 	)
 
