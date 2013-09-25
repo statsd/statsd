@@ -21,6 +21,7 @@ var net = require('net'),
 var l;
 
 var debug;
+var quiet = false;
 var flushInterval;
 var graphiteHost;
 var graphitePort;
@@ -97,6 +98,17 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var counter_rates = metrics.counter_rates;
   var timer_data = metrics.timer_data;
   var statsd_metrics = metrics.statsd_metrics;
+
+  if (quiet &&
+      (counters === null || Object.keys(counters).length === 0) &&
+      (timer_data === null || Object.keys(timer_data).length === 0) &&
+      (gauges === null || Object.keys(gauges).length === 0) &&
+      (sets === null || Object.keys(sets).length === 0)) {
+    if (debug) {
+      l.log("Not sending stats, no metrics to report");
+    }
+    return;
+  }
 
   for (key in counters) {
     var namespace = counterNamespace.concat(key);
@@ -190,6 +202,7 @@ exports.init = function graphite_init(startup_time, config, events) {
   prefixSet       = config.graphite.prefixSet;
   globalSuffix    = config.graphite.globalSuffix;
   legacyNamespace = config.graphite.legacyNamespace;
+  quiet           = config.graphite.quiet;
 
   // set defaults for prefixes & suffix
   globalPrefix  = globalPrefix !== undefined ? globalPrefix : "stats";
@@ -198,6 +211,7 @@ exports.init = function graphite_init(startup_time, config, events) {
   prefixGauge   = prefixGauge !== undefined ? prefixGauge : "gauges";
   prefixSet     = prefixSet !== undefined ? prefixSet : "sets";
   legacyNamespace = legacyNamespace !== undefined ? legacyNamespace : true;
+  quiet         = quiet !== undefined ? quiet : false;
 
   // In order to unconditionally add this string, it either needs to be
   // a single space if it was unset, OR surrounded by a . and a space if

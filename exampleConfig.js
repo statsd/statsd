@@ -64,6 +64,7 @@ Optional Variables:
 
   graphite:
     legacyNamespace:  use the legacy namespace [default: true]
+    quiet:            connect to the Graphite server only when there are metrics to report [default: false]
     globalPrefix:     global prefix to use for sending stats to graphite [default: "stats"]
     prefixCounter:    graphite prefix for counter metrics [default: "counters"]
     prefixTimer:      graphite prefix for timer metrics [default: "timers"]
