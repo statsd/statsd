@@ -20,5 +20,11 @@ It handles a simple health check that dynamically recalculates the hashring if a
 
 Config Options are documented in the [exampleProxyConfig.js][exampleProxyConfig.js]
 
+Notes
+--------------
+In your statsd configuration make sure to have the following configuration set: `deleteIdleStats: true`
+
+We plan to remove this restriction in the near future: [#pull/348][pull_348]
 
 [exampleProxyConfig.js]: https://github.com/etsy/statsd/blob/master/exampleProxyConfig.js
+[pull_348]: https://github.com/etsy/statsd/pull/348
