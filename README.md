@@ -52,7 +52,7 @@ More Specific Topics
 * [Admin TCP Interface][docs_admin_interface]
 * [Backend Interface][docs_backend_interface]
 * [Metric Namespacing][docs_namespacing]
-
+* [Statsd Cluster Proxy][docs_cluster_proxy]
 
 Debugging
 ---------
@@ -121,5 +121,6 @@ https://github.com/etsy/statsd/graphs/contributors
 [docs_admin_interface]: https://github.com/etsy/statsd/blob/master/docs/admin_interface.md
 [docs_backend_interface]: https://github.com/etsy/statsd/blob/master/docs/backend_interface.md
 [docs_namespacing]: https://github.com/etsy/statsd/blob/master/docs/namespacing.md
+[docs_cluster_proxy]: https://github.com/etsy/statsd/blob/master/docs/cluster_proxy.md
 [travis-ci_status_img]: https://travis-ci.org/etsy/statsd.png?branch=backends-as-packages
 [travis-ci_statsd]: https://travis-ci.org/etsy/statsd
