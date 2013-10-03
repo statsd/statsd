@@ -3,6 +3,7 @@ var dgram    = require('dgram')
   , events   = require('events')
   , logger = require('./lib/logger')
   , hashring = require('hashring')
+  , util = require('util')
   , configlib   = require('./lib/config');
 
 var packet   = new events.EventEmitter();
@@ -87,6 +88,33 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     });
   }
 
+  // Flush stats on nodes. Necessary when a node joins the ring and ownership of keys changes.
+  function nodesResetStats() {
+    nodes.forEach(function(node, index, array) {
+      l.log('Reset stats on ' + node.host + ':' + node.port);
+      resetStats(node, 'delcounters');
+      resetStats(node, 'deltimers');
+      resetStats(node, 'delgauges');
+    });
+  }
+
+  // reset a node's stats
+  function resetStats(node, cmd) {
+    var client = net.connect({port: node.adminport, host: node.host},
+         function() {
+           client.write(cmd + '\r\n');
+    });
+    client.on('data', function(data) {
+      var response = data.toString();
+      if (response.indexOf('ERROR') >= 0) {
+        l.log('Received ERROR response while issuing ' + cmd + ' command to ' + node.host + ':' + node.port);
+      }
+    });
+    client.on('error', function(e) {
+      l.log('Error occurred while issuing ' + cmd + ' command to ' + node.host + ':' + node.port + ', error: ' + e.code);
+    });
+  }
+
   // Perform health check on node
   function healthcheck(node) {
     var node_id = node.host + ':' + node.port;
@@ -114,6 +142,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
             new_server[node_id] = 100;
             l.log('Adding node ' + node_id + ' to the ring.');
             ring.add(new_server);
+            nodesResetStats();
           }
         }
         node_status[node_id] = 0;
@@ -137,3 +166,5 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
   }
 
 });
+
+process.title = 'statsd-proxy';
