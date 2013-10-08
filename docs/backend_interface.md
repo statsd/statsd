@@ -67,7 +67,7 @@ metrics: {
   Parameters: `(packet, rinfo)`
 
   This is emitted for every incoming packet. The `packet` parameter contains
-  the raw received message string and the `rinfo` paramter contains remote
+  the raw received message string and the `rinfo` parameter contains remote
   address information from the UDP socket.
 
 
