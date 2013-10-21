@@ -22,7 +22,7 @@ backends can be run at once. To select which backends are loaded, set
 the `backends` configuration variable to the list of backend modules to load.
 
 Backends are just npm modules which implement the interface described in
-section [Backend Interface](./BackendInterface.md). In order to be able to load the backend, add the
+section [Backend Interface](./backend_interface.md). In order to be able to load the backend, add the
 module name into the `backends` variable in your config. As the name is also
 used in the `require` directive, you can load one of the provided backends by
 giving the relative path (e.g. `./backends/graphite`).
