@@ -49,14 +49,17 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
 
     // Loop through the metrics and split on : to get mertric name for hashing
     for (var midx in metrics) {
-      var bits = metrics[midx].toString().split(':');
+      var current_metric = metrics[midx].toString();
+      var bits = current_metric.split(':');
       var key = bits.shift();
-      packet.emit('send', key, msg);
+      if (current_metric !== '') {
+        packet.emit('send', key, current_metric);
+      }
     }
   });
 
   // Listen for the send message, and process the metric key and msg
-  packet.on('send', function(key, msg) {
+  packet.on('send', function(key, metric) {
     // retreives the destination for this key
     var statsd_host = ring.get(key);
 
@@ -67,8 +70,10 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
       var host_config = statsd_host.split(':');
 
       var client = dgram.createSocket(udp_version);
+      var msg = new Buffer(metric);
       // Send the mesg to the backend
       client.send(msg, 0, msg.length, host_config[1], host_config[0], function(err, bytes) {
+        if (err) l.log('Error: had a problem sending data');
         client.close();
       });
     }
