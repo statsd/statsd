@@ -28,6 +28,8 @@ var flushInterval, keyFlushInt, server, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 var backendEvents = new events.EventEmitter();
 var healthStatus = config.healthStatus || 'up';
+var old_timestamp = 0;
+var timestamp_lag_namespace;
 
 // Load and init the backend from the backends/ directory.
 function loadBackend(config, name) {
@@ -44,13 +46,16 @@ function loadBackend(config, name) {
   }
 }
 
-
 // global for conf
 var conf;
 
 // Flush metrics to each backend.
 function flushMetrics() {
   var time_stamp = Math.round(new Date().getTime() / 1000);
+  if (old_timestamp > 0) {
+    gauges[timestamp_lag_namespace] = (time_stamp - old_timestamp - (Number(conf.flushInterval)/1000));
+  }
+  old_timestamp = time_stamp;
 
   var metrics_hash = {
     counters: counters,
@@ -151,6 +156,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   //setup the names for the stats stored in counters{}
   bad_lines_seen   = prefixStats + ".bad_lines_seen";
   packets_received = prefixStats + ".packets_received";
+  timestamp_lag_namespace = prefixStats + ".timestamp_lag";
 
   //now set to zero so we can increment them
   counters[bad_lines_seen]   = 0;
