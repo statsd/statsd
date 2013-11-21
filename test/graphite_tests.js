@@ -37,36 +37,22 @@ var statsd_send = function(data,sock,host,port,cb){
   });
 }
 
-// keep collecting data until a specified timeout period has elapsed
-// this will let us capture all data chunks so we don't miss one
-var collect_for = function(server,timeout,cb){
-  var received = [];
-  var in_flight = 0;
-  var timed_out = false;
-  var collector = function(req,res){
-    in_flight += 1;
-    var body = '';
-    req.on('data',function(data){ body += data; });
-    req.on('end',function(){
-      received = received.concat(body.split("\n"));
-      in_flight -= 1;
-      if((in_flight < 1) && timed_out){
-          server.removeListener('request',collector);
-          cb(received);
-      }
-    });
-  }
 
-  setTimeout(function (){
-    timed_out = true;
-    if((in_flight < 1)) {
-      server.removeListener('connection',collector);
-      cb(received);
-    }
-  },timeout);
+var collect_for = function(socket, timeout, callback) {
+  var body = '', self = this;
+  socket.pause();
+  socket.on('data', function(chunk) {
+    body += chunk;
+  });
+  setTimeout(function() {
+    var lines = [];
+    lines = lines.concat(body.split("\n"));
+    socket.removeAllListeners('data');
+    callback(lines);
+  }, timeout);
+  socket.resume();
+};
 
-  server.on('connection',collector);
-}
 
 module.exports = {
   setUp: function (callback) {
@@ -136,11 +122,10 @@ module.exports = {
   send_well_formed_posts: function (test) {
     test.expect(2);
 
-    // we should integrate a timeout into this
     this.acceptor.once('connection',function(c){
       var body = '';
       c.on('data',function(d){ body += d; });
-      c.on('end',function(){
+      setTimeout(function(){
         var rows = body.split("\n");
         var entries = _.map(rows, function(x) {
           var chunks = x.split(' ');
@@ -151,7 +136,7 @@ module.exports = {
         test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'statsd.numStats'),'graphite output includes numStats');
         test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'statsd.numStats' })['statsd.numStats'],2);
         test.done();
-      });
+      }, 200);
     });
   },
 
@@ -162,7 +147,7 @@ module.exports = {
     var me = this;
     this.acceptor.once('connection',function(c){
       statsd_send('a_test_value:' + testvalue + '|ms',me.sock,'127.0.0.1',8125,function(){
-          collect_for(me.acceptor,me.myflush*2,function(strings){
+          collect_for(c,me.myflush*2,function(strings){
             test.ok(strings.length > 0,'should receive some data');
             var hashes = _.map(strings, function(x) {
               var chunks = x.split(' ');
@@ -195,7 +180,7 @@ module.exports = {
     var me = this;
     this.acceptor.once('connection',function(c){
       statsd_send('a_test_value:' + testvalue + '|c',me.sock,'127.0.0.1',8125,function(){
-          collect_for(me.acceptor,me.myflush*2,function(strings){
+          collect_for(c,me.myflush*2,function(strings){
             test.ok(strings.length > 0,'should receive some data');
             var hashes = _.map(strings, function(x) {
               var chunks = x.split(' ');
@@ -223,6 +208,27 @@ module.exports = {
 
             test.done();
           });
+      });
+    });
+  },
+  connection_is_reused: function(test) {
+    var me = this;
+    this.acceptor.once('connection',function(c){
+      //raise an error if we ever get a disconnect event
+      c.on('end', function() {
+        throw new Error('socket has been closed, should have been reused.');
+      });
+      //make sure we get data multiple times over the same socket
+      collect_for(c,me.myflush*5,function(strings){
+        test.ok(strings.length > 0,'should get some data');
+
+        collect_for(c,me.myflush*5,function(strings){
+          test.ok(strings.length > 0 ,'should get more data from the same connection');
+          //the socket will automatically be closed at the end of the test, do not emit
+          //'end'
+          c.removeAllListeners('end');
+          test.done();
+        });
       });
     });
   }
