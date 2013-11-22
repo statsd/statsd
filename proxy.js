@@ -55,6 +55,8 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     }
   });
 
+  var client = dgram.createSocket(udp_version);
+  
   // Listen for the send message, and process the metric key and msg
   packet.on('send', function(key, msg) {
     // retreives the destination for this key
@@ -66,10 +68,9 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     } else {
       var host_config = statsd_host.split(':');
 
-      var client = dgram.createSocket(udp_version);
       // Send the mesg to the backend
       client.send(msg, 0, msg.length, host_config[1], host_config[0], function(err, bytes) {
-        client.close();
+        // don't throw an error on a udp send, may want to see what potential errors could be thrown/caught here.
       });
     }
   });
