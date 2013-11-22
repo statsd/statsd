@@ -43,6 +43,26 @@ module.exports = {
     test.equals(res, true);
     test.done();
   },
+  
+  //
+  // function to test if exponential format is valid for
+  // positive number and exponent
+  //
+  gauges_exponent_positive_are_valid: function (test) {
+    var res = helpers.is_valid_packet(['3e09', 'g']);
+    test.equals(res, true);
+    test.done();
+  },
+  
+  //
+  // function to test if exponential format is valid for
+  // negattive number and exponent
+  //
+  gauges_exponent_negative_are_valid: function (test) {
+    var res = helpers.is_valid_packet(['-2.8877E-01', 'g']);
+    test.equals(res, true);
+    test.done();
+  },
 
   sets_strings_are_valid: function (test) {
     var res = helpers.is_valid_packet(['foo', 's']);
