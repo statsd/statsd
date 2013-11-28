@@ -95,7 +95,7 @@ fork StatsD from here: http://github.com/etsy/statsd
 2. Hack away
 3. If you are adding new functionality, document it in the README
 4. If necessary, rebase your commits into logical chunks, without errors
-5. Verfiy your code by running the test suite, and adding additional tests if able.
+5. Verify your code by running the test suite, and adding additional tests if able.
 6. Push the branch up to GitHub
 7. Send a pull request to the etsy/statsd project.
 
