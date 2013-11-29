@@ -38,6 +38,12 @@ generate the following list of stats for each threshold:
 Where `$KEY` is the stats key you specify when sending to statsd, and `$PCT` is
 the percentile threshold.
 
+Note that the `mean` metric is the mean value of all timings recorded during
+the flush interval whereas `mean_$PCT` is the mean of all timings which fell
+into the `$PCT` percentile for that flush interval. And the same holds for sum
+and upper. See [issue #157](https://github.com/etsy/statsd/issues/157) for a
+more detailed explanation of the calculation.
+
 If the count at flush is 0 then you can opt to send no metric at all for this timer,
 by setting `config.deleteTimers`.
 
