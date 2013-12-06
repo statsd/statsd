@@ -96,6 +96,8 @@ Optional Variables:
                       equal class interval and catchall for outliers:
                      [ { metric: 'foo', bins: [] },
                        { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
+                    * histogram for all timers match 'geo.*.pages.*':
+                     [ { metric: '', bins: [ 1000, 2000, 5000, 'inf'] } ]
 
 */
 {

@@ -67,6 +67,11 @@ Examples:
         [ { metric: 'foo', bins: [] },
           { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
 
+* histogram for all timers match a given pattern:
+
+        [ { metric: 'geo.*.pages.*.load', bins: [] },
+          { metric: '', bins: [ 100, 200, 500, 1000, 'inf'] } ]
+
 Note:
 
 * first match for a metric wins.
