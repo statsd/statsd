@@ -176,15 +176,15 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'stats.statsd.numStats.statssuffix';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
             };
-            test.ok(_.any(hashes,numstat_test), 'numStats.statssuffix should be 0');
+            test.ok(_.any(hashes,numstat_test), 'numStats.statssuffix should be 3');
 
             var bad_lines_seen_value_test = function(post){
               var mykey = 'stats.counters.statsd.bad_lines_seen.count.statssuffix';
               return _.include(_.keys(post),mykey) && (post[mykey] == testvalue);
             };
-            test.ok(_.any(hashes,bad_lines_seen_value_test), 'stats.counters.statsd.bad_lines_seen.count.statssuffix should be ' + testvalue);
+            test.ok(_.any(hashes,bad_lines_seen_value_test), 'stats.counters.statsd.bad_lines_seen.count.statssuffix should be ' + testvalue );
 
             test.done();
           });
@@ -209,9 +209,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'stats.statsd.numStats.statssuffix';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
             };
-            test.ok(_.any(hashes,numstat_test), 'stats.statsd.numStats.statssuffix should be 1');
+            test.ok(_.any(hashes,numstat_test), 'stats.statsd.numStats.statssuffix should be 4');
 
             var testtimervalue_test = function(post){
               var mykey = 'stats.timers.a_test_value.mean_90.statssuffix';
@@ -242,9 +242,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'stats.statsd.numStats.statssuffix';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
             };
-            test.ok(_.any(hashes,numstat_test), 'numStats.statssuffix should be 3');
+            test.ok(_.any(hashes,numstat_test), 'numStats.statssuffix should be 4');
 
             var testavgvalue_test = function(post){
               var mykey = 'stats.counters.a_test_value.rate.statssuffix';
