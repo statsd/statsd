@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.7.0 (12/05/2013)
+- added cluster proxy
+- measure and graph timestamp generation lag
+- added median calculation for timers
+- support for top percentiles for timers
+- drop support for node v0.6.x
+- support for setting the process title
+- functionality for optionally omitting stats_counts metrics
+- improved functionality to delete counters from the management console
+- updates to Debian packaging
+- added a clojure example client
+- cleaned up the Go example client
+- increased test coverage
+- documentation updates
+
 ## v0.6.0 (03/15/2013)
 - added new metric types : sets, gauge deltas, histograms
 - added ability to delete idle stats
