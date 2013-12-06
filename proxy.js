@@ -39,22 +39,32 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     // Convert the raw packet to a string (defaults to UTF8 encoding)
     var packet_data = msg.toString();
     // If the packet contains a \n then it contains multiple metrics
-    var metrics;
     if (packet_data.indexOf("\n") > -1) {
+      var metrics;
       metrics = packet_data.split("\n");
+      // Loop through the metrics and split on : to get mertric name for hashing
+      for (var midx in metrics) {
+        var current_metric = metrics[midx];
+        var bits = current_metric.split(':');
+        var key = bits.shift();
+        if (current_metric !== '') {
+          var new_msg = new Buffer(current_metric);
+          packet.emit('send', key, new_msg);
+        }
+      }
+      
     } else {
       // metrics needs to be an array to fake it for single metric packets
-      metrics = [ packet_data ] ;
-    }
-
-    // Loop through the metrics and split on : to get mertric name for hashing
-    for (var midx in metrics) {
-      var bits = metrics[midx].toString().split(':');
+      var current_metric = packet_data;
+      var bits = current_metric.split(':');
       var key = bits.shift();
-      packet.emit('send', key, msg);
+      if (current_metric !== '') {
+        packet.emit('send', key, msg);
+      }
     }
   });
 
+  var client = dgram.createSocket(udp_version);
   // Listen for the send message, and process the metric key and msg
   packet.on('send', function(key, msg) {
     // retreives the destination for this key
@@ -66,11 +76,8 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     } else {
       var host_config = statsd_host.split(':');
 
-      var client = dgram.createSocket(udp_version);
       // Send the mesg to the backend
-      client.send(msg, 0, msg.length, host_config[1], host_config[0], function(err, bytes) {
-        client.close();
-      });
+      client.send(msg, 0, msg.length, host_config[1], host_config[0]);
     }
   });
 
