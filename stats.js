@@ -39,7 +39,7 @@ function loadBackend(config, name) {
     l.log("Loading backend: " + name, 'DEBUG');
   }
 
-  var ret = backendmod.init(startup_time, config, backendEvents);
+  var ret = backendmod.init(startup_time, config, backendEvents, l);
   if (!ret) {
     l.log("Failed to load backend: " + name);
     process.exit(1);

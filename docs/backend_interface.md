@@ -5,11 +5,12 @@ Backend modules are Node.js [modules][nodemods] that listen for a
 number of events emitted from StatsD. Each backend module should
 export the following initialization function:
 
-* `init(startup_time, config, events)`: This method is invoked from StatsD to
-  initialize the backend module. It accepts three parameters:
-  `startup_time` is the startup time of StatsD in epoch seconds,
-  `config` is the parsed config file hash, and `events` is the event
-  emitter that backends can use to listen for events.
+* `init(startup_time, config, events, logger)`: This method is invoked
+  from StatsD to initialize the backend module. It accepts four
+  parameters: `startup_time` is the startup time of StatsD in epoch
+  seconds, `config` is the parsed config file hash, `events` is the
+  event emitter that backends can use to listen for events and
+  `logger` is StatsD's configured logger for backends to use.
 
   The backend module should return `true` from init() to indicate
   success. A return of `false` indicates a failure to load the module

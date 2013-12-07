@@ -36,9 +36,9 @@ RepeaterBackend.prototype.process = function(packet, rinfo) {
   }
 };
 
-exports.init = function(startupTime, config, events) {
+exports.init = function(startupTime, config, events, logger) {
   var instance = new RepeaterBackend(startupTime, config, events);
-  l = new logger.Logger(config.log || {});
   debug = config.debug;
+  l = logger;
   return true;
 };

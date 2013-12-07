@@ -14,8 +14,7 @@
  *   graphitePort: Port to contact graphite server at.
  */
 
-var net = require('net'),
-    logger = require('../lib/logger');
+var net = require('net');
 
 // this will be instantiated to the logger
 var l;
@@ -177,9 +176,9 @@ var backend_status = function graphite_status(writeCb) {
   }
 };
 
-exports.init = function graphite_init(startup_time, config, events) {
-  l = new logger.Logger(config.log || {});
+exports.init = function graphite_init(startup_time, config, events, logger) {
   debug = config.debug;
+  l = logger;
   graphiteHost = config.graphiteHost;
   graphitePort = config.graphitePort;
   config.graphite = config.graphite || {};
