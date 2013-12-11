@@ -172,9 +172,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 4');
 
             var testtimervalue_test = function(post){
               var mykey = 'stats.timers.a_test_value.mean_90';
@@ -205,9 +205,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 1');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 4');
 
             var testavgvalue_test = function(post){
               var mykey = 'stats.a_test_value';
