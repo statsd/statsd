@@ -39,23 +39,21 @@ module.exports = {
     this.server_up = true;
     this.ok_to_die = false;
     this.exit_callback_callback = process.exit;
-    var self = this; 
-
     test_helpers.writeconfig(configfile,function(path,cb,obj){ 
-      self.path = path;
-      self.server = spawn('node',['stats.js', path]);
-      self.exit_callback = function (code) {
-        self.server_up = false;
-        if(!self.ok_to_die){
+      obj.path = path;
+      obj.server = spawn('node',['stats.js', path]);
+      obj.exit_callback = function (code) {
+        obj.server_up = false;
+        if(!obj.ok_to_die){
           console.log('node server unexpectedly quit with code: ' + code);
           process.exit(1);
         }
         else {
-          self.exit_callback_callback();
+          obj.exit_callback_callback();
         }
       };
-      self.server.on('exit', obj.exit_callback);
-      self.server.stderr.on('data', function (data) {
+      obj.server.on('exit', obj.exit_callback);
+      obj.server.stderr.on('data', function (data) {
         console.log('stderr: ' + data.toString().replace(/\n$/,''));
       });
       /*
@@ -63,7 +61,7 @@ module.exports = {
         console.log('stdout: ' + data.toString().replace(/\n$/,''));
       });
       */
-      self.server.stdout.on('data', function (data) {
+      obj.server.stdout.on('data', function (data) {
         // wait until server is up before we finish setUp
         if (data.toString().match(/server is up/)) {
           cb();
