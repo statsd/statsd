@@ -43,32 +43,44 @@ var gaugesNamespace  = [];
 var setsNamespace    = [];
 
 var graphiteStats = {};
+var graphiteConnection;
+
+var appendBackendStats = function(statString, last_flush, last_exception, flush_time, flush_length) {
+  var ts = Math.round(new Date().getTime() / 1000);
+  var ts_suffix = ' ' + ts + "\n";
+  var namespace = globalNamespace.concat(prefixStats).join(".");
+  statString += namespace + '.graphiteStats.last_exception' + globalSuffix + last_exception + ts_suffix;
+  statString += namespace + '.graphiteStats.last_flush'     + globalSuffix + last_flush     + ts_suffix;
+  statString += namespace + '.graphiteStats.flush_time'     + globalSuffix + flush_time     + ts_suffix;
+  statString += namespace + '.graphiteStats.flush_length'   + globalSuffix + flush_length   + ts_suffix;
+  return statString;  
+};
 
 var post_stats = function graphite_post_stats(statString) {
   var last_flush = graphiteStats.last_flush || 0;
   var last_exception = graphiteStats.last_exception || 0;
   var flush_time = graphiteStats.flush_time || 0;
   var flush_length = graphiteStats.flush_length || 0;
-  if (graphiteHost) {
+  if (!graphiteConnection) {
+    if (!graphiteHost) {
+   	throw new Error('could not connect to Graphite: hostname not set');
+         return;
+    }
     try {
-      var graphite = net.createConnection(graphitePort, graphiteHost);
-      graphite.addListener('error', function(connectionException){
+      graphiteConnection = net.createConnection(graphitePort, graphiteHost);
+      graphiteConnection.addListener('error', function(connectionException){
         if (debug) {
           l.log(connectionException);
         }
+        graphiteConnection = null;
       });
-      graphite.on('connect', function() {
-        var ts = Math.round(new Date().getTime() / 1000);
-        var ts_suffix = ' ' + ts + "\n";
-        var namespace = globalNamespace.concat(prefixStats).join(".");
-        statString += namespace + '.graphiteStats.last_exception' + globalSuffix + last_exception + ts_suffix;
-        statString += namespace + '.graphiteStats.last_flush'     + globalSuffix + last_flush     + ts_suffix;
-        statString += namespace + '.graphiteStats.flush_time'     + globalSuffix + flush_time     + ts_suffix;
-        statString += namespace + '.graphiteStats.flush_length'   + globalSuffix + flush_length   + ts_suffix;
-
+      graphiteConnection.addListener('end', function() {
+        graphiteConnection = null;
+      });
+      graphiteConnection.on('connect', function() {
         var starttime = Date.now();
+        statString = appendBackendStats(statString, last_flush, last_exception, flush_time, flush_length); 
         this.write(statString);
-        this.end();
         graphiteStats.flush_time = (Date.now() - starttime);
         graphiteStats.flush_length = statString.length;
         graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
@@ -79,6 +91,13 @@ var post_stats = function graphite_post_stats(statString) {
       }
       graphiteStats.last_exception = Math.round(new Date().getTime() / 1000);
     }
+  } else {
+    var starttime = Date.now();
+    statString = appendBackendStats(statString, last_flush, last_exception, flush_time, flush_length);
+    graphiteConnection.write(statString);
+    graphiteStats.flush_time = (Date.now() - starttime);
+    graphiteStats.flush_length = statString.length;
+    graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
   }
 };
 
