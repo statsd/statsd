@@ -93,8 +93,13 @@ class StatsdClient(object):
 
         >>> StatsdClient.format("example.format", 2, "T")
         {'example.format': '2|T'}
-        >>> StatsdClient.format(("example.format31", "example.format37"), "2", "T")
-        {'example.format31': '2|T', 'example.format37': '2|T'}
+        >>> formatted = StatsdClient.format(("example.format31", "example.format37"), "2", "T")
+        >>> formatted['example.format31'] == '2|T'
+        True
+        >>> formatted['example.format37'] == '2|T'
+        True
+        >>> len(formatted)
+        2
         """
         data = {}
         value = "{0}|{1}".format(value, _type)
@@ -117,8 +122,13 @@ class StatsdClient(object):
         {}
         >>> from random import seed
         >>> seed(1)
-        >>> StatsdClient.sample({"example.sample5": "5", "example.sample7": "7"}, 0.99)
-        {'example.sample5': '5|@0.99', 'example.sample7': '7|@0.99'}
+        >>> sampled = StatsdClient.sample({"example.sample5": "5", "example.sample7": "7"}, 0.99)
+        >>> len(sampled)
+        2
+        >>> sampled['example.sample5']
+        '5|@0.99'
+        >>> sampled['example.sample7']
+        '7|@0.99'
         >>> StatsdClient.sample({"example.sample5": "5", "example.sample7": "7"}, 0.01)
         {}
         """
