@@ -107,7 +107,7 @@ Contributors
 In lieu of a list of contributors, check out the commit history for the project:
 https://github.com/etsy/statsd/graphs/contributors
 
-[graphite]: http://graphite.wikidot.com
+[graphite]: http://graphite.readthedocs.org/
 [etsy]: http://www.etsy.com
 [blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
 [node]: http://nodejs.org
