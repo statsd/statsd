@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.7.1 (02/06/2014)
+- move contributing information into CONTRIBUTING.md
+- Updates winser to v0.1.6
+- examples: python: added efficiency note
+- python: examples: fixed doctests for Python 3
+- Standardized debian log locations
+- Enhancement: consume logger in graphite and repeater backends
+- Enhancement: update backend documentation
+- Enhancement: inject logger object into backend
+- Send STDOUT and STDERR to the appropriate files
+
 ## v0.7.0 (12/05/2013)
 - added cluster proxy
 - measure and graph timestamp generation lag
