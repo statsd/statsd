@@ -53,6 +53,20 @@ Optional Variables:
   prefixStats:      prefix to use for the statsd statistics data for this running instance of statsd [default: statsd]
                     applies to both legacy and new namespacing
 
+  timerAliases:     Individual aliases for the different percentile and timer metrics
+    meanPrefix:     [default 'mean_']
+    maxPrefix:      [default 'upper_']
+    minPrefix:      [default 'lower_']
+    sumPrefix:      [default 'sum_']
+    stddev:         [default 'std']
+    max:            [default 'upper']
+    min:            [default 'lower']
+    count:          [default 'count']
+    count_ps:       [default 'count_ps']
+    sum:            [default 'sum']
+    mean:           [default 'mean']
+    median:         [default 'median']
+
   console:
     prettyprint:    whether to prettyprint the console backend
                     output [true or false, default: true]
