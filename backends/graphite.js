@@ -33,6 +33,8 @@ var prefixTimer;
 var prefixGauge;
 var prefixSet;
 var globalSuffix;
+var aliasCount;
+var aliasRate;
 
 // set up namespaces
 var legacyNamespace  = true;
@@ -108,9 +110,9 @@ var flush_stats = function graphite_flush(ts, metrics) {
         statString += 'stats_counts.' + key + globalSuffix + value + ts_suffix;
       }
     } else {
-      statString += namespace.concat('rate').join(".")  + globalSuffix + valuePerSecond + ts_suffix;
+      statString += namespace.concat(aliasRate).join(".")  + globalSuffix + valuePerSecond + ts_suffix;
       if (flush_counts) {
-        statString += namespace.concat('count').join(".") + globalSuffix + value + ts_suffix;
+        statString += namespace.concat(aliasCount).join(".") + globalSuffix + value + ts_suffix;
       }
     }
 
@@ -189,6 +191,8 @@ exports.init = function graphite_init(startup_time, config, events, logger) {
   prefixSet       = config.graphite.prefixSet;
   globalSuffix    = config.graphite.globalSuffix;
   legacyNamespace = config.graphite.legacyNamespace;
+  aliasCount      = config.graphite.aliasCount;
+  aliasRate       = config.graphite.aliasRate;
 
   // set defaults for prefixes & suffix
   globalPrefix  = globalPrefix !== undefined ? globalPrefix : "stats";
@@ -196,6 +200,8 @@ exports.init = function graphite_init(startup_time, config, events, logger) {
   prefixTimer   = prefixTimer !== undefined ? prefixTimer : "timers";
   prefixGauge   = prefixGauge !== undefined ? prefixGauge : "gauges";
   prefixSet     = prefixSet !== undefined ? prefixSet : "sets";
+  aliasCount    = aliasCount !== undefined ? aliasCount : "count";
+  aliasRate     = aliasRate  !== undefined ? aliasRate  : "rate";
   legacyNamespace = legacyNamespace !== undefined ? legacyNamespace : true;
 
   // In order to unconditionally add this string, it either needs to be
