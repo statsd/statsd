@@ -20,14 +20,32 @@ module.exports = {
     test.done();
   },
 
-  counter_deltas_positive_are_not_valid: function (test) {
-    var res = helpers.is_valid_packet(['+10', 'c']);
+  counter_empty_are_invalid: function (test) {
+    var res = helpers.is_valid_packet(['', 'c']);
     test.equals(res, false);
     test.done();
   },
 
-  counter_deltas_negative_are_not_valid: function (test) {
+  counter_deltas_scientific_are_valid: function (test) {
+    var res = helpers.is_valid_packet(['+10e1', 'c']);
+    test.equals(res, true);
+    test.done();
+  },
+
+  counter_deltas_positive_are_valid: function (test) {
+    test.equals(helpers.is_valid_packet(['+10', 'c']), true);
+    test.equals(helpers.is_valid_packet(['+10e1', 'c']), true);
+    test.done();
+  },
+
+  counter_deltas_negative_are_valid: function (test) {
     var res = helpers.is_valid_packet(['-10', 'c']);
+    test.equals(res, true);
+    test.done();
+  },
+
+  gauges_empty_are_invalid: function (test) {
+    var res = helpers.is_valid_packet(['', 'g']);
     test.equals(res, false);
     test.done();
   },
@@ -53,6 +71,26 @@ module.exports = {
   sets_numeric_are_valid: function (test) {
     var res = helpers.is_valid_packet(['123456', 's']);
     test.equals(res, true);
+    test.done();
+  },
+
+  sampling_is_invalid: function (test) {
+    test.equals(helpers.is_valid_packet(['345345', 'ms', '']), false);
+    test.equals(helpers.is_valid_packet(['345345', 'ms', 'b']), false);
+    test.equals(helpers.is_valid_packet(['345345', 'ms', 'blah']), false);
+    test.equals(helpers.is_valid_packet(['345345', 'ms', '@']), false);
+    test.equals(helpers.is_valid_packet(['345345', 'ms', '@blah']), false);
+    test.equals(helpers.is_valid_packet(['345345', 'ms', '@.']), false);
+    test.equals(helpers.is_valid_packet(['345345', 'ms', '@.1.']), false);
+    test.equals(helpers.is_valid_packet(['345345', 'ms', '@.1.2.3']), false);
+    test.done();
+  },
+
+  sampling_is_valid: function (test) {
+    test.equals(helpers.is_valid_packet(['345345', 'ms', '@2']), true);
+    test.equals(helpers.is_valid_packet(['345345', 'ms', '@.2']), true);
+    test.equals(helpers.is_valid_packet(['345345', 'ms', '@0.2']), true);
+    test.equals(helpers.is_valid_packet(['345345', 'ms', '@2e-1']), true);
     test.done();
   },
 
