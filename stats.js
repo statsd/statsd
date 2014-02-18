@@ -168,7 +168,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
     var udp_version = config.address_ipv6 ? 'udp6' : 'udp4';
-    server = dgram.createSocket(udp_version, function (msg, rinfo) {
+    function process_udp_message(msg, rinfo) {
       backendEvents.emit('packet', msg, rinfo);
       counters[packets_received]++;
       var packet_data = msg.toString();
@@ -244,7 +244,16 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       }
 
       stats.messages.last_msg_seen = Math.round(new Date().getTime() / 1000);
-    });
+    }
+    server = dgram.createSocket(udp_version, process_udp_message);
+
+    if( config.broadcast_port) {
+      multicastServer= dgram.createSocket(udp_version, process_udp_message);
+      multicastServer.bind( config.broadcast_port, function(err) {
+        multicastServer.setBroadcast(true);
+      });
+    }
+
 
     mgmtServer = net.createServer(function(stream) {
       stream.setEncoding('ascii');

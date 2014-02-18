@@ -25,6 +25,7 @@ Optional Variables:
   mgmt_address:     address to run the management TCP interface on
                     [default: 0.0.0.0]
   mgmt_port:        port to run the management TCP interface on [default: 8126]
+  broadcast_port:   udp broadcast port to additionally listen to.
   title :           Allows for overriding the process title. [default: statsd]
                     if set to false, will not override the process title and let the OS set it.
                     The length of the title has to be less than or equal to the binary name + cli arguments
