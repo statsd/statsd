@@ -127,6 +127,23 @@ function flushMetrics() {
     }
   });
 
+  // filter the timers and timer_counter by the regexes provided in the config
+  if (conf.regex && (conf.regex !== null || conf.regex.length > 0)) {
+    var regex;
+    for (var key in metrics.timers) {
+      for (var _i = 0,  _len = conf.regex.length; _i < _len; _i++) {
+        regex = config.regex[_i];
+        if (regex.test(metrics.timers[key])){
+          break;
+        }
+        if (_len == _i){
+          delete metrics.timers[key];
+          delete metrics.timer_counters[key];
+        }
+      }
+    }
+  }
+
   pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(metrics) {
     backendEvents.emit('flush', time_stamp, metrics);
   });
