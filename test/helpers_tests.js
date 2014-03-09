@@ -44,21 +44,50 @@ module.exports = {
     test.done();
   },
 
+  counter_deltas_positive_are_valid: function (test) {
+    test.equals(helpers.is_valid_packet(['+10', 'c']), true);
+    test.equals(helpers.is_valid_packet(['+10e1', 'c']), true);
+    test.done();
+  },
+
+  times_negative_are_invalid: function (test) {
+    test.equals(helpers.is_valid_packet(['-1', 'ms']), false);
+    test.equals(helpers.is_valid_packet(['-1.0', 'ms']), false);
+    test.equals(helpers.is_valid_packet(['-1', 'ms']), false);
+    test.done();
+  },
+
+  times_positive_are_valid: function (test) {
+    test.equals(helpers.is_valid_packet(['+1', 'ms']), true);
+    test.equals(helpers.is_valid_packet(['1.0', 'ms']), true);
+    test.equals(helpers.is_valid_packet(['+1.0', 'ms']), true);
+    test.done();
+  },
+
+  times_zero_are_valid: function (test) {
+    test.equals(helpers.is_valid_packet(['+0.0', 'ms']), true);
+    test.equals(helpers.is_valid_packet(['-0.0', 'ms']), true);
+    test.equals(helpers.is_valid_packet(['0.0', 'ms']), true);
+    test.equals(helpers.is_valid_packet(['0', 'ms']), true);
+    test.done();
+  },
+
   gauges_empty_are_invalid: function (test) {
-    var res = helpers.is_valid_packet(['', 'g']);
-    test.equals(res, false);
+    test.equals(helpers.is_valid_packet(['', 'g']), false);
     test.done();
   },
 
   gauges_delta_positive_are_valid: function (test) {
-    var res = helpers.is_valid_packet(['+10', 'g']);
-    test.equals(res, true);
+    test.equals(helpers.is_valid_packet(['10', 'g']), true);
+    test.equals(helpers.is_valid_packet(['+10', 'g']), true);
+    test.equals(helpers.is_valid_packet(['10.0', 'g']), true);
+    test.equals(helpers.is_valid_packet(['+10.0', 'g']), true);
     test.done();
   },
 
   gauges_delta_negative_are_valid: function (test) {
-    var res = helpers.is_valid_packet(['-10', 'g']);
-    test.equals(res, true);
+    test.equals(helpers.is_valid_packet(['-10', 'g']), true);
+    test.equals(helpers.is_valid_packet(['-10.0', 'g']), true);
     test.done();
   },
 
