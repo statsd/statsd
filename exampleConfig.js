@@ -17,7 +17,9 @@ Optional Variables:
 
   backends:         an array of backends to load. Each backend must exist
                     by name in the directory backends/. If not specified,
-                    the default graphite backend will be loaded.
+                    the default graphite backend will be loaded. 
+                    * example for console and graphite:
+                    [ "./backends/console", "./backends/graphite" ]
   debug:            debug flag [default: false]
   address:          address to listen on over UDP [default: 0.0.0.0]
   address_ipv6:     defines if the address is an IPv4 or IPv6 address [true or false, default: false]
