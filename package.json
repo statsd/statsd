@@ -14,6 +14,7 @@
   },
   "version": "0.7.1",
   "dependencies": {
+    "q": "~1.0.0"
   },
   "devDependencies": {
     "nodeunit": "0.7.x",
@@ -21,12 +22,14 @@
     "temp": "0.4.x"
   },
   "optionalDependencies": {
-    "node-syslog":"1.1.7",
-    "hashring":"1.0.1",
+    "node-syslog": "1.1.7",
+    "hashring": "1.0.1",
     "winser": "=0.1.6"
   },
   "engines": {
-    "node" : ">=0.8"
+    "node": ">=0.8"
   },
-  "bin": { "statsd": "./bin/statsd" }
+  "bin": {
+    "statsd": "./bin/statsd"
+  }
 }

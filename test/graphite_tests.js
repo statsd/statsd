@@ -76,6 +76,7 @@ module.exports = {
                ,  batch: 200 \n\
                ,  flushInterval: " + this.myflush + " \n\
                ,  percentThreshold: 90\n\
+               ,  regex: [ /^allo/ ]\n\
                ,  histogram: [ { metric: \"a_test_value\", bins: [1000] } ]\n\
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
