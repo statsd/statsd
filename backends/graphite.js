@@ -66,6 +66,10 @@ var post_stats = function graphite_post_stats(statString) {
         statString += namespace + '.graphiteStats.flush_time'     + globalSuffix + flush_time     + ts_suffix;
         statString += namespace + '.graphiteStats.flush_length'   + globalSuffix + flush_length   + ts_suffix;
 
+        // Apply the globalPrefix in legacyNamespace mode.
+        if(legacyNamespace && globalPrefix.length > 0)
+           statString = globalPrefix + "." + statString.slice(0, -1).replace(/\n/g, "\n" + globalPrefix + ".") + "\n";
+
         var starttime = Date.now();
         this.write(statString);
         this.end();
