@@ -99,6 +99,8 @@ Optional Variables:
                      [ { metric: 'foo', bins: [] },
                        { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
 
+  automaticConfigReload: whether to watch the config file and reload it when it
+                         changes. The default is true. Set this to false to disable.
 */
 {
   graphitePort: 2003
