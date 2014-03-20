@@ -1,3 +1,14 @@
+statsd (0.7.1-hostedgraphite3) unstable; urgency=low
+
+  * Respect command line arguments when setting the process title.
+
+ -- Metricfire Package Maintainer <packaging@metricfire.com>  Thu, 20 Mar 2014 13:00:00 +0100
+statsd (0.7.1-hostedgraphite2) unstable; urgency=low
+
+  * Adding a config option to disable automatic config reloading
+  * Removing upstart job.
+
+ -- Metricfire Package Maintainer <packaging@metricfire.com>  Thu, 20 Mar 2014 12:20:00 +0100
 statsd (0.7.1-hostedgraphite1) unstable; urgency=low
 
   * Patching graphite backend to support applying the globalPrefix
