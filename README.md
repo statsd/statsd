@@ -43,6 +43,17 @@ Installation and Configuration
  * Start the Daemon:
 
     node stats.js /path/to/config
+    
+Usage
+-------
+The basic line protocol expects metrics to be sent via UDP in the format:
+
+    <metricname>:<value>|<type>
+
+So the simplest way to send in metrics from your command line if you have
+StatsD running on localhost would be:
+
+    echo "foo:1|c" | nc -u 127.0.0.1 8125
 
 More Specific Topics
 --------
