@@ -45,7 +45,7 @@ Optional Variables:
     interval:       how often to log frequent keys [ms, default: 0]
     percent:        percentage of frequent keys to log [%, default: 100]
     log:            location of log file for frequent keys [default: STDOUT]
-  deleteIdleStats:  don't send values to graphite for inactive counters, sets, gauges, or timeers
+  deleteIdleStats:  don't send values to graphite for inactive counters, sets, gauges, or timers
                     as opposed to sending 0.  For gauges, this unsets the gauge (instead of sending
                     the previous value). Can be individually overriden. [default: false]
   deleteGauges  :   don't send values to graphite for inactive gauges, as opposed to sending the previous value [default: false]
