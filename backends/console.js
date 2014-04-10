@@ -1,19 +1,21 @@
 /*jshint node:true, laxcomma:true */
 
 var util = require('util');
+var lastFlush, lastException, config;
 
-function ConsoleBackend(startupTime, config, emitter){
-  var self = this;
-  this.lastFlush = startupTime;
-  this.lastException = startupTime;
-  this.config = config.console || {};
+exports.init = function(startupTime, initConfig, emitter) {
 
-  // attach
-  emitter.on('flush', function(timestamp, metrics) { self.flush(timestamp, metrics); });
-  emitter.on('status', function(callback) { self.status(callback); });
-}
+  lastFlush = startupTime;
+  lastException = startupTime;
+  config = initConfig.console || {};
 
-ConsoleBackend.prototype.flush = function(timestamp, metrics) {
+  emitter.on('flush', exports.flush);
+  emitter.on('status', exports.status);
+
+  return true;
+};
+
+exports.flush = function(timestamp, metrics) {
   console.log('Flushing stats at', new Date(timestamp * 1000).toString());
 
   var out = {
@@ -22,31 +24,24 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
     gauges: metrics.gauges,
     timer_data: metrics.timer_data,
     counter_rates: metrics.counter_rates,
-    sets: function (vals) {
-      var ret = {};
-      for (var val in vals) {
-        ret[val] = vals[val].values();
-      }
-      return ret;
-    }(metrics.sets),
+    sets: map(metrics.sets, function (key, val) {
+      return val.values();
+    }),
     pctThreshold: metrics.pctThreshold
   };
 
-  if(this.config.prettyprint) {
-    console.log(util.inspect(out, false, 5, true));
-  } else {
-    console.log(out);
-  }
-
+  console.log(config.prettyprint ? util.inspect(out, false, 5, true) : out);
 };
 
-ConsoleBackend.prototype.status = function(write) {
-  ['lastFlush', 'lastException'].forEach(function(key) {
-    write(null, 'console', key, this[key]);
-  }, this);
+exports.status = function(write) {
+  write(null, 'console', 'lastFlush', lastFlush);
+  write(null, 'console', 'lastException', lastException);
 };
 
-exports.init = function(startupTime, config, events) {
-  var instance = new ConsoleBackend(startupTime, config, events);
-  return true;
-};
+//map helper
+function map(obj, fn) {
+  var arr = [];
+  for(var key in obj)
+    arr.push(fn(key, obj[key]));
+  return arr;
+}
