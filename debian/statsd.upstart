@@ -15,9 +15,11 @@ setgid _statsd
 respawn
 respawn limit 10 5
 
-script
-    NODE_BIN=$(which nodejs||which node)
-    chdir /usr/share/statsd
-    exec $NODE_BIN stats.js /etc/statsd/localConfig.js
+chdir /usr/share/statsd
+
+pre-start script
+    NODE_BIN=$(which nodejs || which node)
+    [ -n $NODE_BIN ] || { stop; exit 0; }
 end script
 
+exec $NODE_BIN stats.js /etc/statsd/localConfig.js
