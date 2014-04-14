@@ -15,12 +15,12 @@ To define retention and downsampling which match your needs, edit Graphite's con
 
     [stats]
     pattern = ^stats.*
-    retentions = 10s:6h,1min:7d,10min:5y
+    retentions = 10s:6h,1min:6d,10min:1800d
 
 This translates to: for all metrics starting with 'stats' (i.e. all metrics sent by statsd), capture:
 
 * 6 hours of 10 second data (what we consider "near-realtime")
-* 1 week of 1 minute data
+* 6 days of 1 minute data
 * 5 years of 10 minute data
 
 These settings have been a good tradeoff so far between size-of-file (database files are fixed size) and data we care about. Each "stats" database file is about 3.2 megs with these retentions.
