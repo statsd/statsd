@@ -25,14 +25,14 @@ module.exports = {
   counters_has_stats_count: function(test) {
     test.expect(1);
     this.metrics.counters['a'] = 2;
-    pm.process_metrics(this.metrics, 1000, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 1000}, function(){});
     test.equal(2, this.metrics.counters['a']);
     test.done();
   },
   counters_has_correct_rate: function(test) {
     test.expect(1);
     this.metrics.counters['a'] = 2;
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     test.equal(20, this.metrics.counter_rates['a']);
     test.done();
   },
@@ -40,7 +40,7 @@ module.exports = {
     test.expect(1);
     this.metrics.timers['a'] = [];
     this.metrics.timer_counters['a'] = 0;
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 1000}, function(){});
     //potentially a cleaner way to check this
     test.equal(undefined, this.metrics.counter_rates['a']);
     test.done();
@@ -49,7 +49,7 @@ module.exports = {
     test.expect(8);
     this.metrics.timers['a'] = [100];
     this.metrics.timer_counters['a'] = 1;
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(0, timer_data.std);
     test.equal(100, timer_data.upper);
@@ -65,7 +65,7 @@ module.exports = {
     test.expect(8);
     this.metrics.timers['a'] = [100, 200, 300];
     this.metrics.timer_counters['a'] = 3;
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(81.64965809277261, timer_data.std);
     test.equal(300, timer_data.upper);
@@ -82,7 +82,7 @@ module.exports = {
     this.metrics.timers['a'] = [100];
     this.metrics.timer_counters['a'] = 1;
     this.metrics.pctThreshold = [90];
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(100, timer_data.mean_90);
     test.equal(100, timer_data.upper_90);
@@ -94,7 +94,7 @@ module.exports = {
     this.metrics.timers['a'] = [100];
     this.metrics.timer_counters['a'] = 1;
     this.metrics.pctThreshold = [90, 80];
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(100, timer_data.mean_90);
     test.equal(100, timer_data.upper_90);
@@ -109,7 +109,7 @@ module.exports = {
     this.metrics.timers['a'] = [100, 200, 300];
     this.metrics.timer_counters['a'] = 3;
     this.metrics.pctThreshold = [90];
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(200, timer_data.mean_90);
     test.equal(300, timer_data.upper_90);
@@ -121,7 +121,7 @@ module.exports = {
     this.metrics.timers['a'] = [100, 200, 300];
     this.metrics.timer_counters['a'] = 3;
     this.metrics.pctThreshold = [90, 80];
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(200, timer_data.mean_90);
     test.equal(300, timer_data.upper_90);
@@ -136,7 +136,7 @@ module.exports = {
     this.metrics.timers['a'] = [100, 200, 300];
     this.metrics.timer_counters['a'] = 50;
     this.metrics.pctThreshold = [90, 80];
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(50, timer_data.count);
     test.equal(500, timer_data.count_ps);
@@ -160,7 +160,7 @@ module.exports = {
                                { metric: 'abcd', bins: [ 1, 5, 'inf'] },
                                { metric: 'abc', bins: [ 1, 2.21, 'inf'] },
                                { metric: 'a', bins: [ 1, 2] } ];
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     timer_data = this.metrics.timer_data;
     // nothing matches the 'abcd' config, so nothing has bin_5
     test.equal(undefined, timer_data['a']['histogram']['bin_5']);
@@ -190,7 +190,7 @@ module.exports = {
     test.expect(3);
     this.metrics.timers['a'] = [100];
     this.metrics.pctThreshold = [-10];
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(100, timer_data.mean_top10);
     test.equal(100, timer_data.lower_top10);
@@ -201,7 +201,7 @@ module.exports = {
     test.expect(3);
     this.metrics.timers['a'] = [10, 10, 10, 10, 10, 10, 10, 10, 100, 200];
     this.metrics.pctThreshold = [-20];
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(150, timer_data.mean_top20);
     test.equal(100, timer_data.lower_top20);
@@ -210,7 +210,7 @@ module.exports = {
   },
     statsd_metrics_exist: function(test) {
     test.expect(1);
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     statsd_metrics = this.metrics.statsd_metrics;
     test.notEqual(undefined, statsd_metrics["processing_time"]);
     test.done();
@@ -218,7 +218,7 @@ module.exports = {
     timers_multiple_times_even: function(test) {
     test.expect(1);
     this.metrics.timers['a'] = [300, 200, 400, 100];
-    pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, {flushInterval: 100}, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(250, timer_data.median);
     test.done();

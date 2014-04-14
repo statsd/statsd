@@ -55,6 +55,21 @@ Optional Variables:
   prefixStats:      prefix to use for the statsd statistics data for this running instance of statsd [default: statsd]
                     applies to both legacy and new namespacing
 
+  timerAliases:     Individual aliases for the different percentile and timer metrics
+    meanPrefix:     [default 'mean_']
+    maxPrefix:      [default 'upper_']
+    minPrefix:      [default 'lower_']
+    sumPrefix:      [default 'sum_']
+    stddev:         [default 'std']
+    max:            [default 'upper']
+    min:            [default 'lower']
+    count:          [default 'count']
+    count_ps:       [default 'count_ps']
+    sum:            [default 'sum']
+    mean:           [default 'mean']
+    median:         [default 'median']
+
+
   console:
     prettyprint:    whether to prettyprint the console backend
                     output [true or false, default: true]
@@ -74,6 +89,8 @@ Optional Variables:
     globalSuffix:     global suffix to use for sending stats to graphite [default: ""]
                       This is particularly useful for sending per host stats by
                       settings this value to: require('os').hostname().split('.')[0]
+    aliasCount:       Alias the metric extension for value [default 'count']
+    aliasRate:        Alias the metric for value per second [default 'rate']
 
   repeater:         an array of hashes of the for host: and port:
                     that details other statsd servers to which the received
