@@ -99,6 +99,11 @@ Optional Variables:
                      [ { metric: 'foo', bins: [] },
                        { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
 
+  regex:            an array of regexes which are run against a metrics.gauge and
+                    only if none matches it doesn't return the given metric
+                    to the client:
+                    e.g. [ /^a/i, /^c/i ]
+
 */
 {
   graphitePort: 2003
