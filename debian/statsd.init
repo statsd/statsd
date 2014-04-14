@@ -48,6 +48,9 @@ then
   chown $USER /var/run/$NAME
 fi
 
+# Create LOGDIR on runtime
+mkdir -p /var/log/$NAME
+
 #
 # Function that starts the daemon/service
 #
