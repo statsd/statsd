@@ -17,7 +17,7 @@ Optional Variables:
 
   backends:         an array of backends to load. Each backend must exist
                     by name in the directory backends/. If not specified,
-                    the default graphite backend will be loaded. 
+                    the default graphite backend will be loaded.
                     * example for console and graphite:
                     [ "./backends/console", "./backends/graphite" ]
   debug:            debug flag [default: false]
@@ -98,6 +98,11 @@ Optional Variables:
                       equal class interval and catchall for outliers:
                      [ { metric: 'foo', bins: [] },
                        { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
+
+  whitelist:      an array of regexes which are run against a metrics.gauge and
+                  only if none matches it doesn't return the given metric
+                  to the client:
+                  e.g. [ /^a/i, /^c/i ]
 
   automaticConfigReload: whether to watch the config file and reload it when it
                          changes. The default is true. Set this to false to disable.
