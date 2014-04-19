@@ -27,7 +27,7 @@ Optional Variables:
   mgmt_address:     address to run the management TCP interface on
                     [default: 0.0.0.0]
   mgmt_port:        port to run the management TCP interface on [default: 8126]
-  title :           Allows for overriding the process title. [default: statsd]
+  title:            Allows for overriding the process title. [default: statsd]
                     if set to false, will not override the process title and let the OS set it.
                     The length of the title has to be less than or equal to the binary name + cli arguments
                     NOTE: This does not work on Mac's with node versions prior to v0.10
@@ -48,7 +48,7 @@ Optional Variables:
   deleteIdleStats:  don't send values to graphite for inactive counters, sets, gauges, or timers
                     as opposed to sending 0.  For gauges, this unsets the gauge (instead of sending
                     the previous value). Can be individually overriden. [default: false]
-  deleteGauges  :   don't send values to graphite for inactive gauges, as opposed to sending the previous value [default: false]
+  deleteGauges:     don't send values to graphite for inactive gauges, as opposed to sending the previous value [default: false]
   deleteTimers:     don't send values to graphite for inactive timers, as opposed to sending 0 [default: false]
   deleteSets:       don't send values to graphite for inactive sets, as opposed to sending 0 [default: false]
   deleteCounters:   don't send values to graphite for inactive counters, as opposed to sending 0 [default: false]
