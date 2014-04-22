@@ -30,7 +30,7 @@ Graphite stores each metric in its own database file, and the retentions take ef
 
 #### Correlation with statsd's flush interval:
 
-In the case of the above example, what would happen if you flush from statsd any faster then every 10 seconds? in that case, multiple values for the same metric may reach Graphite at any given 10-second timespan, and only the last value would take hold and be persisted - so your data would immediately be partially lost. 
+In the case of the above example, what would happen if you flush from statsd any faster than every 10 seconds? in that case, multiple values for the same metric may reach Graphite at any given 10-second timespan, and only the last value would take hold and be persisted - so your data would immediately be partially lost. 
 
 To fix that, simply ensure your flush interval is at least as long as the highest-resolution retention. However, a long interval may cause other unfortunate mishaps, so keep reading - it pays to understand what's really going on.
 
