@@ -34,7 +34,7 @@ Optional Variables:
 
   healthStatus:     default health status to be returned and statsd process starts ['up' or 'down', default: 'up']
   dumpMessages:     log all incoming messages
-  flushInterval:    interval (in ms) to flush to Graphite
+  flushInterval:    interval (in ms) to flush to Graphite [default: 10000]
   percentThreshold: for time information, calculate the Nth percentile(s)
                     (can be a single value or list of floating-point values)
                     negative values mean to use "top" Nth percentile(s) values
