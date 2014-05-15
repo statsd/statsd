@@ -1,9 +1,4 @@
 /*
-
-Required Variables:
-
-  port:             StatsD listening port [default: 8125]
-
 Graphite Required Variables:
 
 (Leave these unset to avoid sending stats to Graphite.
