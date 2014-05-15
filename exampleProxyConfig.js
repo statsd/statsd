@@ -18,13 +18,13 @@ Optional Variables:
 */
 {
 nodes: [
-{host: '127.0.0.1', port: 8129, adminport: 8126},
 {host: '127.0.0.1', port: 8127, adminport: 8128},
-{host: '127.0.0.1', port: 8129, adminport: 8130}
+{host: '127.0.0.1', port: 8129, adminport: 8130},
+{host: '127.0.0.1', port: 8131, adminport: 8132}
 ],
 udp_version: 'udp4',
 host:  '0.0.0.0',
-port: '8125',
+port: 8125,
 checkInterval: 1000,
 cacheSize: 10000
 }
