@@ -22,4 +22,7 @@ pre-start script
     [ -n $NODE_BIN ] || { stop; exit 0; }
 end script
 
-exec $NODE_BIN stats.js /etc/statsd/localConfig.js
+script
+    NODE_BIN=$(which nodejs || which node)
+    $NODE_BIN stats.js /etc/statsd/localConfig.js
+end script
