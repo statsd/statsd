@@ -94,7 +94,7 @@ module.exports = {
 
     writeconfig(configfile,function(path,cb,obj){
       obj.path = path;
-      obj.server = spawn('node',['stats.js', path]);
+      obj.server = spawn('nodejs',['stats.js', path]);
       obj.exit_callback = function (code) {
         obj.server_up = false;
         if(!obj.ok_to_die){
@@ -358,5 +358,22 @@ module.exports = {
         });
       });
     });
+  },
+
+  metric_names_are_sanitized: function(test) {
+    var me = this;
+    this.acceptor.on('connection', function(c) {
+      var body = '';
+      c.on('data', function(data) {
+        body += data;
+
+        test.ok(body.indexOf('fo-o') !== -1, "Did not map 'fo/o' => 'fo-o'");
+        test.ok(body.indexOf('b_ar') !== -1, "Did not map 'b ar' => 'b_ar'");
+        test.ok(body.indexOf('foobar') !== -1, "Did not map 'foo+bar' => 'foobar'");
+        test.done();
+      })
+    })
+    statsd_send('fo/o:250|c\nb ar:250|c\nfoo+bar:250|c',me.sock,'127.0.0.1',8125,function(){
+    })
   }
 }

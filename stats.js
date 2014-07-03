@@ -186,10 +186,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           l.log(metrics[midx].toString());
         }
         var bits = metrics[midx].toString().split(':');
-        var key = bits.shift()
-                      .replace(/\s+/g, '_')
-                      .replace(/\//g, '-')
-                      .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+        var key = bits.shift();
 
         if (keyFlushInterval > 0) {
           if (! keyCounter[key]) {
