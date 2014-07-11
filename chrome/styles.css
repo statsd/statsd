@@ -1,0 +1,13 @@
+html, body {
+  font-family: Helvetica, Arial;
+  color: #444;
+}
+
+h1 {
+  margin: 0 0 0.3em 0;
+}
+
+p {
+  color: #888;
+  margin: 0 0 1em 0;
+}
