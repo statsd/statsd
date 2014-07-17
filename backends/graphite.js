@@ -1,4 +1,5 @@
 /*jshint node:true, laxcomma:true */
+'use strict';
 
 /*
  * Flush stats to graphite (http://graphite.wikidot.com/).
@@ -15,6 +16,7 @@
  */
 
 var net = require('net');
+var BackendBase = require('./base');
 
 // this will be instantiated to the logger
 var l;
@@ -43,6 +45,11 @@ var gaugesNamespace  = [];
 var setsNamespace    = [];
 
 var graphiteStats = {};
+
+function GraphiteBackend(startupTime, config, emitter) {
+	BackendBase.call(this, startupTime, config, emitter);
+}
+require('util').inherits(GraphiteBackend, BackendBase);
 
 var post_stats = function graphite_post_stats(statString) {
   var last_flush = graphiteStats.last_flush || 0;
@@ -82,7 +89,7 @@ var post_stats = function graphite_post_stats(statString) {
   }
 };
 
-var flush_stats = function graphite_flush(ts, metrics) {
+var flush_stats = GraphiteBackend.prototype.onFlushEvent = function graphite_flush(ts, metrics) {
   var ts_suffix = ' ' + ts + "\n";
   var starttime = Date.now();
   var statString = '';
@@ -170,7 +177,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 };
 
-var backend_status = function graphite_status(writeCb) {
+var backend_status = GraphiteBackend.prototype.onStatusEvent = function graphite_status(writeCb) {
   for (var stat in graphiteStats) {
     writeCb(null, 'graphite', stat, graphiteStats[stat]);
   }
@@ -241,8 +248,6 @@ exports.init = function graphite_init(startup_time, config, events, logger) {
 
   flush_counts = typeof(config.flush_counts) === "undefined" ? true : config.flush_counts;
 
-  events.on('flush', flush_stats);
-  events.on('status', backend_status);
-
+  new GraphiteBackend(startup_time, config, events);
   return true;
 };

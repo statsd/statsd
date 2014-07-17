@@ -1,19 +1,16 @@
 /*jshint node:true, laxcomma:true */
+'use strict';
 
 var util = require('util');
+var BackendBase = require('./base');
 
-function ConsoleBackend(startupTime, config, emitter){
-  var self = this;
-  this.lastFlush = startupTime;
-  this.lastException = startupTime;
-  this.config = config.console || {};
 
-  // attach
-  emitter.on('flush', function(timestamp, metrics) { self.flush(timestamp, metrics); });
-  emitter.on('status', function(callback) { self.status(callback); });
+function ConsoleBackend(startupTime, config, emitter) {
+	BackendBase.call(this, startupTime, config, emitter);
 }
+util.inherits(ConsoleBackend, BackendBase);
 
-ConsoleBackend.prototype.flush = function(timestamp, metrics) {
+ConsoleBackend.prototype.onFlushEvent = function(timestamp, metrics) {
   console.log('Flushing stats at ', new Date(timestamp * 1000).toString());
 
   var out = {
@@ -40,13 +37,13 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
 
 };
 
-ConsoleBackend.prototype.status = function(write) {
+ConsoleBackend.prototype.onStatusEvent = function(write) {
   ['lastFlush', 'lastException'].forEach(function(key) {
     write(null, 'console', key, this[key]);
   }, this);
 };
 
 exports.init = function(startupTime, config, events) {
-  var instance = new ConsoleBackend(startupTime, config, events);
+  new ConsoleBackend(startupTime, config, events);
   return true;
 };
