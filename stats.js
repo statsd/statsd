@@ -35,8 +35,13 @@ var prefixStats = '';
 var bad_lines_seen = 0;
 var packets_received = 0;
 
+
+function StatsD() {
+
+}
+
 // Load and init the backend from the backends/ directory.
-function loadBackend(config, name) {
+var loadBackend = StatsD.prototype.loadBackend = function loadBackend(config, name) {
   var backendmod = require(name);
 
   if (config.debug) {
@@ -48,13 +53,13 @@ function loadBackend(config, name) {
     l.log('Failed to load backend: ' + name);
     process.exit(1);
   }
-}
+};
 
 // global for conf
 var conf;
 
 // Flush metrics to each backend.
-function flushMetrics() {
+var flushMetrics = StatsD.prototype.flushMetrics = function flushMetrics() {
   var time_stamp = Math.round(new Date().getTime() / 1000);
   if (old_timestamp > 0) {
     gauges[timestamp_lag_namespace] = (time_stamp - old_timestamp - (Number(conf.flushInterval)/1000));
@@ -135,7 +140,7 @@ function flushMetrics() {
     backendEvents.emit('flush', time_stamp, metrics);
   });
 
-}
+};
 
 var stats = {
   messages: {
@@ -147,6 +152,8 @@ var stats = {
 // Global for the logger
 var l;
 
+
+StatsD.prototype.configFile = function() {
 config.configFile(process.argv[2], function (config, oldConfig) {
   conf = config;
 
@@ -420,7 +427,11 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     }
   }
 });
+};
 
 process.on('exit', function () {
   flushMetrics();
 });
+
+var statsd = new StatsD();
+statsd.configFile();
