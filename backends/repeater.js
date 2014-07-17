@@ -1,15 +1,17 @@
 /*jshint node:true, laxcomma:true */
+'use strict';
 
 var util = require('util')
-  , dgram = require('dgram')
-  , logger = require('../lib/logger');
+  , dgram = require('dgram');
+
+var BackendBase = require('./base');
 
 var l;
 var debug;
 
-function RepeaterBackend(startupTime, config, emitter){
-  var self = this;
-  this.config = config.repeater || [];
+function RepeaterBackend(startupTime, config, emitter) {
+	BackendBase.call(this, startupTime, config.repeater || [], emitter);
+
   this.sock = (config.repeaterProtocol == 'udp6') ?
         dgram.createSocket('udp6') :
         dgram.createSocket('udp4');
@@ -19,16 +21,15 @@ function RepeaterBackend(startupTime, config, emitter){
       l.log('Repeater error: ' + err);
     }
   });
-  // attach
-  emitter.on('packet', function(packet, rinfo) { self.process(packet, rinfo); });
 }
+util.inherits(RepeaterBackend, BackendBase);
 
-RepeaterBackend.prototype.process = function(packet, rinfo) {
+RepeaterBackend.prototype.onPacketEvent = function(packet) {
   var self = this;
-  hosts = self.config;
+  var hosts = self.config;
   for(var i=0; i<hosts.length; i++) {
     self.sock.send(packet,0,packet.length,hosts[i].port,hosts[i].host,
-                   function(err,bytes) {
+                   function(err) {
       if (err && debug) {
         l.log(err);
       }
@@ -37,7 +38,7 @@ RepeaterBackend.prototype.process = function(packet, rinfo) {
 };
 
 exports.init = function(startupTime, config, events, logger) {
-  var instance = new RepeaterBackend(startupTime, config, events);
+  new RepeaterBackend(startupTime, config, events);
   debug = config.debug;
   l = logger;
   return true;

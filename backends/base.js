@@ -12,6 +12,9 @@ function BackendBase(startupTime, config, emitter) {
 	if (this.onStatusEvent) {
 		emitter.on('status', this.onStatusEvent.bind(this));
 	}
+	if (this.onPacketEvent) {
+		emitter.on('packet', this.onPacketEvent.bind(this));
+	}
 }
 
 module.exports = BackendBase;
