@@ -30,6 +30,9 @@ var backendEvents = new events.EventEmitter();
 var healthStatus = config.healthStatus || 'up';
 var old_timestamp = 0;
 var timestamp_lag_namespace;
+var prefixStats = '';
+var bad_lines_seen = 0;
+var packets_received = 0;
 
 // Load and init the backend from the backends/ directory.
 function loadBackend(config, name) {
@@ -152,7 +155,9 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
   // setup config for stats prefix
   prefixStats = config.prefixStats;
-  prefixStats = prefixStats !== undefined ? prefixStats : "statsd";
+  prefixStats = prefixStats !== undefined ? prefixStats : 'statsd';
+  conf.prefixStats = prefixStats;
+
   //setup the names for the stats stored in counters{}
   bad_lines_seen   = prefixStats + ".bad_lines_seen";
   packets_received = prefixStats + ".packets_received";
@@ -376,7 +381,6 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       // The default backend is graphite
       loadBackend(config, './backends/graphite');
     }
-
     // Setup the flush timer
     var flushInt = setInterval(flushMetrics, flushInterval);
 

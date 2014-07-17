@@ -79,6 +79,7 @@ function GraphiteBackend(startupTime, config, emitter, logger) {
       this.setsNamespace = ['stats', 'sets'];
   }
 
+  this.prefixStats = config.prefixStats;
   this.graphiteStats = {
   	last_flush: startupTime,
   	last_exception: startupTime,
@@ -107,7 +108,7 @@ BackendBase.prototype.postToGraphite = function graphite_post_stats(statString) 
       graphite.on('connect', function() {
         var ts = Math.round(new Date().getTime() / 1000);
         var ts_suffix = ' ' + ts + '\n';
-        var namespace = self.globalNamespace.concat(prefixStats).join('.');
+        var namespace = self.globalNamespace.concat(self.config.prefixStats).join('.');
         statString += namespace + '.graphiteStats.last_exception' + self.config.globalSuffix + last_exception + ts_suffix;
         statString += namespace + '.graphiteStats.last_flush'     + self.config.globalSuffix + last_flush     + ts_suffix;
         statString += namespace + '.graphiteStats.flush_time'     + self.config.globalSuffix + flush_time     + ts_suffix;
@@ -194,12 +195,12 @@ GraphiteBackend.prototype.onFlushEvent = function graphite_flush(ts, metrics) {
     numStats += 1;
   }
 
-  var namespace = this.globalNamespace.concat(prefixStats);
+  var namespace = this.globalNamespace.concat(this.config.prefixStats);
   if (this.config.legacyNamespace === true) {
-    statString += prefixStats + '.numStats' + this.config.globalSuffix + numStats + ts_suffix;
-    statString += 'stats.' + prefixStats + '.graphiteStats.calculationtime' + this.config.globalSuffix + (Date.now() - starttime) + ts_suffix;
+    statString += this.config.prefixStats + '.numStats' + this.config.globalSuffix + numStats + ts_suffix;
+    statString += 'stats.' + this.config.prefixStats + '.graphiteStats.calculationtime' + this.config.globalSuffix + (Date.now() - starttime) + ts_suffix;
     for (key in statsd_metrics) {
-      statString += 'stats.' + prefixStats + '.' + key + this.config.globalSuffix + statsd_metrics[key] + ts_suffix;
+      statString += 'stats.' + this.config.prefixStats + '.' + key + this.config.globalSuffix + statsd_metrics[key] + ts_suffix;
     }
   } else {
     statString += namespace.join('.') + '.numStats' + this.config.globalSuffix + numStats + ts_suffix;
