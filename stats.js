@@ -161,8 +161,88 @@ var l;
 
 
 StatsD.prototype.configFile = function() {
+	config.configFile(process.argv[2], this.onConfigFileRed.bind(this));
+};
+
+StatsD.prototype.onUdpPacketReceived = function (msg, rinfo) {
+  this.backendEvents.emit('packet', msg, rinfo);
+  this.counters[this.packets_received]++;
+  var packet_data = msg.toString();
+  var metrics = [ packet_data ] ;
+  if (packet_data.indexOf('\n') > -1) {
+    metrics = packet_data.split('\n');
+  }
+
+  for (var midx in metrics) {
+    if (metrics[midx].length === 0) {
+      continue;
+    }
+    if (config.dumpMessages) {
+      l.log(metrics[midx].toString());
+    }
+    var bits = metrics[midx].toString().split(':');
+    var key = bits.shift()
+                  .replace(/\s+/g, '_')
+                  .replace(/\//g, '-')
+                  .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+
+    if (this.keyFlushInterval > 0) {
+      if (! this.keyCounter[key]) {
+        this.keyCounter[key] = 0;
+      }
+      this.keyCounter[key] += 1;
+    }
+
+    if (bits.length === 0) {
+      bits.push('1');
+    }
+
+    for (var i = 0; i < bits.length; i++) {
+      var sampleRate = 1;
+      var fields = bits[i].split('|');
+      if (!helpers.is_valid_packet(fields)) {
+          l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
+          this.counters[this.bad_lines_seen]++;
+          this.stats.messages.bad_lines_seen++;
+          continue;
+      }
+      if (fields[2]) {
+        sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+      }
+
+      var metric_type = fields[1].trim();
+      if (metric_type === 'ms') {
+        if (! this.timers[key]) {
+          this.timers[key] = [];
+          this.timer_counters[key] = 0;
+        }
+        this.timers[key].push(Number(fields[0] || 0));
+        this.timer_counters[key] += (1 / sampleRate);
+      } else if (metric_type === 'g') {
+        if (this.gauges[key] && fields[0].match(/^[-+]/)) {
+          this.gauges[key] += Number(fields[0] || 0);
+        } else {
+          this.gauges[key] = Number(fields[0] || 0);
+        }
+      } else if (metric_type === 's') {
+        if (! this.sets[key]) {
+          this.sets[key] = new set.Set();
+        }
+        this.sets[key].insert(fields[0] || '0');
+      } else {
+        if (! this.counters[key]) {
+          this.counters[key] = 0;
+        }
+        this.counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
+      }
+    }
+  }
+
+  this.stats.messages.last_msg_seen = Math.round(new Date().getTime() / 1000);
+};
+
+StatsD.prototype.onConfigFileRed = function (config) {
 	var self = this;
-config.configFile(process.argv[2], function (config) {
   self.conf = config;
 
   process_mgmt.init(config);
@@ -184,88 +264,14 @@ config.configFile(process.argv[2], function (config) {
   self.counters[self.bad_lines_seen]   = 0;
   self.counters[self.packets_received] = 0;
 
+  this.keyFlushInterval = Number((this.conf.keyFlush && this.conf.keyFlush.interval) || 0);
+
   if (self.server === undefined) {
 
     // key counting
-    var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
     var udp_version = config.address_ipv6 ? 'udp6' : 'udp4';
-    self.server = dgram.createSocket(udp_version, function (msg, rinfo) {
-      self.backendEvents.emit('packet', msg, rinfo);
-      self.counters[self.packets_received]++;
-      var packet_data = msg.toString();
-      var metrics = [ packet_data ] ;
-      if (packet_data.indexOf('\n') > -1) {
-        metrics = packet_data.split('\n');
-      }
-
-      for (var midx in metrics) {
-        if (metrics[midx].length === 0) {
-          continue;
-        }
-        if (config.dumpMessages) {
-          l.log(metrics[midx].toString());
-        }
-        var bits = metrics[midx].toString().split(':');
-        var key = bits.shift()
-                      .replace(/\s+/g, '_')
-                      .replace(/\//g, '-')
-                      .replace(/[^a-zA-Z_\-0-9\.]/g, '');
-
-        if (keyFlushInterval > 0) {
-          if (! self.keyCounter[key]) {
-            self.keyCounter[key] = 0;
-          }
-          self.keyCounter[key] += 1;
-        }
-
-        if (bits.length === 0) {
-          bits.push('1');
-        }
-
-        for (var i = 0; i < bits.length; i++) {
-          var sampleRate = 1;
-          var fields = bits[i].split('|');
-          if (!helpers.is_valid_packet(fields)) {
-              l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
-              self.counters[self.bad_lines_seen]++;
-              self.stats.messages.bad_lines_seen++;
-              continue;
-          }
-          if (fields[2]) {
-            sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
-          }
-
-          var metric_type = fields[1].trim();
-          if (metric_type === 'ms') {
-            if (! self.timers[key]) {
-              self.timers[key] = [];
-              self.timer_counters[key] = 0;
-            }
-            self.timers[key].push(Number(fields[0] || 0));
-            self.timer_counters[key] += (1 / sampleRate);
-          } else if (metric_type === 'g') {
-            if (self.gauges[key] && fields[0].match(/^[-+]/)) {
-              self.gauges[key] += Number(fields[0] || 0);
-            } else {
-              self.gauges[key] = Number(fields[0] || 0);
-            }
-          } else if (metric_type === 's') {
-            if (! self.sets[key]) {
-              self.sets[key] = new set.Set();
-            }
-            self.sets[key].insert(fields[0] || '0');
-          } else {
-            if (! self.counters[key]) {
-              self.counters[key] = 0;
-            }
-            self.counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
-          }
-        }
-      }
-
-      self.stats.messages.last_msg_seen = Math.round(new Date().getTime() / 1000);
-    });
+    self.server = dgram.createSocket(udp_version, this.onUdpPacketReceived.bind(this));
 
     self.mgmtServer = net.createServer(function(stream) {
       stream.setEncoding('ascii');
@@ -400,7 +406,7 @@ config.configFile(process.argv[2], function (config) {
     // Setup the flush timer
     setInterval(self.flushMetrics.bind(self), self.flushInterval);
 
-    if (keyFlushInterval > 0) {
+    if (this.keyFlushInterval > 0) {
       var keyFlushPercent = Number((config.keyFlush && config.keyFlush.percent) || 100);
       var keyFlushLog = config.keyFlush && config.keyFlush.log;
 
@@ -431,10 +437,10 @@ config.configFile(process.argv[2], function (config) {
 
         // clear the counter
         self.keyCounter = {};
-      }, keyFlushInterval);
+      }, this.keyFlushInterval);
     }
   }
-});
+
 	process.on('exit', function () {
 	  self.flushMetrics();
 	});
