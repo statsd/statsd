@@ -445,6 +445,9 @@ StatsD.prototype.onConfigFileRed = function (config) {
   process.on('exit', this.flushMetrics.bind(this));
 };
 
+if (require.main === module) {
+  var statsd = new StatsD();
+  statsd.configFile();
+}
 
-var statsd = new StatsD();
-statsd.configFile();
+module.exports = StatsD;
