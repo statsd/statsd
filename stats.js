@@ -162,7 +162,7 @@ var l;
 
 StatsD.prototype.configFile = function() {
 	var self = this;
-config.configFile(process.argv[2], function (config, oldConfig) {
+config.configFile(process.argv[2], function (config) {
   self.conf = config;
 
   process_mgmt.init(config);
@@ -194,10 +194,9 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       self.backendEvents.emit('packet', msg, rinfo);
       self.counters[self.packets_received]++;
       var packet_data = msg.toString();
+      var metrics = [ packet_data ] ;
       if (packet_data.indexOf('\n') > -1) {
-        var metrics = packet_data.split('\n');
-      } else {
-        var metrics = [ packet_data ] ;
+        metrics = packet_data.split('\n');
       }
 
       for (var midx in metrics) {
