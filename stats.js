@@ -1,58 +1,58 @@
-/*jshint node:true, laxcomma:true */
+/*jshint node:true */
 'use strict';
 
-var dgram  = require('dgram')
-  , util    = require('util')
-  , net    = require('net')
-  , config = require('./lib/config')
-  , helpers = require('./lib/helpers')
-  , fs     = require('fs')
-  , events = require('events')
-  , logger = require('./lib/logger')
-  , set = require('./lib/set')
-  , pm = require('./lib/process_metrics')
-  , process_mgmt = require('./lib/process_mgmt')
-  , mgmt = require('./lib/mgmt_console');
+var dgram = require('dgram');
+var util = require('util');
+var net = require('net');
+var config = require('./lib/config');
+var helpers = require('./lib/helpers');
+var fs = require('fs');
+var events = require('events');
+var logger = require('./lib/logger');
+var set = require('./lib/set');
+var pm = require('./lib/process_metrics');
+var process_mgmt = require('./lib/process_mgmt');
+var mgmt = require('./lib/mgmt_console');
 
 
 function StatsD() {
-	this.keyCounter = {};
-	this.counters = {};
-	this.timers = {};
-	this.timer_counters = {};
-	this.gauges = {};
-	this.sets = {};
-	this.counter_rates = {};
-	this.timer_data = {};
-	this.pctThreshold = undefined;
-	this.flushInterval = undefined;
-	this.keyFlushInt = undefined;
-	this.server = undefined;
-	this.mgmtServer = undefined;
+  this.keyCounter = {};
+  this.counters = {};
+  this.timers = {};
+  this.timer_counters = {};
+  this.gauges = {};
+  this.sets = {};
+  this.counter_rates = {};
+  this.timer_data = {};
+  this.pctThreshold = undefined;
+  this.flushInterval = undefined;
+  this.keyFlushInt = undefined;
+  this.server = undefined;
+  this.mgmtServer = undefined;
 
-	this.startup_time = Math.round(new Date().getTime() / 1000);
+  this.startup_time = Math.round(new Date().getTime() / 1000);
 
-	this.backendEvents = new events.EventEmitter();
-	this.healthStatus = config.healthStatus || 'up';
-	this.old_timestamp = 0;
+  this.backendEvents = new events.EventEmitter();
+  this.healthStatus = config.healthStatus || 'up';
+  this.old_timestamp = 0;
 
-	this.timestamp_lag_namespace = undefined;
-	this.prefixStats = '';
+  this.timestamp_lag_namespace = undefined;
+  this.prefixStats = '';
 
-	this.bad_lines_seen = '';
-	this.packets_received = '';
+  this.bad_lines_seen = '';
+  this.packets_received = '';
 
-	this.conf = undefined;
-	this.l = undefined;
+  this.conf = undefined;
+  this.l = undefined;
 
-	this.stats = {
-	  messages: {
-	    last_msg_seen: this.startup_time,
-	    bad_lines_seen: 0
-	  }
-	};
-
+  this.stats = {
+    messages: {
+      last_msg_seen: this.startup_time,
+      bad_lines_seen: 0
+    }
+  };
 }
+
 
 // Load and init the backend from the backends/ directory.
 StatsD.prototype.loadBackend = function loadBackend(config, name) {
@@ -70,10 +70,9 @@ StatsD.prototype.loadBackend = function loadBackend(config, name) {
 };
 
 
-
 // Flush metrics to each backend.
 StatsD.prototype.flushMetrics = function flushMetrics() {
-	var self = this;
+  var self = this;
   var time_stamp = Math.round(new Date().getTime() / 1000);
   if (this.old_timestamp > 0) {
     this.gauges[this.timestamp_lag_namespace] = (time_stamp - this.old_timestamp - (Number(self.conf.flushInterval)/1000));
@@ -141,7 +140,7 @@ StatsD.prototype.flushMetrics = function flushMetrics() {
       }
     }
 
-	// normally gauges are not reset.  so if we don't delete them, continue to persist previous value
+  // normally gauges are not reset.  so if we don't delete them, continue to persist previous value
     self.conf.deleteGauges = self.conf.deleteGauges || false;
     if (self.conf.deleteGauges) {
       for (var gauge_key in metrics.gauges) {
@@ -153,13 +152,13 @@ StatsD.prototype.flushMetrics = function flushMetrics() {
   pm.process_metrics(metrics_hash, self.flushInterval, time_stamp, function emitFlush(metrics) {
     self.backendEvents.emit('flush', time_stamp, metrics);
   });
-
 };
 
 
 StatsD.prototype.configFile = function() {
-	config.configFile(process.argv[2], this.onConfigFileRed.bind(this));
+  config.configFile(process.argv[2], this.onConfigFileRed.bind(this));
 };
+
 
 StatsD.prototype.onUdpPacketReceived = function (msg, rinfo) {
   this.backendEvents.emit('packet', msg, rinfo);
@@ -237,6 +236,7 @@ StatsD.prototype.onUdpPacketReceived = function (msg, rinfo) {
 
   this.stats.messages.last_msg_seen = Math.round(new Date().getTime() / 1000);
 };
+
 
 StatsD.prototype.onTcpPacketReceived = function(stream, data) {
   var cmdline = data.trim().split(' ');
@@ -340,8 +340,9 @@ StatsD.prototype.onTcpPacketReceived = function(stream, data) {
 
 };
 
+
 StatsD.prototype.onTcpConnetionActive = function(stream) {
-	var self = this;
+  var self = this;
 
   stream.setEncoding('ascii');
   stream.on('error', function(err) {
@@ -349,6 +350,7 @@ StatsD.prototype.onTcpConnetionActive = function(stream) {
   });
   stream.on('data', this.onTcpPacketReceived.bind(this, stream));
 };
+
 
 StatsD.prototype.onFlushInterval = function () {
   var sortedKeys = [];
@@ -378,6 +380,7 @@ StatsD.prototype.onFlushInterval = function () {
   // clear the counter
   this.keyCounter = {};
 };
+
 
 StatsD.prototype.onConfigFileRed = function (config) {
   this.conf = config;
@@ -439,7 +442,7 @@ StatsD.prototype.onConfigFileRed = function (config) {
     }
   }
 
-	process.on('exit', this.flushMetrics.bind(this));
+  process.on('exit', this.flushMetrics.bind(this));
 };
 
 
