@@ -241,114 +241,115 @@ StatsD.prototype.onUdpPacketReceived = function (msg, rinfo) {
   this.stats.messages.last_msg_seen = Math.round(new Date().getTime() / 1000);
 };
 
+StatsD.prototype.onTcpPacketReceived = function(stream, data) {
+  var cmdline = data.trim().split(' ');
+  var cmd = cmdline.shift();
+
+  switch(cmd) {
+    case 'help':
+      stream.write('Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, health, quit\n\n');
+      break;
+
+    case 'health':
+      if (cmdline.length > 0) {
+        var cmdaction = cmdline[0].toLowerCase();
+        if (cmdaction === 'up') {
+          this.healthStatus = 'up';
+        } else if (cmdaction === 'down') {
+          this.healthStatus = 'down';
+        }
+      }
+      stream.write('health: ' + this.healthStatus + '\n');
+      break;
+
+    case 'stats':
+      var now    = Math.round(new Date().getTime() / 1000);
+      var uptime = now - this.startup_time;
+
+      stream.write('uptime: ' + uptime + '\n');
+
+      var stat_writer = function(group, metric, val) {
+        var delta;
+
+        if (metric.match('^last_')) {
+          delta = now - val;
+        }
+        else {
+          delta = val;
+        }
+
+        stream.write(group + '.' + metric + ': ' + delta + '\n');
+      };
+
+      // Loop through the base stats
+      for (var group in this.stats) {
+        for (var metric in this.stats[group]) {
+          stat_writer(group, metric, this.stats[group][metric]);
+        }
+      }
+
+      this.backendEvents.once('status', function() {
+        stream.write('END\n\n');
+      });
+
+      // Let each backend contribute its status
+      this.backendEvents.emit('status', function(err, name, stat, val) {
+        if (err) {
+          l.log('Failed to read stats for backend ' +
+                  name + ': ' + err);
+        } else {
+          stat_writer(name, stat, val);
+        }
+      });
+
+      break;
+
+    case 'counters':
+      stream.write(util.inspect(this.counters) + '\n');
+      stream.write('END\n\n');
+      break;
+
+    case 'timers':
+      stream.write(util.inspect(this.timers) + '\n');
+      stream.write('END\n\n');
+      break;
+
+    case 'gauges':
+      stream.write(util.inspect(this.gauges) + '\n');
+      stream.write('END\n\n');
+      break;
+
+    case 'delcounters':
+      mgmt.delete_stats(this.counters, cmdline, stream);
+      break;
+
+    case 'deltimers':
+      mgmt.delete_stats(this.timers, cmdline, stream);
+      break;
+
+    case 'delgauges':
+      mgmt.delete_stats(this.gauges, cmdline, stream);
+      break;
+
+    case 'quit':
+      stream.end();
+      break;
+
+    default:
+      stream.write('ERROR\n');
+      break;
+  }
+
+};
+
 StatsD.prototype.onTcpConnetionActive = function(stream) {
-	var self = this;
   stream.setEncoding('ascii');
 
   stream.on('error', function(err) {
     l.log('Caught ' + err +', Moving on');
   });
 
-  stream.on('data', function(data) {
-    var cmdline = data.trim().split(' ');
-    var cmd = cmdline.shift();
-
-    switch(cmd) {
-      case 'help':
-        stream.write('Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, health, quit\n\n');
-        break;
-
-      case 'health':
-        if (cmdline.length > 0) {
-          var cmdaction = cmdline[0].toLowerCase();
-          if (cmdaction === 'up') {
-            self.healthStatus = 'up';
-          } else if (cmdaction === 'down') {
-            self.healthStatus = 'down';
-          }
-        }
-        stream.write('health: ' + self.healthStatus + '\n');
-        break;
-
-      case 'stats':
-        var now    = Math.round(new Date().getTime() / 1000);
-        var uptime = now - self.startup_time;
-
-        stream.write('uptime: ' + uptime + '\n');
-
-        var stat_writer = function(group, metric, val) {
-          var delta;
-
-          if (metric.match('^last_')) {
-            delta = now - val;
-          }
-          else {
-            delta = val;
-          }
-
-          stream.write(group + '.' + metric + ': ' + delta + '\n');
-        };
-
-        // Loop through the base stats
-        for (var group in self.stats) {
-          for (var metric in self.stats[group]) {
-            stat_writer(group, metric, self.stats[group][metric]);
-          }
-        }
-
-        self.backendEvents.once('status', function() {
-          stream.write('END\n\n');
-        });
-
-        // Let each backend contribute its status
-        self.backendEvents.emit('status', function(err, name, stat, val) {
-          if (err) {
-            l.log('Failed to read stats for backend ' +
-                    name + ': ' + err);
-          } else {
-            stat_writer(name, stat, val);
-          }
-        });
-
-        break;
-
-      case 'counters':
-        stream.write(util.inspect(self.counters) + '\n');
-        stream.write('END\n\n');
-        break;
-
-      case 'timers':
-        stream.write(util.inspect(self.timers) + '\n');
-        stream.write('END\n\n');
-        break;
-
-      case 'gauges':
-        stream.write(util.inspect(self.gauges) + '\n');
-        stream.write('END\n\n');
-        break;
-
-      case 'delcounters':
-        mgmt.delete_stats(self.counters, cmdline, stream);
-        break;
-
-      case 'deltimers':
-        mgmt.delete_stats(self.timers, cmdline, stream);
-        break;
-
-      case 'delgauges':
-        mgmt.delete_stats(self.gauges, cmdline, stream);
-        break;
-
-      case 'quit':
-        stream.end();
-        break;
-
-      default:
-        stream.write('ERROR\n');
-        break;
-    }
-
-  });
+  stream.on('data', this.onTcpPacketReceived.bind(this, stream));
 };
 
 StatsD.prototype.onConfigFileRed = function (config) {
