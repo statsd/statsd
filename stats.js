@@ -352,97 +352,96 @@ StatsD.prototype.onTcpConnetionActive = function(stream) {
   stream.on('data', this.onTcpPacketReceived.bind(this, stream));
 };
 
+StatsD.prototype.onFlushInterval = function () {
+  var sortedKeys = [];
+
+  for (var key in this.keyCounter) {
+    sortedKeys.push([key, this.keyCounter[key]]);
+  }
+
+  sortedKeys.sort(function(a, b) { return b[1] - a[1]; });
+
+  var logMessage = '';
+  var timeString = (new Date()) + '';
+
+  // only show the top "keyFlushPercent" keys
+  for (var i = 0, e = sortedKeys.length * (this.keyFlushPercent / 100); i < e; i++) {
+    logMessage += timeString + ' count=' + sortedKeys[i][1] + ' key=' + sortedKeys[i][0] + '\n';
+  }
+
+  if (this.keyFlushLog) {
+    var logFile = fs.createWriteStream(this.keyFlushLog, {flags: 'a+'});
+    logFile.write(logMessage);
+    logFile.end();
+  } else {
+    process.stdout.write(logMessage);
+  }
+
+  // clear the counter
+  this.keyCounter = {};
+};
+
 StatsD.prototype.onConfigFileRed = function (config) {
-	var self = this;
-  self.conf = config;
+  this.conf = config;
 
   process_mgmt.init(config);
 
   l = new logger.Logger(config.log || {});
 
   // setup config for stats prefix
-  self.prefixStats = config.prefixStats;
-  self.prefixStats = self.prefixStats !== undefined ? self.prefixStats : 'statsd';
+  this.prefixStats = config.prefixStats;
+  this.prefixStats = this.prefixStats !== undefined ? this.prefixStats : 'statsd';
 
-  self.conf.prefixStats = self.prefixStats;
+  this.conf.prefixStats = this.prefixStats;
 
   //setup the names for the stats stored in counters{}
-  self.bad_lines_seen   = self.prefixStats + '.bad_lines_seen';
-  self.packets_received = self.prefixStats + '.packets_received';
-  self.timestamp_lag_namespace = self.prefixStats + '.timestamp_lag';
+  this.bad_lines_seen   = this.prefixStats + '.bad_lines_seen';
+  this.packets_received = this.prefixStats + '.packets_received';
+  this.timestamp_lag_namespace = this.prefixStats + '.timestamp_lag';
 
   //now set to zero so we can increment them
-  self.counters[self.bad_lines_seen]   = 0;
-  self.counters[self.packets_received] = 0;
+  this.counters[this.bad_lines_seen]   = 0;
+  this.counters[this.packets_received] = 0;
 
   this.keyFlushInterval = Number((this.conf.keyFlush && this.conf.keyFlush.interval) || 0);
 
-  if (self.server === undefined) {
+  if (this.server === undefined) {
     var udp_version = config.address_ipv6 ? 'udp6' : 'udp4';
-    self.server = dgram.createSocket(udp_version, this.onUdpPacketReceived.bind(this));
-    self.mgmtServer = net.createServer(this.onTcpConnetionActive.bind(this));
-    self.server.bind(config.port || 8125, config.address || undefined);
-    self.mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
+    this.server = dgram.createSocket(udp_version, this.onUdpPacketReceived.bind(this));
+    this.mgmtServer = net.createServer(this.onTcpConnetionActive.bind(this));
+    this.server.bind(config.port || 8125, config.address || undefined);
+    this.mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
 
     util.log('server is up');
 
-    self.pctThreshold = config.percentThreshold || 90;
-    if (!Array.isArray(self.pctThreshold)) {
-      self.pctThreshold = [ self.pctThreshold ]; // listify percentiles so single values work the same
+    this.pctThreshold = config.percentThreshold || 90;
+    if (!Array.isArray(this.pctThreshold)) {
+      this.pctThreshold = [ this.pctThreshold ]; // listify percentiles so single values work the same
     }
 
-    self.flushInterval = Number(config.flushInterval || 10000);
-    config.flushInterval = self.flushInterval;
+    this.flushInterval = Number(config.flushInterval || 10000);
+    config.flushInterval = this.flushInterval;
 
     if (config.backends) {
       for (var i = 0; i < config.backends.length; i++) {
-        self.loadBackend(config, config.backends[i]);
+        this.loadBackend(config, config.backends[i]);
       }
     } else {
       // The default backend is graphite
-      self.loadBackend(config, './backends/graphite');
+      this.loadBackend(config, './backends/graphite');
     }
     // Setup the flush timer
-    setInterval(self.flushMetrics.bind(self), self.flushInterval);
+    setInterval(this.flushMetrics.bind(this), this.flushInterval);
 
     if (this.keyFlushInterval > 0) {
-      var keyFlushPercent = Number((config.keyFlush && config.keyFlush.percent) || 100);
-      var keyFlushLog = config.keyFlush && config.keyFlush.log;
+      this.keyFlushPercent = Number((config.keyFlush && config.keyFlush.percent) || 100);
+      this.keyFlushLog = config.keyFlush && config.keyFlush.log;
 
-      self.keyFlushInt = setInterval(function () {
-        var sortedKeys = [];
-
-        for (var key in self.keyCounter) {
-          sortedKeys.push([key, self.keyCounter[key]]);
-        }
-
-        sortedKeys.sort(function(a, b) { return b[1] - a[1]; });
-
-        var logMessage = '';
-        var timeString = (new Date()) + '';
-
-        // only show the top "keyFlushPercent" keys
-        for (var i = 0, e = sortedKeys.length * (keyFlushPercent / 100); i < e; i++) {
-          logMessage += timeString + ' count=' + sortedKeys[i][1] + ' key=' + sortedKeys[i][0] + '\n';
-        }
-
-        if (keyFlushLog) {
-          var logFile = fs.createWriteStream(keyFlushLog, {flags: 'a+'});
-          logFile.write(logMessage);
-          logFile.end();
-        } else {
-          process.stdout.write(logMessage);
-        }
-
-        // clear the counter
-        self.keyCounter = {};
-      }, this.keyFlushInterval);
+      this.keyFlushInt = setInterval(this.onFlushInterval.bind(this), this.keyFlushInterval);
     }
   }
 
-	process.on('exit', function () {
-	  self.flushMetrics();
-	});
+	process.on('exit', this.flushMetrics.bind(this));
 };
 
 
