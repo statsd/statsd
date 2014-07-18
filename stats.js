@@ -43,7 +43,7 @@ function StatsD() {
 	this.packets_received = '';
 
 	this.conf = undefined;
-
+	this.l = undefined;
 
 	this.stats = {
 	  messages: {
@@ -59,12 +59,12 @@ StatsD.prototype.loadBackend = function loadBackend(config, name) {
   var backendmod = require(name);
 
   if (config.debug) {
-    l.log('Loading backend: ' + name, 'DEBUG');
+    this.l.log('Loading backend: ' + name, 'DEBUG');
   }
 
-  var ret = backendmod.init(this.startup_time, config, this.backendEvents, l);
+  var ret = backendmod.init(this.startup_time, config, this.backendEvents, this.l);
   if (!ret) {
-    l.log('Failed to load backend: ' + name);
+    this.l.log('Failed to load backend: ' + name);
     process.exit(1);
   }
 };
@@ -156,9 +156,6 @@ StatsD.prototype.flushMetrics = function flushMetrics() {
 
 };
 
-// Global for the logger
-var l;
-
 
 StatsD.prototype.configFile = function() {
 	config.configFile(process.argv[2], this.onConfigFileRed.bind(this));
@@ -178,7 +175,7 @@ StatsD.prototype.onUdpPacketReceived = function (msg, rinfo) {
       continue;
     }
     if (config.dumpMessages) {
-      l.log(metrics[midx].toString());
+      this.l.log(metrics[midx].toString());
     }
     var bits = metrics[midx].toString().split(':');
     var key = bits.shift()
@@ -201,7 +198,7 @@ StatsD.prototype.onUdpPacketReceived = function (msg, rinfo) {
       var sampleRate = 1;
       var fields = bits[i].split('|');
       if (!helpers.is_valid_packet(fields)) {
-          l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
+          this.l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
           this.counters[this.bad_lines_seen]++;
           this.stats.messages.bad_lines_seen++;
           continue;
@@ -292,10 +289,11 @@ StatsD.prototype.onTcpPacketReceived = function(stream, data) {
         stream.write('END\n\n');
       });
 
+      var self = this;
       // Let each backend contribute its status
       this.backendEvents.emit('status', function(err, name, stat, val) {
         if (err) {
-          l.log('Failed to read stats for backend ' +
+          self.l.log('Failed to read stats for backend ' +
                   name + ': ' + err);
         } else {
           stat_writer(name, stat, val);
@@ -343,12 +341,12 @@ StatsD.prototype.onTcpPacketReceived = function(stream, data) {
 };
 
 StatsD.prototype.onTcpConnetionActive = function(stream) {
+	var self = this;
+
   stream.setEncoding('ascii');
-
   stream.on('error', function(err) {
-    l.log('Caught ' + err +', Moving on');
+    self.l.log('Caught ' + err +', Moving on');
   });
-
   stream.on('data', this.onTcpPacketReceived.bind(this, stream));
 };
 
@@ -386,7 +384,7 @@ StatsD.prototype.onConfigFileRed = function (config) {
 
   process_mgmt.init(config);
 
-  l = new logger.Logger(config.log || {});
+  this.l = new logger.Logger(config.log || {});
 
   // setup config for stats prefix
   this.prefixStats = config.prefixStats;
