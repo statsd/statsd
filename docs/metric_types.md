@@ -22,7 +22,7 @@ Tells StatsD that this counter is being sent sampled every 1/10th of the time.
 Timing
 ------
 
-    glork:320|ms
+    glork:320|ms|@0.1
 
 The glork took 320ms to complete this time. StatsD figures out percentiles,
 average (mean), standard deviation, sum, lower and upper bounds for the flush interval.
@@ -66,6 +66,10 @@ Examples:
 
         [ { metric: 'foo', bins: [] },
           { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
+
+Statsd also maintains a counter for each timer metric. The 3rd field
+specifies the sample rate for this counter (in this example @0.1). The field
+is optional and defaults to 1.
 
 Note:
 
