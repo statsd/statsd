@@ -151,7 +151,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
   l = new logger.Logger(config.log || {});
 
   // setup config for stats prefix
-  prefixStats = config.prefixStats;
+  var prefixStats = config.prefixStats;
   prefixStats = prefixStats !== undefined ? prefixStats : "statsd";
   //setup the names for the stats stored in counters{}
   bad_lines_seen   = prefixStats + ".bad_lines_seen";
