@@ -39,19 +39,16 @@ function StatsD() {
   this.timestamp_lag_namespace = undefined;
   this.prefixStats = '';
 
-  this.bad_lines_seen = '';
+  this.bad_lines_seen_key = '';
   this.packets_received = '';
 
   this.conf = undefined;
   this.l = undefined;
 
-  this.stats = {
-    messages: {
-      last_msg_seen: this.startup_time,
-      bad_lines_seen: 0
-    }
-  };
+  this.last_msg_seen = this.startup_time;
+  this.bad_lines_seen = 0;
 }
+require('util').inherits(StatsD, events.EventEmitter);
 
 
 // Load and init the backend from the backends/ directory.
@@ -91,8 +88,9 @@ StatsD.prototype.flushMetrics = function flushMetrics() {
     histogram: self.conf.histogram
   };
 
+
   // After all listeners, reset the stats
-  this.backendEvents.once('flush', function clear_metrics(ts, metrics) {
+  function clear_metrics(ts, metrics) {
     // TODO: a lot of this should be moved up into an init/constructor so we don't have to do it every
     // single flushInterval....
     // allows us to flag all of these on with a single config but still override them individually
@@ -147,16 +145,17 @@ StatsD.prototype.flushMetrics = function flushMetrics() {
         delete(metrics.gauges[gauge_key]);
       }
     }
-  });
+  }
 
   pm.process_metrics(metrics_hash, self.flushInterval, time_stamp, function emitFlush(metrics) {
     self.backendEvents.emit('flush', time_stamp, metrics);
+    clear_metrics(time_stamp, metrics);
   });
 };
 
 
-StatsD.prototype.configFile = function() {
-  config.configFile(process.argv[2], this.onConfigFileRed.bind(this));
+StatsD.prototype.configFile = function(configFile) {
+  config.configFile(configFile, this.onConfigFileRed.bind(this));
 };
 
 
@@ -198,8 +197,8 @@ StatsD.prototype.onUdpPacketReceived = function (msg, rinfo) {
       var fields = bits[i].split('|');
       if (!helpers.is_valid_packet(fields)) {
           this.l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
-          this.counters[this.bad_lines_seen]++;
-          this.stats.messages.bad_lines_seen++;
+          this.counters[this.bad_lines_seen_key]++;
+          this.bad_lines_seen++;
           continue;
       }
       if (fields[2]) {
@@ -234,7 +233,7 @@ StatsD.prototype.onUdpPacketReceived = function (msg, rinfo) {
     }
   }
 
-  this.stats.messages.last_msg_seen = Math.round(new Date().getTime() / 1000);
+  this.last_msg_seen = Math.round(new Date().getTime() / 1000);
 };
 
 
@@ -396,12 +395,12 @@ StatsD.prototype.onConfigFileRed = function (config) {
   this.conf.prefixStats = this.prefixStats;
 
   //setup the names for the stats stored in counters{}
-  this.bad_lines_seen   = this.prefixStats + '.bad_lines_seen';
+  this.bad_lines_seen_key   = this.prefixStats + '.bad_lines_seen';
   this.packets_received = this.prefixStats + '.packets_received';
   this.timestamp_lag_namespace = this.prefixStats + '.timestamp_lag';
 
   //now set to zero so we can increment them
-  this.counters[this.bad_lines_seen]   = 0;
+  this.counters[this.bad_lines_seen_key]   = 0;
   this.counters[this.packets_received] = 0;
 
   this.keyFlushInterval = Number((this.conf.keyFlush && this.conf.keyFlush.interval) || 0);
@@ -414,6 +413,7 @@ StatsD.prototype.onConfigFileRed = function (config) {
     this.mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
 
     util.log('server is up');
+    this.emit('server-is-up');
 
     this.pctThreshold = config.percentThreshold || 90;
     if (!Array.isArray(this.pctThreshold)) {
@@ -447,7 +447,7 @@ StatsD.prototype.onConfigFileRed = function (config) {
 
 if (require.main === module) {
   var statsd = new StatsD();
-  statsd.configFile();
+  statsd.configFile(process.argv[2]);
 }
 
 module.exports = StatsD;
