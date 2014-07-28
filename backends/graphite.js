@@ -27,7 +27,6 @@ var flush_counts;
 
 // prefix configuration
 var globalPrefix;
-var prefixPersecond;
 var prefixCounter;
 var prefixTimer;
 var prefixGauge;
