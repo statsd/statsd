@@ -1,4 +1,7 @@
-var set = require('../lib/set')
+/*jshint node:true, multistr: true  */
+'use strict';
+
+var set = require('../lib/set');
 
 module.exports = {
   has_returns_expected_values: function(test) {
@@ -38,4 +41,4 @@ module.exports = {
     test.equal(2, s.values().length);
     test.done();
   }
-}
+};
