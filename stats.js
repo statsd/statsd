@@ -143,7 +143,7 @@ var stats = {
 // Global for the logger
 var l;
 
-config.configFile(process.argv[2], function (config, oldConfig) {
+config.configFile(process.argv[2], function (config) {
   conf = config;
 
   process_mgmt.init(config);
