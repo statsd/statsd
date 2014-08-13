@@ -30,6 +30,8 @@ var backendEvents = new events.EventEmitter();
 var healthStatus = config.healthStatus || 'up';
 var old_timestamp = 0;
 var timestamp_lag_namespace;
+var bad_lines_seen = "";
+var packets_received = "";
 
 // Load and init the backend from the backends/ directory.
 function loadBackend(config, name) {
@@ -86,7 +88,7 @@ function flushMetrics() {
     conf.deleteCounters = conf.deleteCounters || false;
     for (var counter_key in metrics.counters) {
       if (conf.deleteCounters) {
-        if ((counter_key.indexOf("packets_received") != -1) || (counter_key.indexOf("bad_lines_seen") != -1)) {
+        if (counter_key == packets_received || counter_key == bad_lines_seen) {
           metrics.counters[counter_key] = 0;
         } else {
          delete(metrics.counters[counter_key]);
