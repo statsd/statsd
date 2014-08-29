@@ -1,39 +1,9 @@
 /*jshint node:true, laxcomma:true */
 
-var util = require('util')
-    , dgram = require('dgram')
-    , logger = require('../lib/logger');
-
-var net = require('net')
-    , generic_pool = require('generic-pool');
-
-function UDPRepeater(config, logger) {
-    var self = this;
-    this.debug = config.debug;
-    this.logger = logger
-    this.config = config;
-    this.sock = (config.repeaterProtocol == 'udp6') ?
-        dgram.createSocket('udp6') :
-        dgram.createSocket('udp4');
-    // Attach DNS error handler
-    this.sock.on('error', function (err) {
-        if (self.debug) {
-            self.logger.log('UDP Repeater error: ' + err);
-        }
-    });
-}
-
-UDPRepeater.prototype.process = function (packet, rinfo) {
-    var self = this;
-    var hosts = self.config.hosts;
-    for (var i = 0; i < hosts.length; i++) {
-        self.sock.send(packet, 0, packet.length, hosts[i].port, hosts[i].host, function (err, bytes) {
-            if (err && self.debug) {
-                self.logger.log(err);
-            }
-        });
-    }
-};
+var util = require('util');
+var logger = require('../lib/logger');
+var net = require('net');
+var generic_pool = require('generic-pool');
 
 function TCPRepeater(config, logger) {
     var self = this;
@@ -79,16 +49,11 @@ TCPRepeater.prototype.process = function (packet, rinfo) {
 }
 
 exports.init = function (startupTime, config, events, logger) {
-    var instance = {};
-    if (config.repeater.udp && config.repeater.udp.enabled) {
-        instance = new UDPRepeater(config.repeater.udp, logger);
-    }
-    else if (config.repeater.tcp && config.repeater.tcp.enabled){
+    if (config.repeater.tcp && config.repeater.tcp.enabled){
         instance = new TCPRepeater(config.repeater.tcp, logger);
+        events.on('packet', function (packet, rinfo) {
+            instance.process(packet, rinfo);
+        });
     }
-    events.on('packet', function (packet, rinfo) {
-        instance.process(packet, rinfo);
-    });
-
     return true;
 };
