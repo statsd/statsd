@@ -1,57 +1,59 @@
 /*jshint node:true, laxcomma:true */
 
-var util = require('util')
-    , dgram = require('dgram')
-    , logger = require('../lib/logger');
-
+var util = require('util');
+var logger = require('../lib/logger');
 var net = require('net');
 var generic_pool = require('generic-pool');
 
-var l;
-var debug;
-var connectionConfig;
-
-var connectionPool = generic_pool.Pool({
-    name: 'connectionPool',
-    max: 10,
-    create: function(callback) {
-        var conn = net.createConnection(connectionConfig.port, connectionConfig.host);
-        conn.addListener('error', function (connectionException) {
-            l.log(connectionException);
-            callback(connectionException, this);
-        });
-        conn.on('connect', function () {
-            l.log("connected to "+connectionConfig.host+":"+connectionConfig.port);
-            callback(null, this);
-        });
-    },
-    destroy: function(conn) {
-        l.log("connection is destroyed");
-        conn.destroy();
-    }
-});
-
-function RepeaterTcpBackend(startupTime, config, emitter) {
-    emitter.on('packet', function (packet, rinfo) {
-        connectionPool.acquire(function(err, conn) {
-            if (err) {
-                l.log("connection error. data is lost: "+packet);
+function TCPRepeater(config, logger) {
+    var self = this;
+    this.debug = config.debug;
+    this.logger = logger
+    this.connectionPool = generic_pool.Pool({
+        name: 'connectionPool',
+        max: config.maxConnections,
+        create: function(callback) {
+            var conn = net.createConnection(config.port, config.host);
+            conn.addListener('error', function (connectionException) {
+                self.logger.log('TCP Repeater error: ' + connectionException);
+                self.connectionPool.destroy(this)
+                callback(connectionException, null);
+            });
+            conn.on('connect', function () {
+                if (self.debug) {
+                    self.logger.log("connected to " + config.host + ":" + config.port);
+                }
+                callback(null, this);
+            });
+        },
+        destroy: function(conn) {
+            if (self.debug) {
+                self.logger.log("connection is destroyed");
             }
-            else {
-                conn.write(packet + "\n");
-            }
-            connectionPool.release(conn);
-        });
+            conn.destroy();
+        }
+    });
+}
+
+TCPRepeater.prototype.process = function (packet, rinfo) {
+    var self = this;
+    self.connectionPool.acquire(function(err, conn) {
+        if (err) {
+            self.logger.log("connection error. data is lost: "+packet);
+        }
+        else {
+            conn.write(packet + "\n");
+        }
+        self.connectionPool.release(conn);
     });
 }
 
 exports.init = function (startupTime, config, events, logger) {
-    l = logger;
-    l.log("initialized RepeaterTcpBackend");
-    connectionConfig = config.repeaterTcp || {}
-    l.log("connecting by config "+JSON.stringify(connectionConfig));
-
-    var instance = new RepeaterTcpBackend(startupTime, config, events);
-    debug = config.debug;
+    if (config.repeater.tcp && config.repeater.tcp.enabled){
+        instance = new TCPRepeater(config.repeater.tcp, logger);
+        events.on('packet', function (packet, rinfo) {
+            instance.process(packet, rinfo);
+        });
+    }
     return true;
 };
