@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.2 (09/02/2014)
+- Fixes to detecting valid packets
+
 ## v0.7.1 (02/06/2014)
 - move contributing information into CONTRIBUTING.md
 - Updates winser to v0.1.6
