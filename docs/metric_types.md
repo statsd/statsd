@@ -82,7 +82,7 @@ StatsD now also supports gauges, arbitrary values, which can be recorded.
     gaugor:333|g
 
 If the gauge is not updated at the next flush, it will send the previous value. You can opt to send
-no metric at all for this gauge, by setting `config.deleteGauge`
+no metric at all for this gauge, by setting `config.deleteGauges`
 
 Adding a sign to the gauge value will change the value, rather than setting it.
 
