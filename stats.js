@@ -118,7 +118,7 @@ function flushMetrics() {
       }
     }
 
-	// normally gauges are not reset.  so if we don't delete them, continue to persist previous value
+  // normally gauges are not reset.  so if we don't delete them, continue to persist previous value
     conf.deleteGauges = conf.deleteGauges || false;
     if (conf.deleteGauges) {
       for (var gauge_key in metrics.gauges) {
@@ -142,6 +142,28 @@ var stats = {
 
 // Global for the logger
 var l;
+
+var filterUdpMsg = function(msg, cb){
+  // filter the timers and timer_counter by the regexes provided in the config
+  if (conf.whitelist && conf.whitelist.length > 0) {
+    var sMsg = msg.toString(),
+        err = false,
+        regex;
+    for (var _i = 0,  _len = conf.whitelist.length; _i < _len; _i++) {
+      regex = conf.whitelist[_i];
+      if (regex.test(sMsg)){
+        break;
+      }
+      if ((_len - _i) == 1){
+        msg = void 0;
+        err = true;
+      }
+    }
+  }
+  process.nextTick(function(){
+    cb(err, msg);
+  });
+}
 
 config.configFile(process.argv[2], function (config, oldConfig) {
   conf = config;
@@ -169,81 +191,85 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
     var udp_version = config.address_ipv6 ? 'udp6' : 'udp4';
     server = dgram.createSocket(udp_version, function (msg, rinfo) {
-      backendEvents.emit('packet', msg, rinfo);
-      counters[packets_received]++;
-      var packet_data = msg.toString();
-      if (packet_data.indexOf("\n") > -1) {
-        var metrics = packet_data.split("\n");
-      } else {
-        var metrics = [ packet_data ] ;
-      }
-
-      for (var midx in metrics) {
-        if (metrics[midx].length === 0) {
-          continue;
-        }
-        if (config.dumpMessages) {
-          l.log(metrics[midx].toString());
-        }
-        var bits = metrics[midx].toString().split(':');
-        var key = bits.shift()
-                      .replace(/\s+/g, '_')
-                      .replace(/\//g, '-')
-                      .replace(/[^a-zA-Z_\-0-9\.]/g, '');
-
-        if (keyFlushInterval > 0) {
-          if (! keyCounter[key]) {
-            keyCounter[key] = 0;
-          }
-          keyCounter[key] += 1;
-        }
-
-        if (bits.length === 0) {
-          bits.push("1");
-        }
-
-        for (var i = 0; i < bits.length; i++) {
-          var sampleRate = 1;
-          var fields = bits[i].split("|");
-          if (!helpers.is_valid_packet(fields)) {
-              l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
-              counters[bad_lines_seen]++;
-              stats.messages.bad_lines_seen++;
-              continue;
-          }
-          if (fields[2]) {
-            sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
-          }
-
-          var metric_type = fields[1].trim();
-          if (metric_type === "ms") {
-            if (! timers[key]) {
-              timers[key] = [];
-              timer_counters[key] = 0;
-            }
-            timers[key].push(Number(fields[0] || 0));
-            timer_counters[key] += (1 / sampleRate);
-          } else if (metric_type === "g") {
-            if (gauges[key] && fields[0].match(/^[-+]/)) {
-              gauges[key] += Number(fields[0] || 0);
-            } else {
-              gauges[key] = Number(fields[0] || 0);
-            }
-          } else if (metric_type === "s") {
-            if (! sets[key]) {
-              sets[key] = new set.Set();
-            }
-            sets[key].insert(fields[0] || '0');
+      filterUdpMsg(msg, function(err, msg){
+        if(!err){
+          backendEvents.emit('packet', msg, rinfo);
+          counters[packets_received]++;
+          var packet_data = msg.toString();
+          if (packet_data.indexOf("\n") > -1) {
+            var metrics = packet_data.split("\n");
           } else {
-            if (! counters[key]) {
-              counters[key] = 0;
-            }
-            counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
+            var metrics = [ packet_data ] ;
           }
-        }
-      }
 
-      stats.messages.last_msg_seen = Math.round(new Date().getTime() / 1000);
+          for (var midx in metrics) {
+            if (metrics[midx].length === 0) {
+              continue;
+            }
+            if (config.dumpMessages) {
+              l.log(metrics[midx].toString());
+            }
+            var bits = metrics[midx].toString().split(':');
+            var key = bits.shift()
+                          .replace(/\s+/g, '_')
+                          .replace(/\//g, '-')
+                          .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+
+            if (keyFlushInterval > 0) {
+              if (! keyCounter[key]) {
+                keyCounter[key] = 0;
+              }
+              keyCounter[key] += 1;
+            }
+
+            if (bits.length === 0) {
+              bits.push("1");
+            }
+
+            for (var i = 0; i < bits.length; i++) {
+              var sampleRate = 1;
+              var fields = bits[i].split("|");
+              if (!helpers.is_valid_packet(fields)) {
+                  l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
+                  counters[bad_lines_seen]++;
+                  stats.messages.bad_lines_seen++;
+                  continue;
+              }
+              if (fields[2]) {
+                sampleRate = Number(fields[2].match(/^@([\d\.]+)/)[1]);
+              }
+
+              var metric_type = fields[1].trim();
+              if (metric_type === "ms") {
+                if (! timers[key]) {
+                  timers[key] = [];
+                  timer_counters[key] = 0;
+                }
+                timers[key].push(Number(fields[0] || 0));
+                timer_counters[key] += (1 / sampleRate);
+              } else if (metric_type === "g") {
+                if (gauges[key] && fields[0].match(/^[-+]/)) {
+                  gauges[key] += Number(fields[0] || 0);
+                } else {
+                  gauges[key] = Number(fields[0] || 0);
+                }
+              } else if (metric_type === "s") {
+                if (! sets[key]) {
+                  sets[key] = new set.Set();
+                }
+                sets[key].insert(fields[0] || '0');
+              } else {
+                if (! counters[key]) {
+                  counters[key] = 0;
+                }
+                counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
+              }
+            }
+          }
+
+          stats.messages.last_msg_seen = Math.round(new Date().getTime() / 1000);
+        }
+      });
     });
 
     mgmtServer = net.createServer(function(stream) {
