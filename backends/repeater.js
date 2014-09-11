@@ -1,44 +1,40 @@
 /*jshint node:true, laxcomma:true */
+'use strict';
 
 var util = require('util')
-  , dgram = require('dgram')
-  , logger = require('../lib/logger');
+  , dgram = require('dgram');
 
-var l;
-var debug;
+var BackendBase = require('./base');
 
-function RepeaterBackend(startupTime, config, emitter){
-  var self = this;
-  this.config = config.repeater || [];
+
+function RepeaterBackend(startupTime, config, emitter, logger) {
+	BackendBase.call(this, startupTime, config, emitter, logger);
+
   this.sock = (config.repeaterProtocol == 'udp6') ?
         dgram.createSocket('udp6') :
         dgram.createSocket('udp4');
   // Attach DNS error handler
   this.sock.on('error', function (err) {
-    if (debug) {
-      l.log('Repeater error: ' + err);
+    if (config.debug) {
+      logger.log('Repeater error: ' + err);
     }
   });
-  // attach
-  emitter.on('packet', function(packet, rinfo) { self.process(packet, rinfo); });
 }
+util.inherits(RepeaterBackend, BackendBase);
 
-RepeaterBackend.prototype.process = function(packet, rinfo) {
+RepeaterBackend.prototype.onPacketEvent = function(packet) {
   var self = this;
-  hosts = self.config;
+  var hosts = self.config.repeater;
   for(var i=0; i<hosts.length; i++) {
-    self.sock.send(packet,0,packet.length,hosts[i].port,hosts[i].host,
-                   function(err,bytes) {
-      if (err && debug) {
-        l.log(err);
+    self.sock.send(packet, 0, packet.length, hosts[i].port, hosts[i].host, function(err) {
+      if (err && self.config.debug) {
+        self.logger.log(err);
       }
     });
   }
 };
 
 exports.init = function(startupTime, config, events, logger) {
-  var instance = new RepeaterBackend(startupTime, config, events);
-  debug = config.debug;
-  l = logger;
+  new RepeaterBackend(startupTime, config, events, logger);
   return true;
 };
