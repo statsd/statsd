@@ -1,13 +1,18 @@
 var net  = require('net');
 
+function rinfo(tcpstream, data) {
+    this.address = tcpstream.remoteAddress;
+    this.port = tcpstream.remotePort;
+    this.family = tcpstream.address().family;
+    this.size = data.length;
+}
+
 exports.init = function(config, callback){
   var server = net.createServer(function(stream) {
       stream.setEncoding('ascii');
 
       stream.on('data', function(data) {
-          var rinfo = stream.address();
-          rinfo.size = data.length;
-          callback(data, rinfo);
+          callback(data, new rinfo(stream, data));
       });
   });
 
