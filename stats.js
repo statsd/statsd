@@ -1,7 +1,6 @@
 /*jshint node:true, laxcomma:true */
 
-var dgram  = require('dgram')
-  , util    = require('util')
+var util    = require('util')
   , net    = require('net')
   , config = require('./lib/config')
   , helpers = require('./lib/helpers')
@@ -24,7 +23,7 @@ var sets = {};
 var counter_rates = {};
 var timer_data = {};
 var pctThreshold = null;
-var flushInterval, keyFlushInt, server, mgmtServer;
+var flushInterval, keyFlushInt, serverLoaded, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 var backendEvents = new events.EventEmitter();
 var healthStatus = config.healthStatus || 'up';
@@ -42,6 +41,21 @@ function loadBackend(config, name) {
   var ret = backendmod.init(startup_time, config, backendEvents, l);
   if (!ret) {
     l.log("Failed to load backend: " + name);
+    process.exit(1);
+  }
+}
+
+// Load and init the server from the servers/ directory.
+function startServer(config, name, callback) {
+  var servermod = require(name);
+
+  if (config.debug) {
+    l.log("Loading server: " + name, 'DEBUG');
+  }
+
+  var ret = servermod.init(config, callback);
+  if (!ret) {
+    l.log("Failed to load server: " + name);
     process.exit(1);
   }
 }
@@ -162,13 +176,14 @@ config.configFile(process.argv[2], function (config) {
   counters[bad_lines_seen]   = 0;
   counters[packets_received] = 0;
 
-  if (server === undefined) {
+  if (!serverLoaded) {
 
     // key counting
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
-    var udp_version = config.address_ipv6 ? 'udp6' : 'udp4';
-    server = dgram.createSocket(udp_version, function (msg, rinfo) {
+    // The default server is UDP
+    var server = config.server || './servers/udp'
+    serverLoaded = startServer(config, server, function (msg, rinfo) {
       backendEvents.emit('packet', msg, rinfo);
       counters[packets_received]++;
       var packet_data = msg.toString();
@@ -355,7 +370,6 @@ config.configFile(process.argv[2], function (config) {
       });
     });
 
-    server.bind(config.port || 8125, config.address || undefined);
     mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
 
     util.log("server is up");
