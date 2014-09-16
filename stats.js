@@ -46,6 +46,10 @@ function loadBackend(config, name) {
 }
 
 // Load and init the server from the servers/ directory.
+// The callback mimics the dgram 'message' event parameters (msg, rinfo)
+//   msg: the message received by the server. may contain more than one metric
+//   rinfo: contains remote address information and message length
+//      (attributes are .address, .port, .family, .size - you're welcome)
 function startServer(config, name, callback) {
   var servermod = require(name);
 
