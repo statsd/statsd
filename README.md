@@ -2,8 +2,8 @@ StatsD [![Build Status][travis-ci_status_img]][travis-ci_statsd]
 ======
 
 A network daemon that runs on the [Node.js][node] platform and
-listens for statistics, like counters and timers, sent over [UDP][udp]
-and sends aggregates to one or more pluggable backend services (e.g.,
+listens for statistics, like counters and timers, sent over [UDP][udp] or
+[TCP][tcp] and sends aggregates to one or more pluggable backend services (e.g.,
 [Graphite][graphite]).
 
 We ([Etsy][etsy]) [blogged][blog post] about how it works and why we created it.
@@ -46,12 +46,12 @@ Installation and Configuration
     
 Usage
 -------
-The basic line protocol expects metrics to be sent via UDP in the format:
+The basic line protocol expects metrics to be sent in the format:
 
     <metricname>:<value>|<type>
 
 So the simplest way to send in metrics from your command line if you have
-StatsD running on localhost would be:
+StatsD running with the default UDP server on localhost would be:
 
     echo "foo:1|c" | nc -u -w0 127.0.0.1 8125
 
@@ -104,6 +104,7 @@ Meta
 [counting-timing]: http://code.flickr.com/blog/2008/10/27/counting-timing/
 [Flicker-StatsD]: https://github.com/iamcal/Flickr-StatsD
 [udp]: http://en.wikipedia.org/wiki/User_Datagram_Protocol
+[tcp]: http://en.wikipedia.org/wiki/Transmission_Control_Protocol
 [docs_metric_types]: https://github.com/etsy/statsd/blob/master/docs/metric_types.md
 [docs_graphite]: https://github.com/etsy/statsd/blob/master/docs/graphite.md
 [docs_backend]: https://github.com/etsy/statsd/blob/master/docs/backend.md
