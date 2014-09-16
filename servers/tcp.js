@@ -7,7 +7,7 @@ function rinfo(tcpstream, data) {
     this.size = data.length;
 }
 
-exports.init = function(config, callback){
+exports.start = function(config, callback){
   var server = net.createServer(function(stream) {
       stream.setEncoding('ascii');
 

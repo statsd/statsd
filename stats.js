@@ -53,7 +53,7 @@ function startServer(config, name, callback) {
     l.log("Loading server: " + name, 'DEBUG');
   }
 
-  var ret = servermod.init(config, callback);
+  var ret = servermod.start(config, callback);
   if (!ret) {
     l.log("Failed to load server: " + name);
     process.exit(1);
