@@ -27,12 +27,9 @@ var flushInterval, keyFlushInt, serverLoaded, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 var backendEvents = new events.EventEmitter();
 var healthStatus = config.healthStatus || 'up';
-<<<<<<< HEAD
 var old_timestamp = 0;
 var timestamp_lag_namespace;
-=======
 var keyNameSanitize = true;
->>>>>>> pr/155
 
 // Load and init the backend from the backends/ directory.
 function loadBackend(config, name) {
@@ -194,15 +191,11 @@ config.configFile(process.argv[2], function (config) {
   counters[bad_lines_seen]   = 0;
   counters[packets_received] = 0;
 
-<<<<<<< HEAD
-  if (!serverLoaded) {
-=======
   if (config.keyNameSanitize !== undefined) {
     keyNameSanitize = config.keyNameSanitize;
   }
 
-  if (server === undefined) {
->>>>>>> pr/155
+    if (!serverLoaded) {
 
     // key counting
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
