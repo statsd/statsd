@@ -194,7 +194,6 @@ config.configFile(process.argv[2], function (config) {
   if (config.keyNameSanitize !== undefined) {
     keyNameSanitize = config.keyNameSanitize;
   }
-
     if (!serverLoaded) {
     // key counting
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
