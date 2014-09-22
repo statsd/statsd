@@ -366,7 +366,7 @@ module.exports = {
       statsd_send('fo/o:250|c',me.sock,'127.0.0.1',8125,function(){
         statsd_send('b ar:250|c',me.sock,'127.0.0.1',8125,function(){
           statsd_send('foo+bar:250|c',me.sock,'127.0.0.1',8125,function(){
-            collect_for(me.acceptor, me.myflush, function(strings){
+            collect_for(me.acceptor, me.myflush * 2, function(strings){
               var str = strings.join();
               test.ok(str.indexOf('fo-o') !== -1, "Did not map 'fo/o' => 'fo-o'");
               test.ok(str.indexOf('b_ar') !== -1, "Did not map 'b ar' => 'b_ar'");
