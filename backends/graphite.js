@@ -32,11 +32,8 @@ var prefixTimer;
 var prefixGauge;
 var prefixSet;
 var globalSuffix;
-<<<<<<< HEAD
 var prefixStats;
-=======
 var globalKeySanitize = true;
->>>>>>> pr/155
 
 // set up namespaces
 var legacyNamespace  = true;
