@@ -53,9 +53,6 @@ Optional Variables:
   deleteCounters:   don't send values to graphite for inactive counters, as opposed to sending 0 [default: false]
   prefixStats:      prefix to use for the statsd statistics data for this running instance of statsd [default: statsd]
                     applies to both legacy and new namespacing
-  keyNameSanitize:  sanitize all stat names on ingress [default: true]
-                    If disabled, it is up to the backends to sanitize keynames
-                    as appropriate per their storage requirements.
 
   console:
     prettyprint:    whether to prettyprint the console backend
