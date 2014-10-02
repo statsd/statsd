@@ -3,13 +3,15 @@ var dgram    = require('dgram')
   , events   = require('events')
   , logger = require('./lib/logger')
   , hashring = require('hashring')
-  , configlib   = require('./lib/config');
+  , configlib   = require('./lib/config')
+  , mgmt = require('http');
 
 var packet   = new events.EventEmitter();
 var node_status = [];
 var node_ring = {};
 var config;
 var l;  // logger
+var mgmtServer;
 
 configlib.configFile(process.argv[2], function (conf, oldConfig) {
   config = conf;
@@ -143,4 +145,28 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     });
   }
 
+  mgmtServer = mgmt.createServer(function(request, response) {
+    response.setHeader('Content-Type', 'application/json');
+    var ring_status = '{ "nodes" : [ ';
+    nodes.forEach(function(element, index, array) {
+      ring_status += '{ ';
+      ring_status += '"host": "' + element.host + ':' + element.port + '",';
+      if (node_status[element.host + ':' + element.port] == 0) {
+        ring_status += '"status": "Online"';
+      } else {
+        ring_status += '"status": "Offline"';
+      }
+      ring_status += '} ';
+      if (index < array.length -1) {
+        ring_status += ',';
+      }
+    });
+    ring_status += ']';
+    ring_status += '}';
+    var ring_response = JSON.parse(ring_status)
+    response.end(JSON.stringify(ring_response, null, 3));
+  });
+ 
+  mgmtServer.listen(8126);
+  
 });

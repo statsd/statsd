@@ -20,6 +20,8 @@ It handles a simple health check that dynamically recalculates the hashring if a
 
 Config Options are documented in the [exampleProxyConfig.js][exampleProxyConfig.js]
 
+It has a management interface that returns a json with the status of each node in the hashring.
+
 Notes
 --------------
 In your statsd configuration make sure to have the following configuration set: `deleteIdleStats: true`
