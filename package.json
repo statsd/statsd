@@ -23,6 +23,7 @@
   "optionalDependencies": {
     "node-syslog":"1.1.7",
     "hashring":"1.0.1",
+    "strong-control-channel": "^1.0.0",
     "winser": "=0.1.6"
   },
   "engines": {
