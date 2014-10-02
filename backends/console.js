@@ -33,7 +33,7 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
   };
 
   if(this.config.prettyprint) {
-    console.log(util.inspect(out, false, 5, true));
+    console.log(util.inspect(out, {depth: 5, colors: true}));
   } else {
     console.log(out);
   }

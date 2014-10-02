@@ -1,7 +1,7 @@
 {
-  "name": "statsd",
-  "description": "A simple, lightweight network daemon to collect metrics over UDP",
-  "author": "Etsy",
+  "name": "strong-statsd",
+  "description": "strongloop specific fork of etsy/statsd",
+  "author": "engineering@strongloop.com",
   "scripts": {
     "test": "./run_tests.sh",
     "start": "node stats.js config.js",
@@ -23,6 +23,7 @@
   "optionalDependencies": {
     "node-syslog":"1.1.7",
     "hashring":"1.0.1",
+    "strong-control-channel": "^1.0.0",
     "winser": "=0.1.6"
   },
   "engines": {
