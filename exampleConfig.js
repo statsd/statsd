@@ -103,7 +103,55 @@ Optional Variables:
 */
 {
   graphitePort: 2003
-, graphiteHost: "graphite.example.com"
+, graphiteHost: "localhost"
 , port: 8125
 , backends: [ "./backends/graphite" ]
+
+// Prints to log like:
+//   1 Oct 19:50:32 - DEBUG: numStats: 22
+, debug: true
+
+//, dumpMessages: true
+// Prints to log (even if debug is false) like:
+//   1 Oct 19:52:56 - DEBUG: loopback-example-app.samtu.1.loop.count:2|c
+
+// Log is stdout or syslog (application name and log level configurable).
+, log: {
+    // backend: 'syslog', level: 'LOG_WARNING'
+}
+
+// backend: console
+//
+// Dumps the backend datastructure, its form is documented at
+//   https://github.com/etsy/statsd/blob/master/docs/backend_interface.md
+//
+// Prints with util.inspect (pretty uses colors) like:
+//   Flushing stats at  Wed Oct 01 2014 20:06:06 GMT-0700 (PDT)
+//   { counters:
+//      { 'statsd.bad_lines_seen': 0,
+//        'statsd.packets_received': 20,
+//        'loopback-example-app.samtu.0.loop.count': 9,
+//        'loopback-example-app.samtu.1.http.connection.count': 0,
+//        'loopback-example-app.samtu.1.loop.count': 2 },
+//     timers: {},
+//     gauges:
+//      { 'loopback-example-app.samtu.0.gc.heap.used': 8796764,
+//        'loopback-example-app.samtu.0.loop.average': 0.77778,
+//        'loopback-example-app.samtu.1.loop.average': 0 },
+//     timer_data: {},
+//     counter_rates:
+//      { 'statsd.bad_lines_seen': 0,
+//        'statsd.packets_received': 2,
+//        'loopback-example-app.samtu.0.loop.count': 0.9,
+//        'loopback-example-app.samtu.1.http.connection.count': 0,
+//        'loopback-example-app.samtu.1.loop.count': 0.2 },
+//     sets: {},
+//     pctThreshold: [ 90 ] }
+, backends: [ "./backends/console" ]
+, console: { prettyprint: true }
+
+//, backends: [ "./backends/graphite", "./backends/console" ]
+, graphite: {
+    legacyNamespace: false, // doesn't do anything to console output, AFAICT
+  }
 }
