@@ -1,6 +1,6 @@
 {
-  "name": "strong-statsd",
-  "description": "strongloop specific fork of etsy/statsd",
+  "name": "strong-fork-statsd",
+  "description": "strongloop internal fork of etsy/statsd",
   "author": "engineering@strongloop.com",
   "scripts": {
     "test": "./run_tests.sh",
@@ -10,10 +10,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/etsy/statsd.git"
+    "url": "https://github.com/strongloop-fork/statsd.git"
   },
-  "version": "0.7.2",
+  "version": "1.0.0",
   "dependencies": {
+    "strong-control-channel": "^1.0.0"
   },
   "devDependencies": {
     "nodeunit": "0.7.x",
@@ -22,9 +23,7 @@
   },
   "optionalDependencies": {
     "node-syslog":"1.1.7",
-    "hashring":"1.0.1",
-    "strong-control-channel": "^1.0.0",
-    "winser": "=0.1.6"
+    "hashring":"1.0.1"
   },
   "engines": {
     "node" : ">=0.8"
