@@ -1,27 +1,13 @@
 var dgram  = require('dgram');
 var control = require('strong-control-channel/process');
 var server;
+var channel;
 
 try {
-  control.attach(onRequest);
-  console.log('attach', !!process.send)
+  channel = control.attach();
+  console.log('Server udp attached');
 } catch(er) {
-  console.error('Not initializing IPC control channel');
-}
-
-function onRequest(req, callback) {
-  console.log('req', req);
-  switch (req.cmd) {
-    case 'address': {
-      if (!server)
-        return callback({error: 'notready'});
-      return callback({
-        address: server.address(),
-      });
-    }
-    default:
-      return callback({error: 'unsupported'});
-  }
+  console.error('Not initializing IPC control channel: %s', er.stack);
 }
 
 exports.start = function(config, callback){
@@ -34,6 +20,11 @@ exports.start = function(config, callback){
     var addr = this.address();
     console.log('Server udp listening with %s on %s:%d',
       addr.family, addr.address, addr.port);
+
+    addr.cmd = 'address';
+
+    if (channel)
+      channel.request(addr, function(rsp) {});
   });
 
   return true;
