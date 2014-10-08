@@ -14,6 +14,7 @@
   },
   "version": "1.0.0",
   "dependencies": {
+    "statsd-udpkv-backend": "^0.2.0",
     "strong-control-channel": "^1.0.0"
   },
   "devDependencies": {
