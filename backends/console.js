@@ -14,7 +14,9 @@ function ConsoleBackend(startupTime, config, emitter){
 }
 
 ConsoleBackend.prototype.flush = function(timestamp, metrics) {
-  console.log('Flushing stats at ', new Date(timestamp * 1000).toString());
+  var when = new Date(timestamp * 1000).toISOString();
+  var pid = process.pid;
+  var worker = 'statsd';
 
   var out = {
     counters: metrics.counters,
@@ -33,9 +35,10 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
   };
 
   if(this.config.prettyprint) {
-    console.log(util.inspect(out, {depth: 5, colors: true}));
+    out = util.inspect(out, {depth: 5, colors: true});
+    console.log('%s pid:%d worker:%s stats=\n', when, pid, worker, out);
   } else {
-    console.log(out);
+    console.log('%s pid:%d worker:%s stats=%j', when, pid, worker, out);
   }
 
 };
