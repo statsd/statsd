@@ -10,10 +10,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/strongloop-fork/statsd.git"
+    "url": "https://github.com/strongloop-forks/statsd.git"
   },
   "version": "1.0.0",
   "dependencies": {
+    "statsd-udpkv-backend": "^0.2.0",
     "strong-control-channel": "^1.0.0"
   },
   "devDependencies": {
@@ -22,11 +23,13 @@
     "temp": "0.4.x"
   },
   "optionalDependencies": {
-    "node-syslog":"1.1.7",
-    "hashring":"1.0.1"
+    "node-syslog": "1.1.7",
+    "hashring": "1.0.1"
   },
   "engines": {
-    "node" : ">=0.8"
+    "node": ">=0.8"
   },
-  "bin": { "statsd": "./bin/statsd" }
+  "bin": {
+    "statsd": "./bin/statsd"
+  }
 }

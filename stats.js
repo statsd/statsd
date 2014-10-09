@@ -41,11 +41,11 @@ var timestamp_lag_namespace;
 
 // Load and init the backend from the backends/ directory.
 function loadBackend(config, name) {
-  var backendmod = require(name);
-
   if (config.debug) {
     l.log("Loading backend: " + name, 'DEBUG');
   }
+
+  var backendmod = require(name);
 
   var ret = backendmod.init(startup_time, config, backendEvents, l);
   if (!ret) {
