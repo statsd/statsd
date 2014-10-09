@@ -383,7 +383,9 @@ config.configFile(process.argv[2], function (config) {
       });
     });
 
-    mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
+    if ('mgmt_port' in config) {
+      mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
+    }
 
     util.log("server is up");
 
