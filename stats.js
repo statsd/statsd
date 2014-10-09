@@ -387,7 +387,9 @@ config.configFile(process.argv[2], function (config) {
       mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
     }
 
-    util.log("server is up");
+    if (config.debug) {
+      util.log("server is up");
+    }
 
     pctThreshold = config.percentThreshold || 90;
     if (!Array.isArray(pctThreshold)) {
