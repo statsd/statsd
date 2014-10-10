@@ -11,8 +11,15 @@ exports.start = function(config, callback){
   var server = net.createServer(function(stream) {
       stream.setEncoding('ascii');
 
+      var buffer;
       stream.on('data', function(data) {
-          callback(data, new rinfo(stream, data));
+          buffer += data;
+          var offset = buffer.lastIndexOf("\n");
+          if (offset > -1) {
+             var packet = buffer.slice(0, offset + 1);
+             buffer = buffer.slice(offset + 1);
+             callback(packet, new rinfo(stream, packet));
+          }
       });
   });
 
