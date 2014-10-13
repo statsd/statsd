@@ -1,12 +1,15 @@
+/*jshint node:true, multistr: true  */
+'use strict';
+
 var mgmt = require('../lib/mgmt_console');
 
 module.exports = {
   stat_matches: function(test) {
     test.expect(8);
-    stat_vertical = {'a.b':1,'a.c':1,'c':1};
+    var stat_vertical = {'a.b':1,'a.c':1,'c':1};
     
     //test function
-    f = function (bucket) { return mgmt.existing_stats(stat_vertical, bucket) }
+    var f = function (bucket) { return mgmt.existing_stats(stat_vertical, bucket); };
 
     //empties
     test.deepEqual(f('d'), []);
@@ -30,14 +33,14 @@ module.exports = {
     
     var stream = {
         buffer : '',
-        clear : function() { this.buffer = '' },
-        write : function(to_write) { this.buffer += to_write },
+        clear : function() { this.buffer = ''; },
+        write : function(to_write) { this.buffer += to_write; },
         };
     
-    stats_fixture = 
+    var stats_fixture = {'a.b':1,'a.c':1,'d':1};
     
     //delete missing
-    stat_vertical = {'a.b':1,'a.c':1,'d':1};
+    var stat_vertical = {'a.b':1,'a.c':1,'d':1};
     stream.clear();
     mgmt.delete_stats(stat_vertical, ['e'], stream);
     
@@ -62,4 +65,4 @@ module.exports = {
     
     test.done();
   },
-}
+};

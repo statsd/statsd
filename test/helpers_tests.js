@@ -1,3 +1,6 @@
+/*jshint node:true, multistr: true  */
+'use strict';
+
 var helpers = require('../lib/helpers');
 
 module.exports = {
@@ -41,12 +44,6 @@ module.exports = {
   counter_deltas_negative_are_valid: function (test) {
     var res = helpers.is_valid_packet(['-10', 'c']);
     test.equals(res, true);
-    test.done();
-  },
-
-  counter_deltas_positive_are_valid: function (test) {
-    test.equals(helpers.is_valid_packet(['+10', 'c']), true);
-    test.equals(helpers.is_valid_packet(['+10e1', 'c']), true);
     test.done();
   },
 

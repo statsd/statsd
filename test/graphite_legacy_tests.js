@@ -1,13 +1,12 @@
-var fs           = require('fs'),
-    net          = require('net'),
-    temp         = require('temp'),
-    spawn        = require('child_process').spawn,
-    util          = require('util'),
-    urlparse     = require('url').parse,
-    _            = require('underscore'),
-    dgram        = require('dgram'),
-    qsparse      = require('querystring').parse,
-    http         = require('http');
+/*jshint node:true, multistr: true  */
+'use strict';
+
+var fs = require('fs');
+var net = require('net');
+var temp = require('temp');
+var spawn = require('child_process').spawn;
+var _ = require('underscore');
+var dgram = require('dgram');
 
 
 var writeconfig = function(text,worker,cb,obj){
@@ -19,23 +18,18 @@ var writeconfig = function(text,worker,cb,obj){
       worker(info.path,cb,obj);
     });
   });
-}
+};
 
-var array_contents_are_equal = function(first,second){
-  var intlen = _.intersection(first,second).length;
-  var unlen = _.union(first,second).length;
-  return (intlen == unlen) && (intlen == first.length);
-}
 
 var statsd_send = function(data,sock,host,port,cb){
-  send_data = new Buffer(data);
-  sock.send(send_data,0,send_data.length,port,host,function(err,bytes){
+  var send_data = new Buffer(data);
+  sock.send(send_data,0,send_data.length,port,host,function(err) {
     if (err) {
       throw err;
     }
     cb();
   });
-}
+};
 
 // keep collecting data until a specified timeout period has elapsed
 // this will let us capture all data chunks so we don't miss one
@@ -43,19 +37,19 @@ var collect_for = function(server,timeout,cb){
   var received = [];
   var in_flight = 0;
   var timed_out = false;
-  var collector = function(req,res){
+  var collector = function(req) {
     in_flight += 1;
     var body = '';
     req.on('data',function(data){ body += data; });
     req.on('end',function(){
-      received = received.concat(body.split("\n"));
+      received = received.concat(body.split('\n'));
       in_flight -= 1;
       if((in_flight < 1) && timed_out){
           server.removeListener('request',collector);
           cb(received);
       }
     });
-  }
+  };
 
   setTimeout(function (){
     timed_out = true;
@@ -66,21 +60,21 @@ var collect_for = function(server,timeout,cb){
   },timeout);
 
   server.on('connection',collector);
-}
+};
 
 module.exports = {
   setUp: function (callback) {
     this.testport = 31337;
     this.myflush = 200;
-    var configfile = "{graphService: \"graphite\"\n\
+    var configfile = '{graphService: \"graphite\"\n\
                ,  batch: 200 \n\
-               ,  flushInterval: " + this.myflush + " \n\
+               ,  flushInterval: ' + this.myflush + ' \n\
                ,  percentThreshold: 90\n\
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
                ,  debug: false\n\
-               ,  graphitePort: " + this.testport + "\n\
-               ,  graphiteHost: \"127.0.0.1\"}";
+               ,  graphitePort: ' + this.testport + '\n\
+               ,  graphiteHost: \"127.0.0.1\"}';
 
     this.acceptor = net.createServer();
     this.acceptor.listen(this.testport);
@@ -141,15 +135,15 @@ module.exports = {
       var body = '';
       c.on('data',function(d){ body += d; });
       c.on('end',function(){
-        var rows = body.split("\n");
+        var rows = body.split('\n');
         var entries = _.map(rows, function(x) {
           var chunks = x.split(' ');
           var data = {};
           data[chunks[0]] = chunks[1];
           return data;
         });
-        test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'statsd.numStats'),'graphite output includes numStats');
-        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'statsd.numStats' })['statsd.numStats'],2);
+        test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0]; }),'statsd.numStats'),'graphite output includes numStats');
+        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'statsd.numStats'; })['statsd.numStats'],2);
         test.done();
       });
     });
@@ -160,7 +154,7 @@ module.exports = {
 
     var testvalue = 100;
     var me = this;
-    this.acceptor.once('connection',function(c){
+    this.acceptor.once('connection',function() {
       statsd_send('a_test_value:' + testvalue + '|ms',me.sock,'127.0.0.1',8125,function(){
           collect_for(me.acceptor,me.myflush*2,function(strings){
             test.ok(strings.length > 0,'should receive some data');
@@ -193,7 +187,7 @@ module.exports = {
 
     var testvalue = 100;
     var me = this;
-    this.acceptor.once('connection',function(c){
+    this.acceptor.once('connection',function() {
       statsd_send('a_test_value:' + testvalue + '|c',me.sock,'127.0.0.1',8125,function(){
           collect_for(me.acceptor,me.myflush*2,function(strings){
             test.ok(strings.length > 0,'should receive some data');
@@ -226,4 +220,4 @@ module.exports = {
       });
     });
   }
-}
+};
