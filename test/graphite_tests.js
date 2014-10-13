@@ -151,7 +151,7 @@ module.exports = {
           return data;
         });
         test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'stats.statsd.numStats'),'graphite output includes numStats');
-        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'stats.statsd.numStats' })['stats.statsd.numStats'],2);
+        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'stats.statsd.numStats' })['stats.statsd.numStats'],3);
         test.done();
       });
     });
@@ -174,9 +174,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'stats.statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 3');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 4');
 
             var bad_lines_seen_value_test = function(post){
               var mykey = 'stats.counters.statsd.bad_lines_seen.count';
@@ -207,9 +207,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'stats.statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 5);
             };
-            test.ok(_.any(hashes,numstat_test), 'stats.statsd.numStats should be 4');
+            test.ok(_.any(hashes,numstat_test), 'stats.statsd.numStats should be 5');
 
             var testtimervalue_test = function(post){
               var mykey = 'stats.timers.a_test_value.mean_90';
@@ -278,9 +278,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'stats.statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 5);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 4');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 5');
 
             var testavgvalue_test = function(post){
               var mykey = 'stats.counters.a_test_value.rate';
