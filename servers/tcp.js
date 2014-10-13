@@ -11,7 +11,7 @@ exports.start = function(config, callback){
   var server = net.createServer(function(stream) {
       stream.setEncoding('ascii');
 
-      var buffer;
+      var buffer = '';
       stream.on('data', function(data) {
           buffer += data;
           var offset = buffer.lastIndexOf("\n");
