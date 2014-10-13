@@ -38,5 +38,26 @@ module.exports = {
         client.write(msg);
         client.end();
     });
+  },
+  tcp_data_buffered: function(test) {
+    test.expect(3);
+    var server = require('../servers/tcp');
+    var splitmsg = msg.split(' ');
+    config.port = 8126;
+    var started = server.start(config, function(data, rinfo) {
+        test.equal(msg, data.toString());
+        test.equal(msg.length, rinfo.size);
+        test.done();
+    });
+    test.ok(started);
+
+    var client = net.connect(config.port, config.address, function() {
+        client.setNoDelay(true);
+        splitmsg.forEach(function(part) {
+            client.write(part);
+            client.write(' ');
+        });
+        client.end();
+    });
   }
 }
