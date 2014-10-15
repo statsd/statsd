@@ -43,18 +43,40 @@ function TCPRepeater(config, logger) {
         name: 'connectionPool',
         max: config.maxConnections,
         create: function(callback) {
-            var conn = net.createConnection(config.port, config.host);
-            conn.addListener('error', function (connectionException) {
-                self.logger.log('TCP Repeater error: ' + connectionException);
-                self.connectionPool.destroy(this)
-                callback(connectionException, null);
-            });
-            conn.on('connect', function () {
-                if (self.debug) {
-                    self.logger.log("connected to " + config.host + ":" + config.port);
-                }
-                callback(null, this);
-            });
+            self.logger.log("creating connection");
+            try {
+//                var conn = net.createConnection(config.port, config.host);
+                var conn = new net.Socket({allowHalfOpen: false});
+                conn.setTimeout(1000);
+                conn.on('error', function (connectionException) {
+                    self.logger.log('TCP Repeater error: ' + connectionException);
+                    this.connected = false;
+                });
+                conn.on('connect', function () {
+                    if (self.debug) {
+                        self.logger.log("connected to " + config.host + ":" + config.port);
+                    }
+                    this.connected = true;
+                    callback(null, this);
+                });
+                conn.on('close', function () {
+                    if (self.debug) {
+                        self.logger.log("connection closed");
+                    }
+                    this.connected = false;
+                });
+                conn.on('timeout', function () {
+                    if (self.debug) {
+                        self.logger.log("connection timeout");
+                    }
+                    this.connected = false;
+                });
+                conn.connect(config.port, config.host, function(){
+                    self.logger.log("connection listener on " + config.host + ":" + config.port);
+                });
+            }catch (ex){
+                self.logger.log("unexpected connection error. "+ex);
+            }
         },
         destroy: function(conn) {
             if (self.debug) {
@@ -67,14 +89,20 @@ function TCPRepeater(config, logger) {
 
 TCPRepeater.prototype.process = function (packet, rinfo) {
     var self = this;
+    self.logger.log("availables: "+self.connectionPool.availableObjectsCount()+", count: "+self.connectionPool.getPoolSize()+", waitingClients: "+self.connectionPool.waitingClientsCount());
     self.connectionPool.acquire(function(err, conn) {
         if (err) {
             self.logger.log("connection error. data is lost: "+packet);
         }
         else {
-            conn.write(packet + "\n");
+            if (conn.connected) {
+                conn.write(packet + "\n");
+                self.connectionPool.release(conn);
+            }else{
+                self.connectionPool.release(conn);
+                self.connectionPool.destroy(conn);
+            }
         }
-        self.connectionPool.release(conn);
     });
 }
 
