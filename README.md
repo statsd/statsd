@@ -109,8 +109,10 @@ Meta
 [tcp]: http://en.wikipedia.org/wiki/Transmission_Control_Protocol
 [docs_metric_types]: https://github.com/etsy/statsd/blob/master/docs/metric_types.md
 [docs_graphite]: https://github.com/etsy/statsd/blob/master/docs/graphite.md
+[docs_server]: https://github.com/etsy/statsd/blob/master/docs/server.md
 [docs_backend]: https://github.com/etsy/statsd/blob/master/docs/backend.md
 [docs_admin_interface]: https://github.com/etsy/statsd/blob/master/docs/admin_interface.md
+[docs_server_interface]: https://github.com/etsy/statsd/blob/master/docs/server_interface.md
 [docs_backend_interface]: https://github.com/etsy/statsd/blob/master/docs/backend_interface.md
 [docs_namespacing]: https://github.com/etsy/statsd/blob/master/docs/namespacing.md
 [docs_cluster_proxy]: https://github.com/etsy/statsd/blob/master/docs/cluster_proxy.md
