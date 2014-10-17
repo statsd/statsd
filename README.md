@@ -59,8 +59,10 @@ More Specific Topics
 --------
 * [Metric Types][docs_metric_types]
 * [Graphite Integration][docs_graphite]
+* [Supported Servers][docs_server]
 * [Supported Backends][docs_backend]
 * [Admin TCP Interface][docs_admin_interface]
+* [Server Interface][docs_server_interface]
 * [Backend Interface][docs_backend_interface]
 * [Metric Namespacing][docs_namespacing]
 * [Statsd Cluster Proxy][docs_cluster_proxy]
