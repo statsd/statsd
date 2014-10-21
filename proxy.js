@@ -3,6 +3,7 @@ var dgram    = require('dgram')
   , events   = require('events')
   , logger = require('./lib/logger')
   , hashring = require('hashring')
+  , cluster = require('cluster')
   , configlib   = require('./lib/config');
 
 var packet   = new events.EventEmitter();
@@ -16,6 +17,32 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
   var udp_version = config.udp_version
     ,       nodes = config.nodes;
   l = new logger.Logger(config.log || {});
+
+  var forkCount = config.forkCount;
+  if (forkCount === 'auto') {
+    forkCount = require('os').cpus().length;
+  }
+
+  var logPrefix = "[" + process.pid + "] ";
+  var log = function(msg, type) {
+    l.log(logPrefix + msg, type);
+  }
+
+
+  if (forkCount > 1 && cluster.isMaster) {
+    logPrefix += "[master] ";
+    log("forking " + forkCount + " childs");
+
+    for (var i = 0; i < forkCount; i++) {
+      cluster.fork();
+    }
+
+    cluster.on('exit', function(worker, code, signal) {
+      log('worker ' + worker.process.pid + ' died with exit code:' + code + " restarting", 'ERROR');
+      cluster.fork();
+    });
+    return;
+  }
 
   //load the node_ring object with the available nodes and a weight of 100
   // weight is currently arbitrary but the same for all
@@ -52,7 +79,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
           packet.emit('send', key, new_msg);
         }
       }
-      
+
     } else {
       // metrics needs to be an array to fake it for single metric packets
       var current_metric = packet_data;
@@ -72,7 +99,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
 
     // break the retreived host to pass to the send function
     if (statsd_host === undefined) {
-      l.log('Warning: No backend statsd nodes available!');
+      log('Warning: No backend statsd nodes available!');
     } else {
       var host_config = statsd_host.split(':');
 
@@ -111,7 +138,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
           node_status[node_id]++;
         }
         if (node_status[node_id] < 2) {
-          l.log('Removing node ' + node_id + ' from the ring.');
+          log('Removing node ' + node_id + ' from the ring.');
           ring.remove(node_id);
         }
       } else {
@@ -119,7 +146,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
           if (node_status[node_id] > 0) {
             var new_server = {};
             new_server[node_id] = 100;
-            l.log('Adding node ' + node_id + ' to the ring.');
+            log('Adding node ' + node_id + ' to the ring.');
             ring.add(new_server);
           }
         }
@@ -134,11 +161,11 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
           node_status[node_id]++;
         }
         if (node_status[node_id] < 2) {
-          l.log('Removing node ' + node_id + ' from the ring.');
+          log('Removing node ' + node_id + ' from the ring.');
           ring.remove(node_id);
         }
       } else {
-        l.log('Error during healthcheck on node ' + node_id + ' with ' + e.code);
+        log('Error during healthcheck on node ' + node_id + ' with ' + e.code);
       }
     });
   }
