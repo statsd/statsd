@@ -23,7 +23,7 @@
     "temp": "0.4.x"
   },
   "optionalDependencies": {
-    "node-syslog": "1.1.7",
+    "node-syslog": "^1.1.7",
     "hashring": "1.0.1"
   },
   "engines": {
