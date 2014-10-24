@@ -383,9 +383,13 @@ config.configFile(process.argv[2], function (config) {
       });
     });
 
-    mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
+    if ('mgmt_port' in config) {
+      mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
+    }
 
-    util.log("server is up");
+    if (config.debug) {
+      util.log("server is up");
+    }
 
     pctThreshold = config.percentThreshold || 90;
     if (!Array.isArray(pctThreshold)) {
@@ -444,5 +448,9 @@ config.configFile(process.argv[2], function (config) {
 });
 
 process.on('exit', function () {
-  flushMetrics();
+  if (conf) {
+    // It's possible to be exiting before config has been read, so don't
+    // crash, just exit.
+    flushMetrics();
+  }
 });

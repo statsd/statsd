@@ -5,7 +5,6 @@ var channel;
 
 try {
   channel = control.attach();
-  console.log('Server udp attached');
 } catch(er) {
   console.error('Not initializing IPC control channel: %s', er.stack);
 }
@@ -18,8 +17,10 @@ exports.start = function(config, callback){
 
   server.on('listening', function() {
     var addr = this.address();
-    console.log('Server udp listening with %s on %s:%d',
-      addr.family, addr.address, addr.port);
+    if (config.debug) {
+      console.log('Server udp listening with %s on %s:%d',
+        addr.family, addr.address, addr.port);
+    }
 
     addr.cmd = 'address';
 
