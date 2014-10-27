@@ -12,7 +12,7 @@
     "type": "git",
     "url": "https://github.com/strongloop-forks/statsd.git"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
     "statsd-udpkv-backend": "^0.2.0",
     "strong-control-channel": "^1.0.0"
