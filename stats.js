@@ -446,11 +446,3 @@ config.configFile(process.argv[2], function (config) {
     }
   }
 });
-
-process.on('exit', function () {
-  if (conf) {
-    // It's possible to be exiting before config has been read, so don't
-    // crash, just exit.
-    flushMetrics();
-  }
-});
