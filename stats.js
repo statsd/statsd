@@ -284,7 +284,27 @@ config.configFile(process.argv[2], function (config) {
 
         switch(cmd) {
           case "help":
-            stream.write("Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, health, quit\n\n");
+            stream.write("Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, health, config, quit\n\n");
+            break;
+
+          case "config":
+            stream.write("\n");
+            for (var prop in config) {
+              if (!config.hasOwnProperty(prop)) {
+                continue;
+              }
+              if (typeof config[prop] !== 'object') {
+                stream.write(prop + ": " + config[prop] + "\n");
+                continue;
+              }
+              subconfig = config[prop];
+              for (var subprop in subconfig) {
+                if (!subconfig.hasOwnProperty(subprop)) {
+                  continue;
+                }
+                stream.write(prop + " > " + subprop + ": " + subconfig[subprop] + "\n");
+              }
+            }
             break;
 
           case "health":
