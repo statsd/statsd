@@ -32,6 +32,7 @@ queues and third-party services.
 
 ## Available Third-party backends
 - [amqp-backend](https://github.com/mrtazz/statsd-amqp-backend)
+- [node-bell](https://github.com/eleme/node-bell)
 - [datadog-backend](https://github.com/DataDog/statsd-datadog-backend)
 - [elasticsearch-backend](https://github.com/markkimsal/statsd-elasticsearch-backend)
 - [ganglia-backend](https://github.com/jbuchbinder/statsd-ganglia-backend)
