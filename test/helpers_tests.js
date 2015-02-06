@@ -112,6 +112,7 @@ module.exports = {
     test.equals(helpers.is_valid_packet(['345345', 'ms', '@.']), false);
     test.equals(helpers.is_valid_packet(['345345', 'ms', '@.1.']), false);
     test.equals(helpers.is_valid_packet(['345345', 'ms', '@.1.2.3']), false);
+    test.equals(helpers.is_valid_packet(['345345', 'ms', '@-1.0']), false);
     test.done();
   },
 
