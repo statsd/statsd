@@ -184,8 +184,7 @@ config.configFile(process.argv[2], function (config) {
   counters[packets_received] = 0;
   counters[metrics_received] = 0;
 
-  if (!serverLoaded) {
-
+    if (!serverLoaded) {
     // key counting
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
@@ -211,10 +210,7 @@ config.configFile(process.argv[2], function (config) {
           l.log(metrics[midx].toString());
         }
         var bits = metrics[midx].toString().split(':');
-        var key = bits.shift()
-                      .replace(/\s+/g, '_')
-                      .replace(/\//g, '-')
-                      .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+        var key = bits.shift();
 
         if (keyFlushInterval > 0) {
           if (! keyCounter[key]) {

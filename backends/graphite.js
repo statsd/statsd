@@ -97,15 +97,23 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var timer_data = metrics.timer_data;
   var statsd_metrics = metrics.statsd_metrics;
 
+  // Sanitize key for graphite if not done globally
+  function sk(key) {
+      return key.replace(/\s+/g, '_')
+                .replace(/\//g, '-')
+                .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+  };
+
   for (key in counters) {
-    var namespace = counterNamespace.concat(key);
     var value = counters[key];
     var valuePerSecond = counter_rates[key]; // pre-calculated "per second" rate
+    var keyName = sk(key);
+    var namespace = counterNamespace.concat(keyName);
 
     if (legacyNamespace === true) {
       statString += namespace.join(".")   + globalSuffix + valuePerSecond + ts_suffix;
       if (flush_counts) {
-        statString += 'stats_counts.' + key + globalSuffix + value + ts_suffix;
+        statString += 'stats_counts.' + keyName + globalSuffix + value + ts_suffix;
       }
     } else {
       statString += namespace.concat('rate').join(".")  + globalSuffix + valuePerSecond + ts_suffix;
@@ -118,8 +126,9 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   for (key in timer_data) {
-    var namespace = timerNamespace.concat(key);
+    var namespace = timerNamespace.concat(sk(key));
     var the_key = namespace.join(".");
+
     for (timer_data_key in timer_data[key]) {
       if (typeof(timer_data[key][timer_data_key]) === 'number') {
         statString += the_key + '.' + timer_data_key + globalSuffix + timer_data[key][timer_data_key] + ts_suffix;
@@ -137,13 +146,13 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   for (key in gauges) {
-    var namespace = gaugesNamespace.concat(key);
+    var namespace = gaugesNamespace.concat(sk(key));
     statString += namespace.join(".") + globalSuffix + gauges[key] + ts_suffix;
     numStats += 1;
   }
 
   for (key in sets) {
-    var namespace = setsNamespace.concat(key);
+    var namespace = setsNamespace.concat(sk(key));
     statString += namespace.join(".") + '.count' + globalSuffix + sets[key].values().length + ts_suffix;
     numStats += 1;
   }
