@@ -29,6 +29,7 @@ var backendEvents = new events.EventEmitter();
 var healthStatus = config.healthStatus || 'up';
 var old_timestamp = 0;
 var timestamp_lag_namespace;
+var keyNameSanitize = true;
 
 // Load and init the backend from the backends/ directory.
 function loadBackend(config, name) {
@@ -160,6 +161,16 @@ var stats = {
   }
 };
 
+function sanitizeKeyName(key) {
+  if (keyNameSanitize) {
+    return key.replace(/\s+/g, '_')
+              .replace(/\//g, '-')
+              .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+  } else {
+    return key;
+  }
+}
+
 // Global for the logger
 var l;
 
@@ -184,6 +195,9 @@ config.configFile(process.argv[2], function (config) {
   counters[packets_received] = 0;
   counters[metrics_received] = 0;
 
+  if (config.keyNameSanitize !== undefined) {
+    keyNameSanitize = config.keyNameSanitize;
+  }
     if (!serverLoaded) {
     // key counting
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
@@ -210,7 +224,7 @@ config.configFile(process.argv[2], function (config) {
           l.log(metrics[midx].toString());
         }
         var bits = metrics[midx].toString().split(':');
-        var key = bits.shift();
+        var key = sanitizeKeyName(bits.shift());
 
         if (keyFlushInterval > 0) {
           if (! keyCounter[key]) {

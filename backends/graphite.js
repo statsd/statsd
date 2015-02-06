@@ -33,6 +33,7 @@ var prefixGauge;
 var prefixSet;
 var globalSuffix;
 var prefixStats;
+var globalKeySanitize = true;
 
 // set up namespaces
 var legacyNamespace  = true;
@@ -99,9 +100,13 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
   // Sanitize key for graphite if not done globally
   function sk(key) {
+    if (globalKeySanitize) {
+      return key;
+    } else {
       return key.replace(/\s+/g, '_')
                 .replace(/\//g, '-')
                 .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+    }
   };
 
   for (key in counters) {
@@ -247,6 +252,10 @@ exports.init = function graphite_init(startup_time, config, events, logger) {
   graphiteStats.last_exception = startup_time;
   graphiteStats.flush_time = 0;
   graphiteStats.flush_length = 0;
+
+  if (config.keyNameSanitize !== undefined) {
+    globalKeySanitize = config.keyNameSanitize;
+  }
 
   flushInterval = config.flushInterval;
 
