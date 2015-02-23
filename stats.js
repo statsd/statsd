@@ -70,6 +70,8 @@ var conf;
 
 // Flush metrics to each backend.
 function flushMetrics() {
+  setTimeout(flushMetrics, getFlushTimeout(flushInterval));
+
   var time_stamp = Math.round(new Date().getTime() / 1000);
   if (old_timestamp > 0) {
     gauges[timestamp_lag_namespace] = (time_stamp - old_timestamp - (Number(conf.flushInterval)/1000));
@@ -139,7 +141,7 @@ function flushMetrics() {
       }
     }
 
-	// normally gauges are not reset.  so if we don't delete them, continue to persist previous value
+        // normally gauges are not reset.  so if we don't delete them, continue to persist previous value
     conf.deleteGauges = conf.deleteGauges || false;
     if (conf.deleteGauges) {
       for (var gauge_key in metrics.gauges) {
@@ -169,6 +171,10 @@ function sanitizeKeyName(key) {
   } else {
     return key;
   }
+}
+
+function getFlushTimeout(interval) {
+    return interval - (new Date().getTime() - startup_time * 1000) % flushInterval
 }
 
 // Global for the logger
@@ -417,7 +423,7 @@ config.configFile(process.argv[2], function (config) {
     }
 
     // Setup the flush timer
-    var flushInt = setInterval(flushMetrics, flushInterval);
+    var flushInt = setTimeout(flushMetrics, getFlushTimeout(flushInterval));
 
     if (keyFlushInterval > 0) {
       var keyFlushPercent = Number((config.keyFlush && config.keyFlush.percent) || 100);
