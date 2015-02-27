@@ -23,6 +23,7 @@ DEST_DIR="/usr/local/${NAME}/"
 
 ### Install the node modules
 npm install --production
+npm install statsd-jutgraphite-backend
 
 ### run fpm
 fpm -s dir -t deb -a all -n $PACKAGE_NAME -v $PACKAGE_VERSION -d "nodejs" --prefix $DEST_DIR $FILES
