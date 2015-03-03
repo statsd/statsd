@@ -11,7 +11,7 @@ rm -fr *.deb
 NAME=statsd
 
 ### package version
-VERSION=$(grep version package.json | sed 's/.*"version":[^"]*"\([^"]*\)",.*/\1/')
+VERSION=$(jq -r '.version' < package.json)
 PACKAGE_VERSION=$VERSION~$(date -u +%Y%m%d%H%M)
 PACKAGE_NAME=$NAME
 
