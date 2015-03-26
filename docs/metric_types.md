@@ -36,13 +36,20 @@ generate the following list of stats for each threshold:
     stats.timers.$KEY.sum_$PCT
 
 Where `$KEY` is the stats key you specify when sending to statsd, and `$PCT` is
-the percentile threshold.
+the percentile threshold. To calculate these values, the smallest `$PCT` values
+are taken and the mean, maximum, and sum are calculated on the trimmed sample.
+Thus:
 
-Note that the `mean` metric is the mean value of all timings recorded during
-the flush interval whereas `mean_$PCT` is the mean of all timings which fell
-into the `$PCT` percentile for that flush interval. And the same holds for sum
-and upper. See [issue #157](https://github.com/etsy/statsd/issues/157) for a
-more detailed explanation of the calculation.
+  - `mean_90` is a [truncated mean] with the top 10% of values removed. Note:
+    usually a truncated mean trims both ends of the sample equally, but here
+    only the upper end is trimmed.
+  - `upper_90` is the 90th [percentile] by the [nearest rank method].
+  - `sum_90` is then the sum of all values ignoring the 10% largest values in
+    the sample.
+
+  [truncated mean]: http://en.wikipedia.org/wiki/Truncated_mean
+  [percentile]: http://en.wikipedia.org/wiki/Percentile
+  [nearest rank method]: http://en.wikipedia.org/wiki/Percentile#Definition_of_the_Nearest_Rank_method
 
 If the count at flush is 0 then you can opt to send no metric at all for this timer,
 by setting `config.deleteTimers`.
@@ -78,6 +85,7 @@ Note:
 * this is actually more powerful than what's strictly considered
 histograms, as you can make each bin arbitrarily wide,
 i.e. class intervals of different sizes.
+
 
 Gauges
 ------
