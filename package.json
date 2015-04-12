@@ -2,6 +2,7 @@
   "name": "statsd",
   "description": "A simple, lightweight network daemon to collect metrics over UDP",
   "author": "Etsy",
+  "license" : "MIT",
   "scripts": {
     "test": "./run_tests.sh",
     "start": "node stats.js config.js",
