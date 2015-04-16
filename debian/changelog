@@ -7,7 +7,7 @@ statsd (0.7.2) unstable; urgency=low
   * Remove init script that does not work in favor of just having upstart
   * Fix node version dependency
 
--- Joseph Hughes <jhughes@itriagehealth.com>  Thurs, 16 Apr 2014 13:03:10 +0200
+ -- Joseph Hughes <jhughes@itriagehealth.com>  Thurs, 16 Apr 2014 13:03:10 +0200
 
 statsd (0.6.0-1) unstable; urgency=low
 
