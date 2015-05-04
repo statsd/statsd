@@ -15,14 +15,22 @@ Optional Variables:
                     the default graphite backend will be loaded. 
                     * example for console and graphite:
                     [ "./backends/console", "./backends/graphite" ]
-  server:           the server to load. The server must exist by name in the directory
+
+  servers:          an array of server configurations.
+                    If not specified, the server, address,
+                    address_ipv6, and port top-level configuration
+                    options are used to configure a single server for
+                    backwards-compatibility
+                    Each server configuration supports the following keys:
+    server:         the server to load. The server must exist by name in the directory
                     servers/. If not specified, the default udp server will be loaded.
                     * example for tcp server:
                     "./servers/tcp"
+    address:        address to listen on [default: 0.0.0.0]
+    address_ipv6:   defines if the address is an IPv4 or IPv6 address [true or false, default: false]
+    port:           port to listen for messages on [default: 8125]
+
   debug:            debug flag [default: false]
-  address:          address to listen on [default: 0.0.0.0]
-  address_ipv6:     defines if the address is an IPv4 or IPv6 address [true or false, default: false]
-  port:             port to listen for messages on [default: 8125]
   mgmt_address:     address to run the management TCP interface on
                     [default: 0.0.0.0]
   mgmt_port:        port to run the management TCP interface on [default: 8126]
