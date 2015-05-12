@@ -37,5 +37,18 @@ module.exports = {
     s.insert('b');
     test.equal(2, s.values().length);
     test.done();
+  },
+  size_is_correct: function(test) {
+    test.expect(5);
+    var s = new set.Set();
+    test.equal(0, s.size());
+    s.insert('a');
+    test.equal(1, s.size());
+    s.insert('a');
+    test.equal(1, s.size());
+    s.insert('b');
+    test.equal(2, s.size());
+    test.equal(s.values().length, s.size());
+    test.done();
   }
 }
