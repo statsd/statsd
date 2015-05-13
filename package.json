@@ -22,7 +22,7 @@
     "temp": "0.4.x"
   },
   "optionalDependencies": {
-    "node-syslog":"schamane/node-syslog#30d44555",
+    "node-syslog":"1.2.0",
     "hashring":"3.1.0",
     "winser": "=0.1.6"
   },
