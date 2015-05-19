@@ -158,7 +158,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
 
   for (key in sets) {
     var namespace = setsNamespace.concat(sk(key));
-    statString += namespace.join(".") + '.count' + globalSuffix + sets[key].values().length + ts_suffix;
+    statString += namespace.join(".") + '.count' + globalSuffix + sets[key].size() + ts_suffix;
     numStats += 1;
   }
 
