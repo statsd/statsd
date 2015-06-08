@@ -46,7 +46,7 @@ Optional Variables:
     log:            location of log file for frequent keys [default: STDOUT]
   deleteIdleStats:  don't send values to graphite for inactive counters, sets, gauges, or timers
                     as opposed to sending 0.  For gauges, this unsets the gauge (instead of sending
-                    the previous value). Can be individually overriden. [default: false]
+                    the previous value). Can be individually overriden. [default: true]
   deleteGauges:     don't send values to graphite for inactive gauges, as opposed to sending the previous value [default: false]
   deleteTimers:     don't send values to graphite for inactive timers, as opposed to sending 0 [default: false]
   deleteSets:       don't send values to graphite for inactive sets, as opposed to sending 0 [default: false]
