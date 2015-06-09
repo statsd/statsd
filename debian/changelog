@@ -1,3 +1,41 @@
+statsd (0.7.2-1) unstable; urgency=low
+
+  * Fixes to detecting valid packets
+
+ -- Unknown Author <>  Tue, 2 Sep 2014 01:00:00 +0000
+
+statsd (0.7.1-1) unstable; urgency=low
+
+  * move contributing information into CONTRIBUTING.md
+  * Updates winser to v0.1.6
+  * examples: python: added efficiency note
+  * python: examples: fixed doctests for Python 3
+  * Standardized debian log locations
+  * Enhancement: consume logger in graphite and repeater backends
+  * Enhancement: update backend documentation
+  * Enhancement: inject logger object into backend
+  * Send STDOUT and STDERR to the appropriate files
+
+ -- Unknown Author <>  Thu, 6 Feb 2014 01:00:00 +0000
+
+statsd (v0.7.0-1) unstable; urgency=low
+
+  * added cluster proxy
+  * measure and graph timestamp generation lag
+  * added median calculation for timers
+  * support for top percentiles for timers
+  * drop support for node v0.6.x
+  * support for setting the process title
+  * functionality for optionally omitting stats_counts metrics
+  * improved functionality to delete counters from the management console
+  * updates to Debian packaging
+  * added a clojure example client
+  * cleaned up the Go example client
+  * increased test coverage
+  * documentation updates
+
+ -- Unknown Author <>  Fri, 5 Dec 2014 01:00:00 +0000
+
 statsd (0.6.0-1) unstable; urgency=low
 
   * Non-maintainer upload.
