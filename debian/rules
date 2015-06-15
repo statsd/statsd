@@ -2,3 +2,7 @@
 
 %:
 	dh $@
+
+override_dh_installinit:
+	dh_installinit --name=statsd -- defaults
+	dh_installinit --name=statsd-proxy -- defaults
