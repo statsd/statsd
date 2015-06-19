@@ -83,8 +83,8 @@ Optional Variables:
                     e.g. [ { host: '10.10.10.10', port: 8125 },
                            { host: 'observer', port: 88125 } ]
 
-  repeaterProtocol: whether to use udp4 or udp6 for repeaters.
-                    ["udp4" or "udp6", default: "udp4"]
+  repeaterProtocol: whether to use udp4, udp6, or tcp for repeaters.
+                    ["udp4," "udp6", or "tcp" default: "udp4"]
 
   histogram:        for timers, an array of mappings of strings (to match metrics) and
                     corresponding ordered non-inclusive upper limits of bins.
