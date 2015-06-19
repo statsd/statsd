@@ -77,19 +77,17 @@ StatsDClient.prototype.send = function(data, cb) {
 var RepeaterServer = function(port, server_port) {
   this.port = port || 8125;
   this.server_port = server_port || 9125;
+  this.config = {
+    repeater: [{ host: '127.0.0.1', port: this.server_port }],
+    repeaterProtocol: 'udp4',
+    server: './servers/udp',
+    port: this.port,
+    backends: [ './backends/repeater' ]
+  };
 };
 
 RepeaterServer.prototype.start = function(cb) {
-  var config_path = writeconfig(
-    "{ "
-      + "repeater: [{ host: '127.0.0.1', port: " + this.server_port + "}] "
-      + ", repeaterProtocol: 'udp4' "
-      + ", server: './servers/udp' "
-      + ", dumpMessages: true "
-      + ", port: " + this.port + " "
-      + ", backends: [ './backends/repeater' ] "
-      + "}"
-  );
+  var config_path = writeconfig(JSON.stringify(this.config));
   log('Wrote config file %s', config_path);
   log('Starting repeater listening on', this.port, 
       'forwarding to', this.server_port);
