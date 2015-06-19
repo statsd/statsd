@@ -131,36 +131,69 @@ RepeaterServer.prototype.stop = function(cb) {
 };
 
 
+var ServerSet = function() {
+  this.servers = [];
+};
+ServerSet.prototype.add = function() { 
+  for(var i = 0; i < arguments.length; i++) {
+    this.servers.push(arguments[i]);
+  }
+};
+ServerSet.prototype.start = function(cb) {
+  var self = this;
+  function start_server(i) {
+    if(i == self.servers.length) {
+      cb();
+    } else {
+      self.servers[i].start(function() {
+        start_server(i + 1);
+      });
+    }
+  }
+  start_server(0);
+};
+ServerSet.prototype.stop = function(cb) {
+  var self = this;
+  function stop_server(i) {
+    if(i == self.servers.length) {
+      cb();
+    } else {
+      self.servers[i].stop(function() {
+        stop_server(i + 1);
+      });
+    }
+  }
+  stop_server(0);
+};
+
+
 
 module.exports = {
 
   setUp: function(cb) {
-    this.server = new FakeStatsDServer();
+    this.servers = new ServerSet();
     this.repeater = new RepeaterServer();
-
-    var repeater = this.repeater;
-    this.server.start(function() {
-      repeater.start(cb);
-    });
+    this.servers.add(this.repeater);
+    cb();
   },
 
   tearDown: function(cb) {
-    var repeater = this.repeater;
-    this.server.stop(function() {
-      repeater.stop(cb);
-    });
+    this.servers.stop(cb);
   },
 
 
   repeater_works: function(test) {
     test.expect(1);
-    var server = this.server;
+    var statsd = new FakeStatsDServer();
+    this.servers.add(statsd);
     var client = new StatsDClient(this.repeater.port, '127.0.0.1');
 
-    client.send('foobar', function() {
-      server.collect(100, function(messages) {
-        test.equal(messages[0], 'foobar');
-        test.done();
+    this.servers.start(function(){ 
+      client.send('foobar', function() {
+        statsd.collect(100, function(messages) {
+          test.equal(messages[0], 'foobar');
+          test.done();
+        });
       });
     });
   }
