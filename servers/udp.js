@@ -7,9 +7,7 @@ exports.start = function(config, callback) {
   var server = dgram.createSocket(udp_version, callback);
 
   server.bind(config.port || 8125, config.address || undefined);
-  server.on('listening', function() {
-    l.log('server is listening');
-  });
+  this.server = server;
 
   return true;
 };

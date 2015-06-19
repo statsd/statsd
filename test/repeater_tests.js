@@ -1,15 +1,11 @@
-var net        = require('net'),
-    spawn      = require('child_process').spawn,
-    fs         = require('fs'),
-    temp       = require('temp'),
-    dgram      = require('dgram');
+var net           = require('net'),
+    spawn         = require('child_process').spawn,
+    fs            = require('fs'),
+    temp          = require('temp'),
+    dgram         = require('dgram'),
+    EventEmitter  = require('events').EventEmitter;
 
 
-var writeconfig = function(text) {
-  var info = temp.openSync({ suffix: '-statsdconf.js' });
-  fs.writeSync(info.fd, text);
-  return info.path;
-};
 
 
 function log() {
@@ -17,61 +13,42 @@ function log() {
 }
 
 
-var FakeStatsDServer = function() {
-  this.port = 9125;
+function StatsDWrapper(serverpath) {
+  var wrapper = function(port, message_callback) {
+    this.port = port || 9125;
+    this.statsd = require(serverpath);
+    this.message_callback = message_callback;
+  };
+  
+  wrapper.prototype.start = function(cb) {
+    var self = this;
+    this.statsd.start({ port: this.port }, function(packet, rinfo) {
+      self.message_callback(packet, rinfo);
+    });
+  
+    this.statsd.server.on('listening', function() {
+      cb();
+    });
+  };
+  
+  return wrapper;
 };
 
-FakeStatsDServer.prototype.start = function(cb) {
-  this.sock = dgram.createSocket('udp4');
-
-  var self = this;
-  this.sock.on('listening', function() {
-    log('Fake statsd server listening on', self.port);
-    cb();
-  });
-
-  this.sock.bind(this.port);
-};
-
-FakeStatsDServer.prototype.stop = function(cb) {
-  this.sock.close();
-  cb();
-};
-
-FakeStatsDServer.prototype.collect = function(timeout, cb) {
-  var sock = this.sock;
-
-  var messages = [];
-  function onmsg(msg) {
-    log('Received %s', msg.toString());
-    messages.push(msg.toString());
+var TcpStatsD = StatsDWrapper('../servers/tcp');
+TcpStatsD.prototype.stop = function(cb) {
+  if(this.statsd.server) {
+    this.statsd.server.close(cb);
   }
-
-  sock.on('message', onmsg);
-
-  setTimeout(function() {
-    sock.removeListener('message', onmsg);
-    cb(messages);
-  }, timeout);
 };
 
-
-var StatsDClient = function(port, host) {
-  this.host = host || '127.0.0.1';
-  this.port = port || 8125;
-};
-
-StatsDClient.prototype.send = function(data, cb) {
-  var buf = new Buffer(data);
-  var sock = dgram.createSocket('udp4');
-  sock.send(buf, 0, buf.length, this.port, this.host, function(err, bytes) {
-    if(err) {
-      throw err;
-    }
-    sock.close();
+var UdpStatsD = StatsDWrapper('../servers/udp');
+UdpStatsD.prototype.stop = function(cb) {
+  if(this.statsd.server) {
+    this.statsd.server.close();
     cb();
-  });
+  }
 };
+
 
 
 var RepeaterServer = function(port, server_port) {
@@ -84,51 +61,24 @@ var RepeaterServer = function(port, server_port) {
     port: this.port,
     backends: [ './backends/repeater' ]
   };
+
+  this.emitter = new EventEmitter();
 };
 
 RepeaterServer.prototype.start = function(cb) {
-  var config_path = writeconfig(JSON.stringify(this.config));
-  log('Wrote config file %s', config_path);
-  log('Starting repeater listening on', this.port, 
-      'forwarding to', this.server_port);
-  
-  this.server_up = true;
-  this.ok_to_die = false;
-  var self = this;
-  var r = spawn('node', ['stats.js', config_path]);
+  this.repeater = require('../backends/repeater');
+  this.repeater.init(0, this.config, this.emitter);
+  cb();
+};
 
-  r.on('exit', function(code) {
-    self.server_up = false;
-    if(!self.ok_to_die) {
-      console.log('node server unexpectedly quit with code:', code);
-      process.exit();
-    }
-    self.exit_callback();
-  });
-  
-  r.stderr.on('data', function(data) {
-    console.log('stderr: ' + data.toString().replace(/\n$/,''));
-  });
-
-  r.stdout.on('data', function (data) {
-    if (data.toString().match(/server is listening/)) {
-      log('Repeater server is up');
-      cb();
-    }
-  });
-
-  this.repeater = r;
+RepeaterServer.prototype.send = function(stringval) {
+  this.emitter.emit('packet', new Buffer(stringval), {});
 };
 
 RepeaterServer.prototype.stop = function(cb) {
-  this.ok_to_die = true;
-  if(this.server_up) {
-    this.exit_callback = cb;
-    this.repeater.kill();
-  } else {
-    cb();
-  }
+  this.repeater.stop(cb);
 };
+
 
 
 var ServerSet = function() {
@@ -184,18 +134,38 @@ module.exports = {
 
   repeater_works: function(test) {
     test.expect(1);
-    var statsd = new FakeStatsDServer();
-    this.servers.add(statsd);
-    var client = new StatsDClient(this.repeater.port, '127.0.0.1');
+    var statsd = new UdpStatsD(9125, function(packet, rinfo) {
+      test.equal('foobar', packet.toString());
+      test.done();
+    });
 
-    this.servers.start(function(){ 
-      client.send('foobar', function() {
-        statsd.collect(100, function(messages) {
-          test.equal(messages[0], 'foobar');
-          test.done();
-        });
-      });
+    this.servers.add(statsd);
+
+    var repeater = this.repeater;
+
+    this.servers.start(function() { 
+      repeater.send('foobar');
+    });
+  },
+
+  tcp_repeater_works: function(test) {
+    test.expect(1);
+
+    var statsd = new TcpStatsD(9125, function(packet, rinfo) {
+      test.equal('foobar\n', packet.toString());
+      test.done();
+    });
+
+    this.servers.add(statsd);
+    
+    var repeater = this.repeater;
+    repeater.config.repeaterProtocol = 'tcp';
+    
+    this.servers.start(function() {
+      repeater.send('foobar');
     });
   }
 
 };
+
+
