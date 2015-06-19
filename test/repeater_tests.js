@@ -153,18 +153,6 @@ module.exports = {
     });
   },
 
-  fake_server_is_working: function(test) {
-    test.expect(1);
-    var server = this.server;
-    var client = new StatsDClient(this.server.port, 'localhost');
-
-    client.send('foobar', function() {
-      server.collect(100, function(messages) {
-        test.equal(messages[0], 'foobar');
-        test.done();
-      });
-    });
-  },
 
   repeater_works: function(test) {
     test.expect(1);
@@ -172,7 +160,7 @@ module.exports = {
     var client = new StatsDClient(this.repeater.port, '127.0.0.1');
 
     client.send('foobar', function() {
-      server.collect(200, function(messages) {
+      server.collect(100, function(messages) {
         test.equal(messages[0], 'foobar');
         test.done();
       });
