@@ -1,8 +1,14 @@
 statsd (0.7.2-1) unstable; urgency=low
 
   * Fixes to detecting valid packets
+  * Align version number to git tag versions
+  * Add statsd_proxy upstart
+  * Install node dependencies on package installation
+  * Add proxyConfig.js
+  * Remove init script that does not work in favor of just having upstart
+  * Fix node version dependency
 
- -- Unknown Author <>  Tue, 2 Sep 2014 01:00:00 +0000
+ -- Joseph Hughes <jhughes@itriagehealth.com>  Thurs, 16 Apr 2014 13:03:10 +0200
 
 statsd (0.7.1-1) unstable; urgency=low
 
