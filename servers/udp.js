@@ -1,8 +1,6 @@
-var dgram  = require('dgram'),
-    Logger = require('../lib/logger').Logger;
+var dgram  = require('dgram');
 
 exports.start = function(config, callback) {
-  var l = new Logger(config.log || {});
   var udp_version = config.address_ipv6 ? 'udp6' : 'udp4';
   var server = dgram.createSocket(udp_version, callback);
 
