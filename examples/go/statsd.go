@@ -102,7 +102,7 @@ func (client *StatsdClient) Increment(stat string) {
 //
 //     import "statsd"
 //     client := statsd.New('localhost', 8125)
-//     client.Increment('foo.bar', 5)
+//     client.IncrementByValue('foo.bar', 5)
 func (client *StatsdClient) IncrementByValue(stat string, val int) {
 	stats := []string{stat}
 	client.UpdateStats(stats, val, 1)
