@@ -77,6 +77,7 @@ class Statsd
         send_data = "%s:%s" % [stat, val]
         udp.send send_data, 0, host, port
       end
+      udp.close
     rescue => e
       puts e.message
     end
