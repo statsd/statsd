@@ -134,6 +134,12 @@ module.exports = {
     var res = helpers.is_valid_packet(['100', 'ms', '@0.1']);
     test.equals(res, true);
     test.done();
+  },
+
+  correct_counter_with_float: function (test) {
+    var res = helpers.is_valid_packet(['1.0', 'c', '@0.1']);
+    test.equals(res, true);
+    test.done();
   }
 
 };
