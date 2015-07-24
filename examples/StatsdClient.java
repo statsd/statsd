@@ -67,6 +67,10 @@ public class StatsdClient extends TimerTask {
 	public StatsdClient(InetAddress host, int port) throws IOException {
 		_address = new InetSocketAddress(host, port);
 		_channel = DatagramChannel.open();
+		/* Put this in non-blocking mode so send does not block forever. */
+		_channel.configureBlocking(false);
+		/* Increase the size of the output buffer so that the size is larger than our buffer size. */
+                _channel.setOption(StandardSocketOptions.SO_SNDBUF, 4096);
                 setBufferSize((short) 1500);
 	}
 
@@ -250,6 +254,7 @@ public class StatsdClient extends TimerTask {
 			}
 
 		} catch (IOException e) {
+			/* This would be a good place to close the channel down and recreate it. */
 			log.error(
 					String.format("Could not send stat %s to host %s:%d", sendBuffer.toString(), _address.getHostName(),
 							_address.getPort()), e);
