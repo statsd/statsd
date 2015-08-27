@@ -74,7 +74,7 @@ UDPRepeaterBackend.prototype.flush = function(time_stamp, metrics) {
         if(self.ignore.indexOf(metric) >= 0) continue;
         if(stat.data[metric] == 0) continue;
 
-        packet = new Buffer("'" + metric + "':" + stat.data[metric] + "|" + stat.suffix);
+        packet = new Buffer(metric + ":" + stat.data[metric] + "|" + stat.suffix);
         self.sock.send(packet,0,packet.length,hosts[i].port,hosts[i].host,logerror);
       }
     }
