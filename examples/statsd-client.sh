@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Very simple bash client to send metrics to a statsd server
 # Example with gauge:  ./statsd-client.sh 'my_metric:100|g'
