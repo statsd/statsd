@@ -1,4 +1,5 @@
 /*jshint node:true, laxcomma:true */
+'use strict';
 
 var util    = require('util')
   , net    = require('net')
@@ -10,10 +11,21 @@ var util    = require('util')
   , set = require('./lib/set')
   , pm = require('./lib/process_metrics')
   , process_mgmt = require('./lib/process_mgmt')
-  , mgmt = require('./lib/mgmt_console');
-
+  , MgmtServer = require('./lib/mgmt_console');
 
 // initialize data structures with defaults for statsd stats
+var metricsHash = {
+  counters: {},
+  timers: {},
+  timer_counters: {},
+  gauges: {},
+  sets: {},
+  counter_rates: {},
+  timer_data: {},
+  pctThreshold: null,
+  histogram: null
+};
+
 var keyCounter = {};
 var counters = {};
 var timers = {};
@@ -31,6 +43,15 @@ var old_timestamp = 0;
 var timestamp_lag_namespace;
 var keyNameSanitize = true;
 
+// global stats updated by stats.js, consumed by MgmtServer
+var stats = {
+  startup_time: startup_time,
+  messages: {
+    last_msg_seen: startup_time,
+    bad_lines_seen: 0
+  }
+};
+
 // Load and init the backend from the backends/ directory.
 function loadBackend(config, name) {
   var backendmod = require(name);
@@ -39,9 +60,9 @@ function loadBackend(config, name) {
     l.log("Loading backend: " + name, 'DEBUG');
   }
 
-  var ret = backendmod.init(startup_time, config, backendEvents, l);
+  var ret = backendmod.init(stats.startup_time, config, backendEvents, l);
   if (!ret) {
-    l.log("Failed to load backend: " + name);
+    l.log("Failed to load backend: " + name, 'ERROR');
     process.exit(1);
   }
 }
@@ -60,7 +81,7 @@ function startServer(config, name, callback) {
 
   var ret = servermod.start(config, callback);
   if (!ret) {
-    l.log("Failed to load server: " + name);
+    l.log("Failed to load server: " + name, 'ERROR');
     process.exit(1);
   }
 }
@@ -76,17 +97,8 @@ function flushMetrics() {
   }
   old_timestamp = time_stamp;
 
-  var metrics_hash = {
-    counters: counters,
-    gauges: gauges,
-    timers: timers,
-    timer_counters: timer_counters,
-    sets: sets,
-    counter_rates: counter_rates,
-    timer_data: timer_data,
-    pctThreshold: pctThreshold,
-    histogram: conf.histogram
-  };
+  // TODO: This is not the place for this.
+  metricsHash.histogram = conf.histogram;
 
   // After all listeners, reset the stats
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
@@ -148,18 +160,11 @@ function flushMetrics() {
     }
   });
 
-  pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(metrics) {
+  pm.process_metrics(metricsHash, flushInterval, time_stamp, function emitFlush(metrics) {
     backendEvents.emit('flush', time_stamp, metrics);
   });
 
 }
-
-var stats = {
-  messages: {
-    last_msg_seen: startup_time,
-    bad_lines_seen: 0
-  }
-};
 
 function sanitizeKeyName(key) {
   if (keyNameSanitize) {
@@ -179,21 +184,42 @@ config.configFile(process.argv[2], function (config) {
 
   process_mgmt.init(config);
 
-  l = new logger.Logger(config.log || {});
+  if (typeof l === 'undefined') {
+    l = new logger.Logger(config.log || {});
+  } else {
+    l.setConfig(config);
+  }
+
+  if (typeof mgmtServer === 'undefined') {
+    mgmtServer = new MgmtServer({
+      config: config,
+      l: l,
+      backendEvents: backendEvents,
+      healthStatus: healthStatus,
+      stats: stats,
+      metricsHash: metricsHash
+    });
+    mgmtServer.start();
+  } else {
+    mgmtServer.stop();
+    mgmtServer.setConfig(config);
+    mgmtServer.init();
+    mgmtServer.start();
+  }
 
   // setup config for stats prefix
   var prefixStats = config.prefixStats;
   prefixStats = prefixStats !== undefined ? prefixStats : "statsd";
   //setup the names for the stats stored in counters{}
-  bad_lines_seen   = prefixStats + ".bad_lines_seen";
-  packets_received = prefixStats + ".packets_received";
-  metrics_received = prefixStats + ".metrics_received";
+  var bad_lines_seen   = prefixStats + ".bad_lines_seen";
+  var packets_received = prefixStats + ".packets_received";
+  var metrics_received = prefixStats + ".metrics_received";
   timestamp_lag_namespace = prefixStats + ".timestamp_lag";
 
   //now set to zero so we can increment them
-  counters[bad_lines_seen]   = 0;
-  counters[packets_received] = 0;
-  counters[metrics_received] = 0;
+  metricsHash.counters[bad_lines_seen]   = 0;
+  metricsHash.counters[packets_received] = 0;
+  metricsHash.counters[metrics_received] = 0;
 
   if (config.keyNameSanitize !== undefined) {
     keyNameSanitize = config.keyNameSanitize;
@@ -202,15 +228,16 @@ config.configFile(process.argv[2], function (config) {
 
     // key counting
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
+    var metrics;
 
     var handlePacket = function (msg, rinfo) {
       backendEvents.emit('packet', msg, rinfo);
-      counters[packets_received]++;
+      metricsHash.counters[packets_received]++;
       var packet_data = msg.toString();
       if (packet_data.indexOf("\n") > -1) {
-        var metrics = packet_data.split("\n");
+        metrics = packet_data.split("\n");
       } else {
-        var metrics = [ packet_data ] ;
+        metrics = [ packet_data ] ;
       }
 
       for (var midx in metrics) {
@@ -218,7 +245,7 @@ config.configFile(process.argv[2], function (config) {
           continue;
         }
 
-        counters[metrics_received]++;
+        metricsHash.counters[metrics_received]++;
         if (config.dumpMessages) {
           l.log(metrics[midx].toString());
         }
@@ -241,7 +268,7 @@ config.configFile(process.argv[2], function (config) {
           var fields = bits[i].split("|");
           if (!helpers.is_valid_packet(fields)) {
               l.log('Bad line: ' + fields + ' in msg "' + metrics[midx] +'"');
-              counters[bad_lines_seen]++;
+              metricsHash.counters[bad_lines_seen]++;
               stats.messages.bad_lines_seen++;
               continue;
           }
@@ -252,175 +279,44 @@ config.configFile(process.argv[2], function (config) {
           var metric_type = fields[1].trim();
           if (metric_type === "ms") {
             if (! timers[key]) {
-              timers[key] = [];
-              timer_counters[key] = 0;
+              metricsHash.timers[key] = [];
+              metricsHash.timer_counters[key] = 0;
             }
-            timers[key].push(Number(fields[0] || 0));
-            timer_counters[key] += (1 / sampleRate);
+            metricsHash.timers[key].push(Number(fields[0] || 0));
+            metricsHash.timer_counters[key] += (1 / sampleRate);
           } else if (metric_type === "g") {
             if (gauges[key] && fields[0].match(/^[-+]/)) {
-              gauges[key] += Number(fields[0] || 0);
+              metricsHash.gauges[key] += Number(fields[0] || 0);
             } else {
-              gauges[key] = Number(fields[0] || 0);
+              metricsHash.gauges[key] = Number(fields[0] || 0);
             }
           } else if (metric_type === "s") {
             if (! sets[key]) {
-              sets[key] = new set.Set();
+              metricsHash.sets[key] = new set.Set();
             }
-            sets[key].insert(fields[0] || '0');
+            metricsHash.sets[key].insert(fields[0] || '0');
           } else {
-            if (! counters[key]) {
-              counters[key] = 0;
+            if (! metricsHash.counters[key]) {
+              metricsHash.counters[key] = 0;
             }
-            counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
+            metricsHash.counters[key] += Number(fields[0] || 1) * (1 / sampleRate);
           }
         }
       }
 
       stats.messages.last_msg_seen = Math.round(new Date().getTime() / 1000);
-    }
+    };
 
     // If config.servers isn't specified, use the top-level config for backwards-compatibility
-    var server_config = config.servers || [config]
+    var server_config = config.servers || [config];
     for (var i = 0; i < server_config.length; i++) {
       // The default server is UDP
-      var server = server_config[i].server || './servers/udp'
-      startServer(server_config[i], server, handlePacket)
+      var server = server_config[i].server || './servers/udp';
+      startServer(server_config[i], server, handlePacket);
     }
-    serversLoaded = true
+    serversLoaded = true;
 
-    mgmtServer = net.createServer(function(stream) {
-      stream.setEncoding('ascii');
-
-      stream.on('error', function(err) {
-        l.log('Caught ' + err +', Moving on');
-      });
-
-      stream.on('data', function(data) {
-        var cmdline = data.trim().split(" ");
-        var cmd = cmdline.shift();
-
-        switch(cmd) {
-          case "help":
-            stream.write("Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, health, config, quit\n\n");
-            break;
-
-          case "config":
-            stream.write("\n");
-            for (var prop in config) {
-              if (!config.hasOwnProperty(prop)) {
-                continue;
-              }
-              if (typeof config[prop] !== 'object') {
-                stream.write(prop + ": " + config[prop] + "\n");
-                continue;
-              }
-              subconfig = config[prop];
-              for (var subprop in subconfig) {
-                if (!subconfig.hasOwnProperty(subprop)) {
-                  continue;
-                }
-                stream.write(prop + " > " + subprop + ": " + subconfig[subprop] + "\n");
-              }
-            }
-            break;
-
-          case "health":
-            if (cmdline.length > 0) {
-              var cmdaction = cmdline[0].toLowerCase();
-              if (cmdaction === 'up') {
-                healthStatus = 'up';
-              } else if (cmdaction === 'down') {
-                healthStatus = 'down';
-              }
-            }
-            stream.write("health: " + healthStatus + "\n");
-            break;
-
-          case "stats":
-            var now    = Math.round(new Date().getTime() / 1000);
-            var uptime = now - startup_time;
-
-            stream.write("uptime: " + uptime + "\n");
-
-            var stat_writer = function(group, metric, val) {
-              var delta;
-
-              if (metric.match("^last_")) {
-                delta = now - val;
-              }
-              else {
-                delta = val;
-              }
-
-              stream.write(group + "." + metric + ": " + delta + "\n");
-            };
-
-            // Loop through the base stats
-            for (var group in stats) {
-              for (var metric in stats[group]) {
-                stat_writer(group, metric, stats[group][metric]);
-              }
-            }
-
-            backendEvents.once('status', function(writeCb) {
-              stream.write("END\n\n");
-            });
-
-            // Let each backend contribute its status
-            backendEvents.emit('status', function(err, name, stat, val) {
-              if (err) {
-                l.log("Failed to read stats for backend " +
-                        name + ": " + err);
-              } else {
-                stat_writer(name, stat, val);
-              }
-            });
-
-            break;
-
-          case "counters":
-            stream.write(util.inspect(counters) + "\n");
-            stream.write("END\n\n");
-            break;
-
-          case "timers":
-            stream.write(util.inspect(timers) + "\n");
-            stream.write("END\n\n");
-            break;
-
-          case "gauges":
-            stream.write(util.inspect(gauges) + "\n");
-            stream.write("END\n\n");
-            break;
-
-          case "delcounters":
-            mgmt.delete_stats(counters, cmdline, stream);
-            break;
-
-          case "deltimers":
-            mgmt.delete_stats(timers, cmdline, stream);
-            break;
-
-          case "delgauges":
-            mgmt.delete_stats(gauges, cmdline, stream);
-            break;
-
-          case "quit":
-            stream.end();
-            break;
-
-          default:
-            stream.write("ERROR\n");
-            break;
-        }
-
-      });
-    });
-
-    mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
-
-    util.log("server is up");
+    l.log("server is up", "INFO");
 
     pctThreshold = config.percentThreshold || 90;
     if (!Array.isArray(pctThreshold)) {

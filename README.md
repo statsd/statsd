@@ -43,7 +43,7 @@ Installation and Configuration
  * Start the Daemon:
 
     node stats.js /path/to/config
-    
+
 Usage
 -------
 The basic line protocol expects metrics to be sent in the format:
