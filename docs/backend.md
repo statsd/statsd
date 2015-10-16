@@ -41,6 +41,7 @@ queues and third-party services.
 - [hosted graphite backend](https://github.com/hostedgraphite/statsdplugin)
 - [influxdb backend](https://github.com/bernd/statsd-influxdb-backend)
 - [instrumental backend](https://github.com/collectiveidea/statsd-instrumental-backend)
+- [jut-backend](https://github.com/jut-io/statsd-jut-backend)
 - [leftronic backend](https://github.com/sreuter/statsd-leftronic-backend)
 - [librato-backend](https://github.com/librato/statsd-librato-backend)
 - [mongo-backend](https://github.com/dynmeth/mongo-statsd-backend)
