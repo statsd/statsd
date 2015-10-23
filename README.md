@@ -39,11 +39,10 @@ Installation and Configuration
 
  * Install node.js
  * Clone the project
- * Create a config file from exampleConfig.js and put it somewhere
- * Start the Daemon:
+ * Create a config file from `exampleConfig.js` and put it somewhere
+ * Start the Daemon:  
+   `node stats.js /path/to/config`
 
-    node stats.js /path/to/config
-    
 Usage
 -------
 The basic line protocol expects metrics to be sent in the format:
