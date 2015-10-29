@@ -19,6 +19,7 @@ var counters = {};
 var timers = {};
 var timer_counters = {};
 var gauges = {};
+var idleGauges = {};
 var sets = {};
 var counter_rates = {};
 var timer_data = {};
@@ -79,6 +80,7 @@ function flushMetrics() {
   var metrics_hash = {
     counters: counters,
     gauges: gauges,
+    idleGauges: idleGauges,
     timers: timers,
     timer_counters: timer_counters,
     sets: sets,
@@ -143,6 +145,7 @@ function flushMetrics() {
     conf.deleteGauges = conf.deleteGauges || false;
     if (conf.deleteGauges) {
       for (var gauge_key in metrics.gauges) {
+        metrics.idleGauges[gauge_key] = metrics.gauges[gauge_key];
         delete(metrics.gauges[gauge_key]);
       }
     }
@@ -262,6 +265,11 @@ config.configFile(process.argv[2], function (config) {
               gauges[key] += Number(fields[0] || 0);
             } else {
               gauges[key] = Number(fields[0] || 0);
+              if (idleGauges[key]) {
+                  if (gauges[key] != 0) {
+                      gauges[key] += idleGauges[key];
+                  }
+              }
             }
           } else if (metric_type === "s") {
             if (! sets[key]) {
