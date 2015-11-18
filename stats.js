@@ -315,7 +315,7 @@ config.configFile(process.argv[2], function (config) {
                 stream.write(prop + ": " + config[prop] + "\n");
                 continue;
               }
-              subconfig = config[prop];
+              var subconfig = config[prop];
               for (var subprop in subconfig) {
                 if (!subconfig.hasOwnProperty(subprop)) {
                   continue;
