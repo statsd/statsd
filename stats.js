@@ -1,7 +1,6 @@
 /*jshint node:true, laxcomma:true */
 
 var util    = require('util')
-  , net    = require('net')
   , config = require('./lib/config')
   , helpers = require('./lib/helpers')
   , fs     = require('fs')
@@ -10,6 +9,7 @@ var util    = require('util')
   , set = require('./lib/set')
   , pm = require('./lib/process_metrics')
   , process_mgmt = require('./lib/process_mgmt')
+  , mgmt_server = require('./lib/mgmt_server')
   , mgmt = require('./lib/mgmt_console');
 
 
@@ -288,47 +288,22 @@ config.configFile(process.argv[2], function (config) {
       var server = server_config[i].server || './servers/udp';
       startServer(server_config[i], server, handlePacket);
     }
-    serversLoaded = true;
 
-    mgmtServer = net.createServer(function(stream) {
-      stream.setEncoding('ascii');
-
-      stream.on('error', function(err) {
-        l.log('Caught ' + err +', Moving on');
-      });
-
-      stream.on('data', function(data) {
-        var cmdline = data.trim().split(" ");
-        var cmd = cmdline.shift();
-
+    mgmt_server.start(
+      config,
+      function(cmd, parameters, stream) {
         switch(cmd) {
           case "help":
             stream.write("Commands: stats, counters, timers, gauges, delcounters, deltimers, delgauges, health, config, quit\n\n");
             break;
 
           case "config":
-            stream.write("\n");
-            for (var prop in config) {
-              if (!config.hasOwnProperty(prop)) {
-                continue;
-              }
-              if (typeof config[prop] !== 'object') {
-                stream.write(prop + ": " + config[prop] + "\n");
-                continue;
-              }
-              subconfig = config[prop];
-              for (var subprop in subconfig) {
-                if (!subconfig.hasOwnProperty(subprop)) {
-                  continue;
-                }
-                stream.write(prop + " > " + subprop + ": " + subconfig[subprop] + "\n");
-              }
-            }
+            helpers.writeConfig(config, stream);
             break;
 
           case "health":
-            if (cmdline.length > 0) {
-              var cmdaction = cmdline[0].toLowerCase();
+            if (parameters.length > 0) {
+              var cmdaction = parameters[0].toLowerCase();
               if (cmdaction === 'up') {
                 healthStatus = 'up';
               } else if (cmdaction === 'down') {
@@ -396,15 +371,15 @@ config.configFile(process.argv[2], function (config) {
             break;
 
           case "delcounters":
-            mgmt.delete_stats(counters, cmdline, stream);
+            mgmt.delete_stats(counters, parameters, stream);
             break;
 
           case "deltimers":
-            mgmt.delete_stats(timers, cmdline, stream);
+            mgmt.delete_stats(timers, parameters, stream);
             break;
 
           case "delgauges":
-            mgmt.delete_stats(gauges, cmdline, stream);
+            mgmt.delete_stats(gauges, parameters, stream);
             break;
 
           case "quit":
@@ -415,12 +390,13 @@ config.configFile(process.argv[2], function (config) {
             stream.write("ERROR\n");
             break;
         }
+      },
+      function(err, stream) {
+        l.log('MGMT: Caught ' + err +', Moving on', 'WARNING');
+      }
+    );
 
-      });
-    });
-
-    mgmtServer.listen(config.mgmt_port || 8126, config.mgmt_address || undefined);
-
+    serversLoaded = true;
     util.log("server is up", "INFO");
 
     pctThreshold = config.percentThreshold || 90;
