@@ -6,11 +6,16 @@ var dgram    = require('dgram')
   , logger = require('./lib/logger')
   , hashring = require('hashring')
   , cluster = require('cluster')
+  , helpers = require('./lib/helpers')
+  , mgmt_server = require('./lib/mgmt_server')
   , configlib   = require('./lib/config');
 
 var packet   = new events.EventEmitter();
+var startup_time = Math.round(new Date().getTime() / 1000);
 var node_status = [];
+var workers = [];  // Keep track of all forked childs
 var node_ring = {};
+var servers_loaded;
 var config;
 var l;  // logger
 
@@ -30,20 +35,52 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     l.log(logPrefix + msg, type);
   };
 
-
-  if (forkCount > 1 && cluster.isMaster) {
-    logPrefix += "[master] ";
-    log("forking " + forkCount + " childs", "INFO");
-
-    for (var i = 0; i < forkCount; i++) {
-      cluster.fork();
+  var healthStatus = configlib.healthStatus || 'up';
+  var broadcastMsg = function(msg) {
+    for (var i = 0; i < workers.length; i++) {
+      workers[i].send(msg);
     }
+  };
 
-    cluster.on('exit', function(worker, code, signal) {
-      log('worker ' + worker.process.pid + ' died with exit code:' + code + " restarting", 'ERROR');
-      cluster.fork();
-    });
-    return;
+  if (forkCount > 1) {
+    if (cluster.isMaster) {
+      var worker;
+      logPrefix += "[master] ";
+      log("forking " + forkCount + " childs", "INFO");
+
+      for (var i = 0; i < forkCount; i++) {
+        worker = cluster.fork();
+        worker.on('message', broadcastMsg);
+      }
+
+      cluster.on('online', function(worker) {
+        log('worker ' + worker.process.pid + ' is online', 'INFO');
+        workers.push(worker);
+      });
+
+      cluster.on('exit', function(worker, code, signal) {
+        log('worker ' + worker.process.pid + ' died with exit code:' + code + " restarting", 'ERROR');
+
+        // Remove died worker from the array
+        for (var i = 0; i < workers.length; i++) {
+          if (workers[i].process.pid == worker.process.pid) {
+            workers.splice(i, 1);
+          }
+        }
+
+        worker = cluster.fork();
+        worker.on('message', broadcastMsg);
+      });
+
+      return;
+
+    } else {
+      process.on('message', function(msg) {
+        if (msg.healthStatus) {
+          healthStatus = msg.healthStatus;
+        }
+      });
+    }
   }
 
   //load the node_ring object with the available nodes and a weight of 100
@@ -59,65 +96,122 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
       'replicas': 0
     });
 
-  // Do an initial rount of health checks prior to starting up the server
-  doHealthChecks();
+  if (!servers_loaded) {
+    // Do an initial rount of health checks prior to starting up the server
+    doHealthChecks();
 
+    // Setup the udp listener
+    var server = dgram.createSocket(udp_version, function (msg, rinfo) {
+      // Convert the raw packet to a string (defaults to UTF8 encoding)
+      var packet_data = msg.toString();
+      var current_metric
+        , bits
+        , key;
+      // If the packet contains a \n then it contains multiple metrics
+      if (packet_data.indexOf("\n") > -1) {
+        var metrics;
+        metrics = packet_data.split("\n");
+        // Loop through the metrics and split on : to get mertric name for hashing
+        for (var midx in metrics) {
+          current_metric = metrics[midx];
+          bits = current_metric.split(':');
+          key = bits.shift();
+          if (current_metric !== '') {
+            var new_msg = new Buffer(current_metric);
+            packet.emit('send', key, new_msg);
+          }
+        }
 
-  // Setup the udp listener
-  var server = dgram.createSocket(udp_version, function (msg, rinfo) {
-    // Convert the raw packet to a string (defaults to UTF8 encoding)
-    var packet_data = msg.toString();
-    var current_metric
-      , bits
-      , key;
-    // If the packet contains a \n then it contains multiple metrics
-    if (packet_data.indexOf("\n") > -1) {
-      var metrics;
-      metrics = packet_data.split("\n");
-      // Loop through the metrics and split on : to get mertric name for hashing
-      for (var midx in metrics) {
-        current_metric = metrics[midx];
+      } else {
+        // metrics needs to be an array to fake it for single metric packets
+        current_metric = packet_data;
         bits = current_metric.split(':');
         key = bits.shift();
         if (current_metric !== '') {
-          var new_msg = new Buffer(current_metric);
-          packet.emit('send', key, new_msg);
+          packet.emit('send', key, msg);
         }
       }
+    });
 
-    } else {
-      // metrics needs to be an array to fake it for single metric packets
-      current_metric = packet_data;
-      bits = current_metric.split(':');
-      key = bits.shift();
-      if (current_metric !== '') {
-        packet.emit('send', key, msg);
+    var client = dgram.createSocket(udp_version);
+    // Listen for the send message, and process the metric key and msg
+    packet.on('send', function(key, msg) {
+      // retreives the destination for this key
+      var statsd_host = ring.get(key);
+
+      // break the retreived host to pass to the send function
+      if (statsd_host === undefined) {
+        log('Warning: No backend statsd nodes available!', 'WARNING');
+      } else {
+        var host_config = statsd_host.split(':');
+
+        // Send the mesg to the backend
+        client.send(msg, 0, msg.length, host_config[1], host_config[0]);
       }
-    }
-  });
+    });
 
-  var client = dgram.createSocket(udp_version);
-  // Listen for the send message, and process the metric key and msg
-  packet.on('send', function(key, msg) {
-    // retreives the destination for this key
-    var statsd_host = ring.get(key);
+    // Bind the listening udp server to the configured port and host
+    server.bind(config.port, config.host || undefined);
 
-    // break the retreived host to pass to the send function
-    if (statsd_host === undefined) {
-      log('Warning: No backend statsd nodes available!', 'WARNING');
-    } else {
-      var host_config = statsd_host.split(':');
+    mgmt_server.start(
+      config,
+      function(cmd, parameters, stream) {
+        switch(cmd) {
+          case "help":
+            stream.write("Commands: config, health, status, quit\n\n");
+            break;
 
-      // Send the mesg to the backend
-      client.send(msg, 0, msg.length, host_config[1], host_config[0]);
-    }
-  });
+          case "config":
+            helpers.writeConfig(config, stream);
+            break;
 
-  // Bind the listening udp server to the configured port and host
-  server.bind(config.port, config.host || undefined);
+          case "health":
+            if (parameters.length > 0) {
+              var cmdaction = parameters[0].toLowerCase();
+              if (cmdaction === 'up') {
+                healthStatus = 'up';
+                process.send({ healthStatus: healthStatus });
+              } else if (cmdaction === 'down') {
+                healthStatus = 'down';
+                process.send({ healthStatus: healthStatus });
+              }
+            }
+            stream.write("health: " + healthStatus + "\n");
+            break;
 
-  // Set the interval for healthchecks
-  setInterval(doHealthChecks, config.checkInterval || 10000);
+          case "status":
+            var now    = Math.round(new Date().getTime() / 1000);
+            var uptime = now - startup_time;
+
+            stream.write("uptime: " + uptime + "\n");
+
+            stream.write("nodes: ");
+            ring.servers.forEach(function(server, index, array) {
+              stream.write(server.string + " ");
+            });
+            stream.write("\n");
+            break;
+
+          case "quit":
+            stream.end();
+            break;
+
+          default:
+            stream.write("ERROR\n");
+            break;
+        }
+      },
+      function(err, stream) {
+        log("MGMT: Caught " + err + ", Moving on", "WARNING");
+      }
+    );
+
+    servers_loaded = true;
+    log("server is up", "INFO");
+
+    // Set the interval for healthchecks
+    setInterval(doHealthChecks, config.checkInterval || 10000);
+  }
 
   // Perform health check on all nodes
   function doHealthChecks() {
