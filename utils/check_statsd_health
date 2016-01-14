@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Check the status of a statsd or statsd proxy connecting directly to the
+# management console.
+
+# This script can be used both for Nagios and Keepalived passing a parameter.
+# The default behaviour is the Nagios one.
+
+OK=0;
+CRITICAL=2;
+UNKNOWN=3;
+KEEPALIVED_CRITICAL=1;
+
+HOST="127.0.0.1"
+PORT="8126"
+MODE_KEEPALIVED=0
+
+print_usage() {
+    echo "Usage: check_statsd_health [-H host] [-P port] [-k]"
+    echo "Options:"
+    echo " -H host  Specify the host to check. [default: 127.0.0.1]"
+    echo " -P port  Specify the port to check. [default: 8126]"
+    echo " -k       Use exit status for Keepalived MISC_CHECK. [default: false]"
+
+    if [[ "${MODE_KEEPALIVED}" -eq "1" ]]; then
+        exit ${KEEPALIVED_CRITICAL}
+    else
+        exit ${UNKNOWN}
+    fi
+}
+
+while getopts ":H:P:k" opt; do
+    case $opt in
+        H) HOST="${OPTARG}";;
+        P) PORT="${OPTARG}";;
+        k) MODE_KEEPALIVED=1;;
+
+        :)
+            echo "Missing mandatory value for option '-${OPTARG}'" >&2
+            print_usage
+            ;;
+
+        \?)
+            echo "Invalid option '${OPTARG}'" >&2
+            print_usage
+            ;;
+
+    esac
+done
+
+HEALTH="$(echo -e "health\n" | nc -q1 "${HOST}" "${PORT}")"
+echo "Statsd '${HOST}:${PORT}' responded: '${HEALTH}'"
+
+if [[ "${HEALTH}" == "health: up" ]]; then
+    exit ${OK}
+else
+    if [[ "${MODE_KEEPALIVED}" -eq "1" ]]; then
+        exit ${KEEPALIVED_CRITICAL}
+    else
+        exit ${CRITICAL}
+    fi
+fi
