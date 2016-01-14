@@ -33,7 +33,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
 
   if (forkCount > 1 && cluster.isMaster) {
     logPrefix += "[master] ";
-    log("forking " + forkCount + " childs");
+    log("forking " + forkCount + " childs", "INFO");
 
     for (var i = 0; i < forkCount; i++) {
       cluster.fork();
@@ -104,7 +104,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
 
     // break the retreived host to pass to the send function
     if (statsd_host === undefined) {
-      log('Warning: No backend statsd nodes available!');
+      log('Warning: No backend statsd nodes available!', 'WARNING');
     } else {
       var host_config = statsd_host.split(':');
 
@@ -143,7 +143,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
           node_status[node_id]++;
         }
         if (node_status[node_id] < 2) {
-          log('Removing node ' + node_id + ' from the ring.');
+          log('Removing node ' + node_id + ' from the ring.', 'WARNING');
           ring.remove(node_id);
         }
       } else {
@@ -151,7 +151,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
           if (node_status[node_id] > 0) {
             var new_server = {};
             new_server[node_id] = 100;
-            log('Adding node ' + node_id + ' to the ring.');
+            log('Adding node ' + node_id + ' to the ring.', 'WARNING');
             ring.add(new_server);
           }
         }
@@ -166,11 +166,11 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
           node_status[node_id]++;
         }
         if (node_status[node_id] < 2) {
-          log('Removing node ' + node_id + ' from the ring.');
+          log('Removing node ' + node_id + ' from the ring.', 'WARNING');
           ring.remove(node_id);
         }
       } else {
-        log('Error during healthcheck on node ' + node_id + ' with ' + e.code);
+        log('Error during healthcheck on node ' + node_id + ' with ' + e.code, 'ERROR');
       }
     });
   }
