@@ -206,11 +206,12 @@ config.configFile(process.argv[2], function (config) {
     var handlePacket = function (msg, rinfo) {
       backendEvents.emit('packet', msg, rinfo);
       counters[packets_received]++;
+      var metrics;
       var packet_data = msg.toString();
       if (packet_data.indexOf("\n") > -1) {
-        var metrics = packet_data.split("\n");
+        metrics = packet_data.split("\n");
       } else {
-        var metrics = [ packet_data ] ;
+        metrics = [ packet_data ] ;
       }
 
       for (var midx in metrics) {
@@ -278,16 +279,16 @@ config.configFile(process.argv[2], function (config) {
       }
 
       stats.messages.last_msg_seen = Math.round(new Date().getTime() / 1000);
-    }
+    };
 
     // If config.servers isn't specified, use the top-level config for backwards-compatibility
-    var server_config = config.servers || [config]
+    var server_config = config.servers || [config];
     for (var i = 0; i < server_config.length; i++) {
       // The default server is UDP
-      var server = server_config[i].server || './servers/udp'
-      startServer(server_config[i], server, handlePacket)
+      var server = server_config[i].server || './servers/udp';
+      startServer(server_config[i], server, handlePacket);
     }
-    serversLoaded = true
+    serversLoaded = true;
 
     mgmtServer = net.createServer(function(stream) {
       stream.setEncoding('ascii');
@@ -431,8 +432,8 @@ config.configFile(process.argv[2], function (config) {
     config.flushInterval = flushInterval;
 
     if (config.backends) {
-      for (var i = 0; i < config.backends.length; i++) {
-        loadBackend(config, config.backends[i]);
+      for (var j = 0; j < config.backends.length; j++) {
+        loadBackend(config, config.backends[j]);
       }
     } else {
       // The default backend is graphite

@@ -1,3 +1,5 @@
+/*jshint node:true, laxcomma:true */
+
 var dgram    = require('dgram')
   , net      = require('net')
   , events   = require('events')
@@ -26,7 +28,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
   var logPrefix = "[" + process.pid + "] ";
   var log = function(msg, type) {
     l.log(logPrefix + msg, type);
-  }
+  };
 
 
   if (forkCount > 1 && cluster.isMaster) {
@@ -65,15 +67,18 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
   var server = dgram.createSocket(udp_version, function (msg, rinfo) {
     // Convert the raw packet to a string (defaults to UTF8 encoding)
     var packet_data = msg.toString();
+    var current_metric
+      , bits
+      , key;
     // If the packet contains a \n then it contains multiple metrics
     if (packet_data.indexOf("\n") > -1) {
       var metrics;
       metrics = packet_data.split("\n");
       // Loop through the metrics and split on : to get mertric name for hashing
       for (var midx in metrics) {
-        var current_metric = metrics[midx];
-        var bits = current_metric.split(':');
-        var key = bits.shift();
+        current_metric = metrics[midx];
+        bits = current_metric.split(':');
+        key = bits.shift();
         if (current_metric !== '') {
           var new_msg = new Buffer(current_metric);
           packet.emit('send', key, new_msg);
@@ -82,9 +87,9 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
 
     } else {
       // metrics needs to be an array to fake it for single metric packets
-      var current_metric = packet_data;
-      var bits = current_metric.split(':');
-      var key = bits.shift();
+      current_metric = packet_data;
+      bits = current_metric.split(':');
+      key = bits.shift();
       if (current_metric !== '') {
         packet.emit('send', key, msg);
       }
