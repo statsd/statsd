@@ -172,10 +172,16 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
               var cmdaction = parameters[0].toLowerCase();
               if (cmdaction === 'up') {
                 healthStatus = 'up';
-                process.send({ healthStatus: healthStatus });
+                if (forkCount > 0) {
+                  // Notify the other forks
+                  process.send({ healthStatus: healthStatus });
+                }
               } else if (cmdaction === 'down') {
                 healthStatus = 'down';
-                process.send({ healthStatus: healthStatus });
+                if (forkCount > 0) {
+                  // Notify the other forks
+                  process.send({ healthStatus: healthStatus });
+                }
               }
             }
             stream.write("health: " + healthStatus + "\n");
