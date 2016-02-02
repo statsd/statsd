@@ -1,4 +1,5 @@
 var net  = require('net');
+var fs = require('fs');
 
 function rinfo(tcpstream, data) {
     this.address = tcpstream.remoteAddress;
@@ -23,8 +24,15 @@ exports.start = function(config, callback) {
       });
   });
 
-  server.listen(config.port || 8125, config.address || undefined);
-  this.server = server;
+  server.on('listening', (e) => {
+    config.socket && config.socket_mod && fs.chmod(config.socket, config.socket_mod);
+  });
 
+  process.on('exit', (e) => {
+      config.socket && fs.unlinkSync(config.socket);
+  })
+
+  server.listen(config.socket || config.port || 8125, config.address || undefined);
+  this.server = server;
   return true;
 };
