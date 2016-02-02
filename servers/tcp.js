@@ -24,13 +24,13 @@ exports.start = function(config, callback) {
       });
   });
 
-  server.on('listening', (e) => {
+  server.on('listening', function() {
     config.socket && config.socket_mod && fs.chmod(config.socket, config.socket_mod);
   });
 
-  process.on('exit', (e) => {
+  process.on('exit', function() {
       config.socket && fs.unlinkSync(config.socket);
-  })
+  });
 
   server.listen(config.socket || config.port || 8125, config.address || undefined);
   this.server = server;
