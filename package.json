@@ -23,7 +23,7 @@
     "temp": "0.4.x"
   },
   "optionalDependencies": {
-    "node-syslog":"1.2.0",
+    "modern-syslog":"1.1.2",
     "hashring":"3.2.0",
     "winser": "=0.1.6"
   },
