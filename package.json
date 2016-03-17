@@ -18,12 +18,12 @@
     "generic-pool": "2.2.0"
   },
   "devDependencies": {
-    "nodeunit": "0.7.x",
+    "nodeunit": "0.9.x",
     "underscore": "1.4.x",
     "temp": "0.4.x"
   },
   "optionalDependencies": {
-    "node-syslog":"1.2.0",
+    "modern-syslog":"1.1.2",
     "hashring":"3.2.0",
     "winser": "=0.1.6"
   },
