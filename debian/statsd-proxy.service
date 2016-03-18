@@ -9,3 +9,4 @@ User=_statsd
 ExecStart=/usr/bin/nodejs /usr/share/statsd/proxy.js /etc/statsd/proxyConfig.js
 
 [Install]
+WantedBy=multi-user.target

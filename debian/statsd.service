@@ -9,3 +9,4 @@ User=_statsd
 ExecStart=/usr/bin/nodejs /usr/share/statsd/stats.js /etc/statsd/localConfig.js
 
 [Install]
+WantedBy=multi-user.target
