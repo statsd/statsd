@@ -62,7 +62,10 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
 
 
   // Setup the udp listener
-  var server = dgram.createSocket(udp_version, function (msg, rinfo) {
+  //
+  var server_config = config.server  || './servers/udp'
+  var servermod = require(server_config)
+  var server = servermod.start(config, function (msg, rinfo) {
     // Convert the raw packet to a string (defaults to UTF8 encoding)
     var packet_data = msg.toString();
     // If the packet contains a \n then it contains multiple metrics
@@ -107,9 +110,6 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
       client.send(msg, 0, msg.length, host_config[1], host_config[0]);
     }
   });
-
-  // Bind the listening udp server to the configured port and host
-  server.bind(config.port, config.host || undefined);
 
   // Set the interval for healthchecks
   setInterval(doHealthChecks, config.checkInterval || 10000);
