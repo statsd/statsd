@@ -15,4 +15,13 @@ if [ "$1" = configure ]; then
     dpkg-statoverride --update --add _statsd _statsd 0755 /var/run/statsd
   fi
 
+  cat << EOF
+Available systemd services are disabled by default:
+ * statsd
+ * statsd-proxy
+
+To enable one of them use:
+  systemctl enable NAME
+EOF
+
 fi

@@ -6,6 +6,9 @@ Wants=network.target
 [Service]
 Type=simple
 User=_statsd
-ExecStart=/usr/bin/nodejs /usr/share/statsd/stats.js /etc/statsd/localConfig.js
+ExecStart=/usr/bin/nodejs /usr/share/statsd/proxy.js /etc/statsd/proxyConfig.js
+Restart=on-failure
+RestartSec=10
 
 [Install]
+WantedBy=multi-user.target
