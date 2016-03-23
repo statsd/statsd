@@ -21,8 +21,8 @@ var l;  // logger
 
 configlib.configFile(process.argv[2], function (conf, oldConfig) {
   config = conf;
-  var udp_version = config.udp_version
-    ,       nodes = config.nodes;
+  var udp_version = config.address_ipv6 ? 'udp6' : 'udp4';
+  var nodes = config.nodes;
   l = new logger.Logger(config.log || {});
 
   var forkCount = config.forkCount;
@@ -134,7 +134,6 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
         }
       }
     });
-
     var client = dgram.createSocket(udp_version);
     // Listen for the send message, and process the metric key and msg
     packet.on('send', function(key, msg) {
@@ -151,9 +150,6 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
         client.send(msg, 0, msg.length, host_config[1], host_config[0]);
       }
     });
-
-    // Bind the listening udp server to the configured port and host
-    server.bind(config.port, config.host || undefined);
 
     mgmt_server.start(
       config,

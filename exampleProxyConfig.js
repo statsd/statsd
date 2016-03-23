@@ -3,6 +3,8 @@
 Required Variables:
 
   port:             StatsD Cluster Proxy listening port [default: 8125]
+  mgmt_port:        StatsD Cluster Proxy telnet management port [default: 8126]
+  mgmt_address:     address to run the management TCP interface on [default: 0.0.0.0]
   nodes:            list of StatsD instances
      host:          address of an instance of StatsD
      port:          port that this instance is listening on
@@ -30,9 +32,9 @@ nodes: [
 {host: '127.0.0.1', port: 8131, adminport: 8132}
 ],
 server: './servers/udp',
-
 host:  '0.0.0.0',
 port: 8125,
+mgmt_port: 8126,
 forkCount: 0,
 checkInterval: 1000,
 cacheSize: 10000
