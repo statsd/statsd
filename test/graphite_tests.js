@@ -219,12 +219,12 @@ module.exports = {
               var mykey = 'stats.timers.a_test_value.histogram.bin_1000';
               return _.include(_.keys(post),mykey) && (post[mykey] == 1);
             };
-            test.ok(_.any(hashes,testtimerhistogramvalue_test), 'stats.timers.a_test_value.mean should be ' + 1);
-            test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
+            test.ok(_.any(hashes,testtimerhistogramvalue_test), 'stats.timers.a_test_value.histogram.bin_1000 should be ' + 1);
+            test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean_90 should be ' + testvalue);
 
             var count_test = function(post, metric){
               var mykey = 'stats.timers.a_test_value.' + metric;
-              return _.first(_.filter(_.pluck(post, mykey), function (e) { return e }));
+              return _.first(_.filter(_.pluck(post, mykey), function (e) { return e; }));
             };
             test.equals(count_test(hashes, 'count_ps'), 5, 'count_ps should be 5');
             test.equals(count_test(hashes, 'count'), 1, 'count should be 1');
