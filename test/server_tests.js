@@ -1,5 +1,6 @@
 var dgram = require('dgram'),
-    net = require('net');
+    net = require('net'),
+    fs = require('fs');
 
 var config = {
     address: '127.0.0.1',
@@ -59,5 +60,24 @@ module.exports = {
         });
         client.end();
     });
+  },
+  unix_socket_data_received: function(test) {
+    test.expect(3);
+    var server = require('../servers/tcp');
+    config.socket = './statsd_tmp.socket';
+    var started = server.start(config, function (data, rinfo) {
+        test.equal(msg, data.toString());
+        test.equal(msg.length, rinfo.size);
+        fs.unlinkSync(config.socket);
+        config.socket = undefined;
+        test.done();
+    });
+
+    test.ok(started);
+
+    var client = net.connect(config.socket, function () {
+        client.write(msg);
+        client.end();
+    });
   }
-}
+};
