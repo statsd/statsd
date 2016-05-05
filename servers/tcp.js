@@ -4,7 +4,7 @@ var fs = require('fs');
 function rinfo(tcpstream, data) {
     this.address = tcpstream.remoteAddress;
     this.port = tcpstream.remotePort;
-    this.family = tcpstream.address().family;
+    this.family = tcpstream.address() ? tcpstream.address().family : 'IPv4';
     this.size = data.length;
 }
 
