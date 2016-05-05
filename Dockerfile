@@ -1,4 +1,4 @@
-FROM node:onbuild
+FROM node:5-onbuild
 
 RUN \
   cp -v exampleConfig.js config.js && \
