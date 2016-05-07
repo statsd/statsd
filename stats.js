@@ -70,8 +70,6 @@ var conf;
 
 // Flush metrics to each backend.
 function flushMetrics() {
-  setTimeout(flushMetrics, getFlushTimeout(flushInterval));
-
   var time_stamp = Math.round(new Date().getTime() / 1000);
   if (old_timestamp > 0) {
     gauges[timestamp_lag_namespace] = (time_stamp - old_timestamp - (Number(conf.flushInterval)/1000));
@@ -141,7 +139,7 @@ function flushMetrics() {
       }
     }
 
-        // normally gauges are not reset.  so if we don't delete them, continue to persist previous value
+    // Normally gauges are not reset.  so if we don't delete them, continue to persist previous value
     conf.deleteGauges = conf.deleteGauges || false;
     if (conf.deleteGauges) {
       for (var gauge_key in metrics.gauges) {
@@ -154,6 +152,10 @@ function flushMetrics() {
     backendEvents.emit('flush', time_stamp, metrics);
   });
 
+  // Performing this setTimeout at the end of this method rather than the beginning
+  // helps ensure we adapt to negative clock skew by letting the method's latency
+  // introduce a short delay that should more than compensate.
+  setTimeout(flushMetrics, getFlushTimeout(flushInterval));
 }
 
 var stats = {
