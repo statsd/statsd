@@ -9,13 +9,13 @@
   "license" : "MIT",
   "homepage": "https://github.com/etsy/statsd",
   "bugs": "https://github.com/etsy/statsd/issues",
-  "keywords": {
+  "keywords": [
       "statsd",
       "etsy",
       "metric",
       "aggregation",
       "realtime"
-  },
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/etsy/statsd.git"
