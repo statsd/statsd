@@ -13,4 +13,5 @@ chown $APP_USER.$APP_GROUP $APP_CONFIG
 ln -f -s $APP_CONFIG /opt/$APP_NAME/config.js
 chmod 0640 $APP_CONFIG
 
+${CLI} scale web=0 || true
 ${CLI} scale web=1 || true
