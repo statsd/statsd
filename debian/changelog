@@ -1,3 +1,26 @@
+statsd (0.8.0-1) unstable; urgency=low
+
+  * Modularized injest servers, with support for loading multiple servers
+  * Added configurable tcp injest server
+  * Added tcp repeater functionality
+  * Added unix socket injest support
+  * Added pickle protocol support to graphite backend
+  * Added configurable IPv6 and TCP support to proxy
+  * Added telnet admin interface to proxy
+  * Multiple variable scoping fixes
+  * Fixes to flush timer to reduce bucket drift
+  * Fixes to ruby and java example client code
+  * Dropped support for node v0.8.x
+  * Fixed dependency issues for modern node versions
+  * Updated npm hashring dependency to v3.2.0
+  * Replaced npm node-syslog dependency with modern-syslog v1.1.2
+  * Add systemd services for statsd and statsd-proxy
+  * Add servers directory to package
+  * Removed duplicated libs from package
+  * Add npm dependency for postinst
+
+ -- Patrick Koch <pk.hzzrd@gmail.com>  Thu, 5 May 2016 01:00:00 +0000
+
 statsd (0.7.2-1) unstable; urgency=low
 
   * Fixes to detecting valid packets

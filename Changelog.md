@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.8.0 (05/05/2016)
+- Modularized injest servers, with support for loading multiple servers
+- Added configurable tcp injest server
+- Added unix socket injest support
+- Added tcp repeater functionality
+- Added pickle protocol support to graphite backend
+- Added configurable IPv6 and TCP support to proxy
+- Added telnet admin interface to proxy
+- Multiple variable scoping fixes
+- Fixes to flush timer to reduce bucket drift
+- Fixes to ruby and java example client code
+- Dropped support for node v0.8.x
+- Fixed dependency issues for modern node versions
+- Updated npm hashring dependency to v3.2.0
+- Replaced npm node-syslog dependency with modern-syslog v1.1.2
+
 ## v0.7.2 (09/02/2014)
 - Fixes to detecting valid packets
 
