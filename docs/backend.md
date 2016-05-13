@@ -56,4 +56,4 @@ queues and third-party services.
 - [statsd aggregation backend](https://github.com/wanelo/gossip_girl)
 - [zabbix-backend](https://github.com/parkerd/statsd-zabbix-backend)
 
-[graphite]: http://graphite.wikidot.com
+[graphite]: https://graphite.readthedocs.io/en/latest/
