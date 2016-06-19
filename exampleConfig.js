@@ -26,9 +26,15 @@ Optional Variables:
                     servers/. If not specified, the default udp server will be loaded.
                     * example for tcp server:
                     "./servers/tcp"
-    address:        address to listen on [default: 0.0.0.0]
+                    avaliable servers tcp, udp, nanomsg (for more detail about nanomsg please visit 
+                    http://nanomsg.org/
+    address:        address to listen on [default: 0.0.0.0] (Nanomsg address should include protocol 
+                    Please visit for https://github.com/alimousazy/node-nanomsg for more information
+                    Example address for nanomsg server 'tcp://127.0.0.1')
     address_ipv6:   defines if the address is an IPv4 or IPv6 address [true or false, default: false]
     port:           port to listen for messages on [default: 8125]
+    options:        Only valid for nanomsg server please check out https://github.com/alimousazy/node-nanomsg
+                    for nano msg options 
 
   debug:            debug flag [default: false]
   mgmt_address:     address to run the management TCP interface on
