@@ -54,6 +54,7 @@ queues and third-party services.
 - [statsd-backend](https://github.com/dynmeth/statsd-backend)
 - [statsd http backend](https://github.com/bmhatfield/statsd-http-backend)
 - [statsd aggregation backend](https://github.com/wanelo/gossip_girl)
+- [warp10-backend](https://github.com/cityzendata/statsd-warp10-backend)
 - [zabbix-backend](https://github.com/parkerd/statsd-zabbix-backend)
 
 [graphite]: https://graphite.readthedocs.io/en/latest/
