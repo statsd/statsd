@@ -22,6 +22,10 @@ exports.start = function(config, callback) {
              callback(packet, new rinfo(stream, packet));
           }
       });
+
+      stream.on('error', function(error) {
+        console.error(error);
+      });
   });
 
   server.on('listening', function() {
