@@ -31,6 +31,7 @@ A robust set of are also available as plugins to allow easy reporting into datab
 queues and third-party services.
 
 ## Available Third-party backends
+- [alerting backend](https://github.com/joshgummersall/statsd-alerting-backend)
 - [amqp-backend](https://github.com/mrtazz/statsd-amqp-backend)
 - [atsd-backend](https://github.com/axibase/atsd-statsd-backend)
 - [aws-cloudwatch-backend](https://github.com/camitz/aws-cloudwatch-statsd-backend)
@@ -49,6 +50,8 @@ queues and third-party services.
 - [monitis backend](https://github.com/jeremiahshirk/statsd-monitis-backend)
 - [netuitive backend](https://github.com/Netuitive/statsd-netuitive-backend)
 - [opentsdb backend](https://github.com/emurphy/statsd-opentsdb-backend)
+- [rethinkdb backend](https://github.com/joshgummersall/statsd-rethinkdb-backend)
+- [riemann backend](https://github.com/joshgummersall/statsd-riemann-backend)
 - [socket.io-backend](https://github.com/Chatham/statsd-socket.io)
 - [stackdriver backend](https://github.com/Stackdriver/stackdriver-statsd-backend)
 - [statsd-backend](https://github.com/dynmeth/statsd-backend)
