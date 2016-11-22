@@ -12,10 +12,10 @@ var util    = require('util')
   , mgmt_server = require('./lib/mgmt_server')
   , mgmt = require('./lib/mgmt_console');
 
-
 // initialize data structures with defaults for statsd stats
 var keyCounter = {};
 var counters = {};
+var backfills = {};
 var timers = {};
 var timer_counters = {};
 var gauges = {};
@@ -78,6 +78,7 @@ function flushMetrics() {
 
   var metrics_hash = {
     counters: counters,
+    backfills: backfills,
     gauges: gauges,
     timers: timers,
     timer_counters: timer_counters,
@@ -115,6 +116,11 @@ function flushMetrics() {
       } else {
         metrics.counters[counter_key] = 0;
       }
+    }
+
+    // Clear backfills
+    for (var backfills_key in metrics.backfills) {
+      delete(metrics.backfills[backfills_key]);
     }
 
     // Clear the timers
@@ -212,7 +218,20 @@ config.configFile(process.argv[2], function (config) {
     var keyFlushInterval = Number((config.keyFlush && config.keyFlush.interval) || 0);
 
     var handlePacket = function (msg, rinfo) {
-      backendEvents.emit('packet', msg, rinfo);
+      var metrics_hash = {
+        counters: counters,
+        backfills: backfills,
+        gauges: gauges,
+        timers: timers,
+        timer_counters: timer_counters,
+        sets: sets,
+        counter_rates: counter_rates,
+        timer_data: timer_data,
+        pctThreshold: pctThreshold,
+        histogram: conf.histogram
+      };
+      backendEvents.emit('packet', msg, rinfo, metrics_hash);
+      if (config.stopHandlePacket) return;
       counters[packets_received]++;
       var metrics;
       var packet_data = msg.toString();
