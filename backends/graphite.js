@@ -309,11 +309,11 @@ exports.init = function graphite_init(startup_time, config, events, logger) {
       setsNamespace.push(prefixSet);
     }
   } else {
-      globalNamespace = ['stats'];
-      counterNamespace = ['stats'];
-      timerNamespace = ['stats', 'timers'];
-      gaugesNamespace = ['stats', 'gauges'];
-      setsNamespace = ['stats', 'sets'];
+      globalNamespace = [globalPrefix];
+      counterNamespace = [globalPrefix];
+      timerNamespace = [globalPrefix, 'timers'];
+      gaugesNamespace = [globalPrefix, 'gauges'];
+      setsNamespace = [globalPrefix, 'sets'];
   }
 
   graphiteStats.last_flush = startup_time;
