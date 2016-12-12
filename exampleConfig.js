@@ -62,7 +62,7 @@ Optional Variables:
                     as opposed to sending 0.  For gauges, this unsets the gauge (instead of sending
                     the previous value). Can be individually overriden. [default: false]
   deleteGauges:     don't send values to graphite for inactive gauges, as opposed to sending the previous value [default: false]
-  gaugesMaxTTL:  number of flush cycles to wait before the gauge is marked as inactive, to use in combination with deleteGauges [default: 1]
+  gaugesMaxTTL:     number of flush cycles to wait before the gauge is marked as inactive, to use in combination with deleteGauges [default: 1]
   deleteTimers:     don't send values to graphite for inactive timers, as opposed to sending 0 [default: false]
   deleteSets:       don't send values to graphite for inactive sets, as opposed to sending 0 [default: false]
   deleteCounters:   don't send values to graphite for inactive counters, as opposed to sending 0 [default: false]
