@@ -186,7 +186,7 @@ config.configFile(process.argv[2], function (config) {
   l = new logger.Logger(config.log || {});
 
   // force conf.gaugesMaxTTL to 1 if it not a positive integer > 1
-  if (Number.isInteger(conf.gaugesMaxTTL) && conf.gaugesMaxTTL > 1) {
+  if (helpers.isInteger(conf.gaugesMaxTTL) && conf.gaugesMaxTTL > 1) {
     conf.gaugesMaxTTL = conf.gaugesMaxTTL;
   } else {
     conf.gaugesMaxTTL = 1;
