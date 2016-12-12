@@ -87,6 +87,7 @@ module.exports = {
                ,  dumpMessages: false \n\
                ,  debug: false\n\
                ,  deleteIdleStats: true\n\
+               ,  gaugesMaxTTL: 2\n\
                ,  graphitePort: " + this.testport + "\n\
                ,  graphiteHost: \"127.0.0.1\"}";
 
@@ -266,5 +267,73 @@ module.exports = {
           });
       });
     });
-  }
+  },
+
+ gauges_are_valid: function (test) {
+    test.expect(7);
+
+    var testvalue = "+1";
+    var me = this;
+    this.acceptor.once('connection',function(g){
+      statsd_send('a_test_value:' + testvalue + '|g',me.sock,'127.0.0.1',8125,function(){
+          collect_for(me.acceptor,me.myflush*3,function(strings){
+            test.ok(strings.length > 0,'should receive some data');
+              var hashes = _.map(strings, function(x) {
+              var chunks = x.split(' ');
+              var data = {};
+              data[chunks[0]] = chunks[1];
+              return data;
+            });
+
+            // create an associative array which has the flush cycle number as a key
+            // and a list of hashes of the metrics sent during that flush cycle as value
+            flushes = {};
+            i_number = 0;
+            hashes.forEach(function (item) {
+                key = Object.keys(item)[0]
+                if (key == '') {
+                  i_number++;
+                  return;
+                }
+                if (! (i_number in flushes)) {
+                  flushes[i_number] = [];
+                }
+
+                flushes[i_number].push(item);
+            });
+
+            var testavgvalue_test = function(post){
+              var mykey = 'stats.gauges.a_test_value';
+              return _.include(_.keys(post),mykey) && (post[mykey] == 1);
+            };
+
+            test.ok(_.any(flushes[0],testavgvalue_test), 'stats.gauges.a_test_value after first flush should be ' + 1);
+            test.ok(_.any(flushes[1],testavgvalue_test), 'stats.gauges.a_test_value after second flush should be ' + 1);
+
+            var testavgvalue_test_after_delete = function(post){
+              var mykey = 'stats.gauges.a_test_value';
+              return !(_.include(_.keys(post),mykey));
+            };
+
+            test.ok(_.every(flushes[2],testavgvalue_test_after_delete), 'stats.gauges.a_test_value after third flush should not be present');
+
+            var numstat_test = function(post){
+              var mykey = 'statsd.numStats';
+              return _.include(_.keys(post),mykey) && (post[mykey] == 5);
+            };
+            test.ok(_.any(flushes[0],numstat_test), 'statsd.numStats after first flush should be 5');
+            test.ok(_.any(flushes[1],numstat_test), 'statsd.numStats after second flush should be 5');
+
+            var numstat_test_after_delete = function(post){
+              var mykey = 'statsd.numStats';
+              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
+            };
+            test.ok(_.any(flushes[2],numstat_test_after_delete), 'statsd.numStats after third flush should be 4');
+
+            test.done()
+      });
+
+    });
+  });
+}
 }
