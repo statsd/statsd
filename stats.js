@@ -18,6 +18,7 @@ let counters = {};
 let timers = {};
 let timer_counters = {};
 let gauges = {};
+let gaugesTTL = {};
 let sets = {};
 let counter_rates = {};
 let timer_data = {};
@@ -89,16 +90,6 @@ function flushMetrics() {
 
   // After all listeners, reset the stats
   backendEvents.once('flush', function clear_metrics(ts, metrics) {
-    // TODO: a lot of this should be moved up into an init/constructor so we don't have to do it every
-    // single flushInterval....
-    // allows us to flag all of these on with a single config but still override them individually
-    conf.deleteIdleStats = conf.deleteIdleStats !== undefined ? conf.deleteIdleStats : false;
-    if (conf.deleteIdleStats) {
-      conf.deleteCounters = conf.deleteCounters !== undefined ? conf.deleteCounters : true;
-      conf.deleteTimers = conf.deleteTimers !== undefined ? conf.deleteTimers : true;
-      conf.deleteSets = conf.deleteSets !== undefined ? conf.deleteSets : true;
-      conf.deleteGauges = conf.deleteGauges !== undefined ? conf.deleteGauges : true;
-    }
 
     // Clear the counters
     conf.deleteCounters = conf.deleteCounters || false;
@@ -141,8 +132,14 @@ function flushMetrics() {
     // Normally gauges are not reset.  so if we don't delete them, continue to persist previous value
     conf.deleteGauges = conf.deleteGauges || false;
     if (conf.deleteGauges) {
-      for (const gauge_key in metrics.gauges) {
-        delete(metrics.gauges[gauge_key]);
+      for (const gauge_key in gaugesTTL) {
+        gaugesTTL[gauge_key]--;
+
+        // if the gauge has been idle for more than the allowed TTL cycles delete it
+        if (gaugesTTL[gauge_key] < 1) {
+          delete(metrics.gauges[gauge_key]);
+          delete(gaugesTTL[gauge_key]);
+        }
       }
     }
   });
@@ -188,6 +185,26 @@ config.configFile(process.argv[2], function (config) {
 
   l = new logger.Logger(config.log || {});
 
+  // force conf.gaugesMaxTTL to 1 if it not a positive integer > 1
+  if (Number.isInteger(conf.gaugesMaxTTL) && conf.gaugesMaxTTL > 1) {
+    conf.gaugesMaxTTL = conf.gaugesMaxTTL;
+  } else {
+    conf.gaugesMaxTTL = 1;
+  }
+
+  // allows us to flag all of these on with a single config but still override them individually
+  conf.deleteIdleStats = conf.deleteIdleStats !== undefined ? conf.deleteIdleStats : false;
+  if (conf.deleteIdleStats) {
+    conf.deleteCounters = conf.deleteCounters !== undefined ? conf.deleteCounters : true;
+    conf.deleteTimers = conf.deleteTimers !== undefined ? conf.deleteTimers : true;
+    conf.deleteSets = conf.deleteSets !== undefined ? conf.deleteSets : true;
+    conf.deleteGauges = conf.deleteGauges !== undefined ? conf.deleteGauges : true;
+  }
+
+  // if gauges are not being deleted, clear gaugesTTL counters to save memory
+  if (! conf.deleteGauges) {
+    gaugesTTL = {}
+  }
   // setup config for stats prefix
   let prefixStats = config.prefixStats;
   prefixStats = prefixStats !== undefined ? prefixStats : "statsd";
@@ -266,6 +283,10 @@ config.configFile(process.argv[2], function (config) {
             timers[key].push(Number(fields[0] || 0));
             timer_counters[key] += (1 / sampleRate);
           } else if (metric_type === "g") {
+            // if deleteGauges is true reset the max TTL to its initial value
+            if (conf.deleteGauges) {
+              gaugesTTL[key] = conf.gaugesMaxTTL;
+            }
             if (gauges[key] && fields[0].match(/^[-+]/)) {
               gauges[key] += Number(fields[0] || 0);
             } else {
