@@ -1,0 +1,7 @@
+example*
+debian
+config.js
+packager
+.git*
+.pkgr.yml
+.travis.yml
