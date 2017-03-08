@@ -27,7 +27,7 @@ var flushInterval, keyFlushInt, serversLoaded, mgmtServer;
 var startup_time = Math.round(new Date().getTime() / 1000);
 var backendEvents = new events.EventEmitter();
 var healthStatus = config.healthStatus || 'up';
-var old_timestamp = 0;
+var nextFlush = null;
 var timestamp_lag_namespace;
 var keyNameSanitize = true;
 
@@ -70,11 +70,9 @@ var conf;
 
 // Flush metrics to each backend.
 function flushMetrics() {
-  var time_stamp = Math.round(new Date().getTime() / 1000);
-  if (old_timestamp > 0) {
-    gauges[timestamp_lag_namespace] = (time_stamp - old_timestamp - (Number(conf.flushInterval)/1000));
-  }
-  old_timestamp = time_stamp;
+  var startFlushMs = new Date().getTime();
+  var time_stamp = Math.round(startFlushMs / 1000);
+  gauges[timestamp_lag_namespace] = Math.round((startFlushMs - nextFlush) / 1000);
 
   var metrics_hash = {
     counters: counters,
@@ -155,7 +153,8 @@ function flushMetrics() {
   // Performing this setTimeout at the end of this method rather than the beginning
   // helps ensure we adapt to negative clock skew by letting the method's latency
   // introduce a short delay that should more than compensate.
-  setTimeout(flushMetrics, getFlushTimeout(flushInterval));
+  nextFlush += flushInterval;
+  setTimeout(flushMetrics, Math.max(0, nextFlush - new Date().getTime()));
 }
 
 var stats = {
@@ -173,10 +172,6 @@ function sanitizeKeyName(key) {
   } else {
     return key;
   }
-}
-
-function getFlushTimeout(interval) {
-    return interval - (new Date().getTime() - startup_time * 1000) % flushInterval
 }
 
 // Global for the logger
@@ -425,7 +420,8 @@ config.configFile(process.argv[2], function (config) {
     }
 
     // Setup the flush timer
-    var flushInt = setTimeout(flushMetrics, getFlushTimeout(flushInterval));
+    nextFlush = new Date().getTime() + flushInterval;
+    var flushInt = setTimeout(flushMetrics, flushInterval);
 
     if (keyFlushInterval > 0) {
       var keyFlushPercent = Number((config.keyFlush && config.keyFlush.percent) || 100);
