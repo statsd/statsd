@@ -29,16 +29,16 @@ the `events` object:
   and `metrics` is a hash representing the StatsD statistics:
 
   ```
-metrics: {
-    counters: counters,
-    gauges: gauges,
-    timers: timers,
-    sets: sets,
-    counter_rates: counter_rates,
-    timer_data: timer_data,
-    statsd_metrics: statsd_metrics,
-    pctThreshold: pctThreshold
-}
+  metrics: {
+      counters: counters,
+      gauges: gauges,
+      timers: timers,
+      sets: sets,
+      counter_rates: counter_rates,
+      timer_data: timer_data,
+      statsd_metrics: statsd_metrics,
+      pctThreshold: pctThreshold
+  }
   ```
 
   The counter_rates and timer_data are precalculated statistics to simplify
