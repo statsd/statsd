@@ -10,7 +10,8 @@ var util    = require('util')
   , pm = require('./lib/process_metrics')
   , process_mgmt = require('./lib/process_mgmt')
   , mgmt_server = require('./lib/mgmt_server')
-  , mgmt = require('./lib/mgmt_console');
+  , mgmt = require('./lib/mgmt_console')
+  , ce = require('./lib/composition_engine');
 
 
 // initialize data structures with defaults for statsd stats
@@ -149,7 +150,15 @@ function flushMetrics() {
   });
 
   pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(metrics) {
-    backendEvents.emit('flush', time_stamp, metrics);
+    if (conf.compositions && conf.compositions.source) {
+
+      var compositions = require(conf.compositions.source);
+      ce(compositions, metrics, function(m) {
+        backendEvents.emit('flush', time_stamp, m);
+      });
+    } else {
+      backendEvents.emit('flush', time_stamp, metrics);
+    }
   });
 
   // Performing this setTimeout at the end of this method rather than the beginning

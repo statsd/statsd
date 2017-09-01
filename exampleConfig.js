@@ -117,6 +117,29 @@ Optional Variables:
 
   automaticConfigReload: whether to watch the config file and reload it when it
                          changes. The default is true. Set this to false to disable.
+
+  compositions:     rules to use while composing counters metrics.
+    source:         path for the rules file. should comply to the following structure:
+                      module.exports = [{
+                          name: "#0.ctr.#1", // output metric. sharps are back references for following regexp
+                          regexp: [
+                              /^([a-z]+)\.click\.([a-z]+)/, // click metric regex
+                              /^([a-z]+)\.view\.([a-z]+)/ // view metric regex
+                          ],
+                          compose: function(click, view) { // composing function
+                              return 100 * (click / view);
+                          }
+                      },{
+                          name: "#0.res_time.#1",
+                          regexp: [
+                              /^([a-z]+)\.time\.([a-z]+)/,
+                              /^([a-z]+)\.count\.([a-z]+)/
+                          ],
+                          compose: function(time, count) {
+                              return time / count;
+                          }
+                      }}];
+
 */
 {
   graphitePort: 2003
