@@ -11,11 +11,14 @@
  * This backend supports the following config options:
  *
  *   graphiteHost: Hostname of graphite server.
- *   graphitePort: Port to contact graphite server at.
+ *   graphitePort: Port for the graphite text collector. Defaults to 2003.
+ *   graphitePicklePort: Port for the graphite pickle collector. Defaults to 2004.
+ *   graphiteProtocol: Either 'text' or 'pickle'. Defaults to 'text'.
+ * 
+ * If graphiteHost is not specified, metrics are processed but discarded.
  */
 
-var net = require('net'),
-    logger = require('../lib/logger');
+var net = require('net');
 
 // this will be instantiated to the logger
 var l;
@@ -24,14 +27,19 @@ var debug;
 var flushInterval;
 var graphiteHost;
 var graphitePort;
+var graphitePicklePort;
+var graphiteProtocol;
+var flush_counts;
 
 // prefix configuration
 var globalPrefix;
-var prefixPersecond;
 var prefixCounter;
 var prefixTimer;
 var prefixGauge;
 var prefixSet;
+var globalSuffix;
+var prefixStats;
+var globalKeySanitize = true;
 
 // set up namespaces
 var legacyNamespace  = true;
@@ -43,47 +51,104 @@ var setsNamespace    = [];
 
 var graphiteStats = {};
 
-var post_stats = function graphite_post_stats(statString) {
+var post_stats = function graphite_post_stats(stats) {
   var last_flush = graphiteStats.last_flush || 0;
   var last_exception = graphiteStats.last_exception || 0;
   var flush_time = graphiteStats.flush_time || 0;
   var flush_length = graphiteStats.flush_length || 0;
+
   if (graphiteHost) {
     try {
-      var graphite = net.createConnection(graphitePort, graphiteHost);
+      var port = graphiteProtocol == 'pickle' ? graphitePicklePort : graphitePort;
+      var graphite = net.createConnection(port, graphiteHost);
       graphite.addListener('error', function(connectionException){
         if (debug) {
           l.log(connectionException);
         }
       });
       graphite.on('connect', function() {
-        var ts = Math.round(new Date().getTime() / 1000);
-        var ts_suffix = ' ' + ts + "\n";
+        var ts = Math.round(Date.now() / 1000);
         var namespace = globalNamespace.concat(prefixStats).join(".");
-        statString += namespace + '.graphiteStats.last_exception ' + last_exception + ts_suffix;
-        statString += namespace + '.graphiteStats.last_flush '     + last_flush     + ts_suffix;
-        statString += namespace + '.graphiteStats.flush_time '     + flush_time     + ts_suffix;
-        statString += namespace + '.graphiteStats.flush_length '   + flush_length   + ts_suffix;
+        stats.add(namespace + '.graphiteStats.last_exception' + globalSuffix, last_exception, ts);
+        stats.add(namespace + '.graphiteStats.last_flush'     + globalSuffix, last_flush    , ts);
+        stats.add(namespace + '.graphiteStats.flush_time'     + globalSuffix, flush_time    , ts);
+        stats.add(namespace + '.graphiteStats.flush_length'   + globalSuffix, flush_length  , ts);
+        var stats_payload = graphiteProtocol == 'pickle' ? stats.toPickle() : stats.toText();
+
         var starttime = Date.now();
-        this.write(statString);
+        this.write(stats_payload);
         this.end();
+
         graphiteStats.flush_time = (Date.now() - starttime);
-        graphiteStats.flush_length = statString.length;
-        graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
+        graphiteStats.flush_length = stats_payload.length;
+        graphiteStats.last_flush = Math.round(Date.now() / 1000);
       });
     } catch(e){
       if (debug) {
         l.log(e);
       }
-      graphiteStats.last_exception = Math.round(new Date().getTime() / 1000);
+      graphiteStats.last_exception = Math.round(Date.now() / 1000);
     }
   }
 };
 
+// Minimally necessary pickle opcodes.
+var MARK = '(',
+    STOP = '.',
+    LONG = 'L',
+    STRING = 'S',
+    APPEND = 'a',
+    LIST = 'l',
+    TUPLE = 't';
+
+// A single measurement for sending to graphite.
+function Metric(key, value, ts) {
+  var m = this;
+  this.key = key;
+  this.value = value;
+  this.ts = ts;
+
+  // return a string representation of this metric appropriate 
+  // for sending to the graphite collector. does not include
+  // a trailing newline.
+  this.toText = function() {
+    return m.key + " " + m.value + " " + m.ts;
+  };
+
+  this.toPickle = function() {
+    return MARK + STRING + '\'' + m.key + '\'\n' + MARK + LONG + m.ts + 'L\n' + STRING + '\'' + m.value + '\'\n' + TUPLE + TUPLE + APPEND;
+  };
+}
+
+// A collection of measurements for sending to graphite.
+function Stats() {
+  var s = this;
+  this.metrics = [];
+  this.add = function(key, value, ts) {
+    s.metrics.push(new Metric(key, value, ts));
+  };
+
+  this.toText = function() {
+    return s.metrics.map(function(m) { return m.toText(); }).join('\n') + '\n';
+  };
+
+  this.toPickle = function() {
+    var body = MARK + LIST + s.metrics.map(function(m) { return m.toPickle(); }).join('') + STOP;
+
+    // The first four bytes of the graphite pickle format
+    // contain the length of the rest of the payload.
+    // We use Buffer because this is binary data.
+    var buf = new Buffer(4 + body.length);
+
+    buf.writeUInt32BE(body.length,0);
+    buf.write(body,4);
+
+    return buf;
+  };
+}
+
 var flush_stats = function graphite_flush(ts, metrics) {
-  var ts_suffix = ' ' + ts + "\n";
   var starttime = Date.now();
-  var statString = '';
   var numStats = 0;
   var key;
   var timer_data_key;
@@ -95,35 +160,57 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var timer_data = metrics.timer_data;
   var statsd_metrics = metrics.statsd_metrics;
 
+  // Sanitize key for graphite if not done globally
+  function sk(key) {
+    if (globalKeySanitize) {
+      return key;
+    } else {
+      return key.replace(/\s+/g, '_')
+                .replace(/\//g, '-')
+                .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+    }
+  };
+
+  // Flatten all the different types of metrics into a single
+  // collection so we can allow serialization to either the graphite
+  // text and pickle formats.
+  var stats = new Stats();
+
   for (key in counters) {
-    var namespace = counterNamespace.concat(key);
     var value = counters[key];
     var valuePerSecond = counter_rates[key]; // pre-calculated "per second" rate
+    var keyName = sk(key);
+    var namespace = counterNamespace.concat(keyName);
 
     if (legacyNamespace === true) {
-      statString += namespace.join(".")   + ' ' + valuePerSecond + ts_suffix;
-      statString += 'stats_counts.' + key + ' ' + value          + ts_suffix;
+      stats.add(namespace.join(".") + globalSuffix, valuePerSecond, ts);
+      if (flush_counts) {
+        stats.add('stats_counts.' + keyName + globalSuffix, value, ts);
+      }
     } else {
-      statString += namespace.concat('rate').join(".")  + ' ' + valuePerSecond + ts_suffix;
-      statString += namespace.concat('count').join(".") + ' ' + value          + ts_suffix;
+      stats.add(namespace.concat('rate').join(".")  + globalSuffix, valuePerSecond, ts);
+      if (flush_counts) {
+        stats.add(namespace.concat('count').join(".") + globalSuffix, value, ts);
+      }
     }
 
     numStats += 1;
   }
 
   for (key in timer_data) {
-    var namespace = timerNamespace.concat(key);
+    var namespace = timerNamespace.concat(sk(key));
     var the_key = namespace.join(".");
+
     for (timer_data_key in timer_data[key]) {
       if (typeof(timer_data[key][timer_data_key]) === 'number') {
-        statString += the_key + '.' + timer_data_key + ' ' + timer_data[key][timer_data_key] + ts_suffix;
+        stats.add(the_key + '.' + timer_data_key + globalSuffix, timer_data[key][timer_data_key], ts);
       } else {
         for (var timer_data_sub_key in timer_data[key][timer_data_key]) {
           if (debug) {
             l.log(timer_data[key][timer_data_key][timer_data_sub_key].toString());
           }
-          statString += the_key + '.' + timer_data_key + '.' + timer_data_sub_key + ' ' +
-                        timer_data[key][timer_data_key][timer_data_sub_key] + ts_suffix;
+          stats.add(the_key + '.' + timer_data_key + '.' + timer_data_sub_key + globalSuffix,
+                    timer_data[key][timer_data_key][timer_data_sub_key], ts);
         }
       }
     }
@@ -131,33 +218,34 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   for (key in gauges) {
-    var namespace = gaugesNamespace.concat(key);
-    statString += namespace.join(".") + ' ' + gauges[key] + ts_suffix;
+    var namespace = gaugesNamespace.concat(sk(key));
+    stats.add(namespace.join(".") + globalSuffix, gauges[key], ts);
     numStats += 1;
   }
 
   for (key in sets) {
-    var namespace = setsNamespace.concat(key);
-    statString += namespace.join(".") + '.count ' + sets[key].values().length + ts_suffix;
+    var namespace = setsNamespace.concat(sk(key));
+    stats.add(namespace.join(".") + '.count' + globalSuffix, sets[key].size(), ts);
     numStats += 1;
   }
 
-  var namespace = globalNamespace.concat(prefixStats);
   if (legacyNamespace === true) {
-    statString += prefixStats + '.numStats ' + numStats + ts_suffix;
-    statString += 'stats.' + prefixStats + '.graphiteStats.calculationtime ' + (Date.now() - starttime) + ts_suffix;
+    stats.add(prefixStats + '.numStats' + globalSuffix, numStats, ts);
+    stats.add('stats.' + prefixStats + '.graphiteStats.calculationtime' + globalSuffix, (Date.now() - starttime), ts);
     for (key in statsd_metrics) {
-      statString += 'stats.' + prefixStats + '.' + key + ' ' + statsd_metrics[key] + ts_suffix;
+      stats.add('stats.' + prefixStats + '.' + key + globalSuffix, statsd_metrics[key], ts);
     }
   } else {
-    statString += namespace.join(".") + '.numStats ' + numStats + ts_suffix;
-    statString += namespace.join(".") + '.graphiteStats.calculationtime ' + (Date.now() - starttime) + ts_suffix;
+    var namespace = globalNamespace.concat(prefixStats);
+    stats.add(namespace.join(".") + '.numStats' + globalSuffix, numStats, ts);
+    stats.add(namespace.join(".") + '.graphiteStats.calculationtime' + globalSuffix, (Date.now() - starttime) , ts);
     for (key in statsd_metrics) {
       var the_key = namespace.concat(key);
-      statString += the_key.join(".") + ' ' + statsd_metrics[key] + ts_suffix;
+      stats.add(the_key.join(".") + globalSuffix,+ statsd_metrics[key], ts);
     }
   }
-  post_stats(statString);
+  post_stats(stats);
+
   if (debug) {
    l.log("numStats: " + numStats);
   }
@@ -169,27 +257,35 @@ var backend_status = function graphite_status(writeCb) {
   }
 };
 
-exports.init = function graphite_init(startup_time, config, events) {
-  l = new logger.Logger(config.log || {});
+exports.init = function graphite_init(startup_time, config, events, logger) {
   debug = config.debug;
+  l = logger;
   graphiteHost = config.graphiteHost;
-  graphitePort = config.graphitePort;
+  graphitePort = config.graphitePort || 2003;
+  graphitePicklePort = config.graphitePicklePort || 2004;
+  graphiteProtocol = config.graphiteProtocol || 'text';
   config.graphite = config.graphite || {};
   globalPrefix    = config.graphite.globalPrefix;
   prefixCounter   = config.graphite.prefixCounter;
   prefixTimer     = config.graphite.prefixTimer;
   prefixGauge     = config.graphite.prefixGauge;
   prefixSet       = config.graphite.prefixSet;
+  globalSuffix    = config.graphite.globalSuffix;
   legacyNamespace = config.graphite.legacyNamespace;
+  prefixStats     = config.prefixStats;
 
-  // set defaults for prefixes
+  // set defaults for prefixes & suffix
   globalPrefix  = globalPrefix !== undefined ? globalPrefix : "stats";
   prefixCounter = prefixCounter !== undefined ? prefixCounter : "counters";
   prefixTimer   = prefixTimer !== undefined ? prefixTimer : "timers";
   prefixGauge   = prefixGauge !== undefined ? prefixGauge : "gauges";
   prefixSet     = prefixSet !== undefined ? prefixSet : "sets";
+  prefixStats   = prefixStats !== undefined ? prefixStats : "statsd";
   legacyNamespace = legacyNamespace !== undefined ? legacyNamespace : true;
 
+  // In order to unconditionally add this string, it either needs to be an
+  // empty string if it was unset, OR prefixed by a . if it was set.
+  globalSuffix  = globalSuffix !== undefined ? '.' + globalSuffix : '';
 
   if (legacyNamespace === false) {
     if (globalPrefix !== "") {
@@ -225,7 +321,13 @@ exports.init = function graphite_init(startup_time, config, events) {
   graphiteStats.flush_time = 0;
   graphiteStats.flush_length = 0;
 
+  if (config.keyNameSanitize !== undefined) {
+    globalKeySanitize = config.keyNameSanitize;
+  }
+
   flushInterval = config.flushInterval;
+
+  flush_counts = typeof(config.flush_counts) === "undefined" ? true : config.flush_counts;
 
   events.on('flush', flush_stats);
   events.on('status', backend_status);

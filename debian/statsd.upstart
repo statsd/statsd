@@ -1,11 +1,28 @@
-description "statsd"
-author      "etsy"
+# statsd - Network daemon for aggregating statistics
+#
+# This is a network service that receives metric data via UDP from other
+# applications. It aggregates this data and flushes it to a storage backend
+# (typically Graphite) at regular intervals.
+#
+description "Network daemon for aggregating statistics"
+author      "Etsy"
 
-start on startup
-stop on shutdown
+start on (local-filesystems and net-device-up IFACE!=lo)
+
+setuid _statsd
+setgid _statsd
+
+respawn
+respawn limit 10 5
+
+chdir /usr/share/statsd
+
+pre-start script
+    NODE_BIN=$(which nodejs || which node)
+    [ -n $NODE_BIN ] || { stop; exit 0; }
+end script
 
 script
-    chdir /usr/share/statsd
-
-    exec sudo -u _statsd /usr/share/statsd/scripts/start
+    NODE_BIN=$(which nodejs || which node)
+    exec $NODE_BIN stats.js /etc/statsd/localConfig.js
 end script

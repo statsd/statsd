@@ -1,0 +1,14 @@
+[Unit]
+Description=Network daemon for aggregating statistics
+Documentation=https://github.com/etsy/statsd/
+Wants=network.target
+
+[Service]
+Type=simple
+User=_statsd
+ExecStart=/usr/bin/nodejs /usr/share/statsd/stats.js /etc/statsd/localConfig.js
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

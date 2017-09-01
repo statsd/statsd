@@ -22,7 +22,7 @@ backends can be run at once. To select which backends are loaded, set
 the `backends` configuration variable to the list of backend modules to load.
 
 Backends are just npm modules which implement the interface described in
-section [Backend Interface](./BackendInterface.md). In order to be able to load the backend, add the
+section [Backend Interface](./backend_interface.md). In order to be able to load the backend, add the
 module name into the `backends` variable in your config. As the name is also
 used in the `require` directive, you can load one of the provided backends by
 giving the relative path (e.g. `./backends/graphite`).
@@ -32,19 +32,29 @@ queues and third-party services.
 
 ## Available Third-party backends
 - [amqp-backend](https://github.com/mrtazz/statsd-amqp-backend)
-- [datadog-backend](https://github.com/datadog/statsd)
+- [atsd-backend](https://github.com/axibase/atsd-statsd-backend)
+- [aws-cloudwatch-backend](https://github.com/camitz/aws-cloudwatch-statsd-backend)
+- [node-bell](https://github.com/eleme/node-bell)
+- [couchdb-backend](https://github.com/sysadminmike/couch-statsd-backend)
+- [datadog-backend](https://github.com/DataDog/statsd-datadog-backend)
+- [elasticsearch-backend](https://github.com/markkimsal/statsd-elasticsearch-backend)
 - [ganglia-backend](https://github.com/jbuchbinder/statsd-ganglia-backend)
 - [hosted graphite backend](https://github.com/hostedgraphite/statsdplugin)
+- [influxdb backend](https://github.com/bernd/statsd-influxdb-backend)
 - [instrumental backend](https://github.com/collectiveidea/statsd-instrumental-backend)
+- [jut-backend](https://github.com/jut-io/statsd-jut-backend)
 - [leftronic backend](https://github.com/sreuter/statsd-leftronic-backend)
 - [librato-backend](https://github.com/librato/statsd-librato-backend)
 - [mongo-backend](https://github.com/dynmeth/mongo-statsd-backend)
 - [monitis backend](https://github.com/jeremiahshirk/statsd-monitis-backend)
+- [netuitive backend](https://github.com/Netuitive/statsd-netuitive-backend)
 - [opentsdb backend](https://github.com/emurphy/statsd-opentsdb-backend)
 - [socket.io-backend](https://github.com/Chatham/statsd-socket.io)
+- [stackdriver backend](https://github.com/Stackdriver/stackdriver-statsd-backend)
 - [statsd-backend](https://github.com/dynmeth/statsd-backend)
 - [statsd http backend](https://github.com/bmhatfield/statsd-http-backend)
 - [statsd aggregation backend](https://github.com/wanelo/gossip_girl)
+- [warp10-backend](https://github.com/cityzendata/statsd-warp10-backend)
 - [zabbix-backend](https://github.com/parkerd/statsd-zabbix-backend)
 
-[graphite]: http://graphite.wikidot.com
+[graphite]: https://graphite.readthedocs.io/en/latest/

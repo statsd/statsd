@@ -1,0 +1,25 @@
+statsd:
+  build: .
+  links:
+  - carbon:graphite
+  ports:
+  - 8125:8125/udp
+  - 8126:8126
+
+graphite-web:
+  image: dockerana/graphite
+  links:
+  - carbon
+  ports:
+  - 8000:8000
+  volumes_from:
+  - carbon
+
+carbon:
+  image: dockerana/carbon
+  ports:
+  - 2003:2003
+  - 2004:2004
+  - 7002:7002
+  volumes:
+  - /opt/graphite

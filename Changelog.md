@@ -1,5 +1,50 @@
 # Changelog
 
+## v0.8.0 (05/05/2016)
+- Modularized injest servers, with support for loading multiple servers
+- Added configurable tcp injest server
+- Added unix socket injest support
+- Added tcp repeater functionality
+- Added pickle protocol support to graphite backend
+- Added configurable IPv6 and TCP support to proxy
+- Added telnet admin interface to proxy
+- Multiple variable scoping fixes
+- Fixes to flush timer to reduce bucket drift
+- Fixes to ruby and java example client code
+- Dropped support for node v0.8.x
+- Fixed dependency issues for modern node versions
+- Updated npm hashring dependency to v3.2.0
+- Replaced npm node-syslog dependency with modern-syslog v1.1.2
+
+## v0.7.2 (09/02/2014)
+- Fixes to detecting valid packets
+
+## v0.7.1 (02/06/2014)
+- move contributing information into CONTRIBUTING.md
+- Updates winser to v0.1.6
+- examples: python: added efficiency note
+- python: examples: fixed doctests for Python 3
+- Standardized debian log locations
+- Enhancement: consume logger in graphite and repeater backends
+- Enhancement: update backend documentation
+- Enhancement: inject logger object into backend
+- Send STDOUT and STDERR to the appropriate files
+
+## v0.7.0 (12/05/2013)
+- added cluster proxy
+- measure and graph timestamp generation lag
+- added median calculation for timers
+- support for top percentiles for timers
+- drop support for node v0.6.x
+- support for setting the process title
+- functionality for optionally omitting stats_counts metrics
+- improved functionality to delete counters from the management console
+- updates to Debian packaging
+- added a clojure example client
+- cleaned up the Go example client
+- increased test coverage
+- documentation updates
+
 ## v0.6.0 (03/15/2013)
 - added new metric types : sets, gauge deltas, histograms
 - added ability to delete idle stats

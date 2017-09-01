@@ -151,7 +151,7 @@ module.exports = {
           return data;
         });
         test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'stats.statsd.numStats'),'graphite output includes numStats');
-        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'stats.statsd.numStats' })['stats.statsd.numStats'],2);
+        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'stats.statsd.numStats' })['stats.statsd.numStats'],3);
         test.done();
       });
     });
@@ -174,9 +174,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'stats.statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 0');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 4');
 
             var bad_lines_seen_value_test = function(post){
               var mykey = 'stats.counters.statsd.bad_lines_seen.count';
@@ -207,9 +207,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'stats.statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 5);
             };
-            test.ok(_.any(hashes,numstat_test), 'stats.statsd.numStats should be 1');
+            test.ok(_.any(hashes,numstat_test), 'stats.statsd.numStats should be 5');
 
             var testtimervalue_test = function(post){
               var mykey = 'stats.timers.a_test_value.mean_90';
@@ -219,12 +219,12 @@ module.exports = {
               var mykey = 'stats.timers.a_test_value.histogram.bin_1000';
               return _.include(_.keys(post),mykey) && (post[mykey] == 1);
             };
-            test.ok(_.any(hashes,testtimerhistogramvalue_test), 'stats.timers.a_test_value.mean should be ' + 1);
-            test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean should be ' + testvalue);
+            test.ok(_.any(hashes,testtimerhistogramvalue_test), 'stats.timers.a_test_value.histogram.bin_1000 should be ' + 1);
+            test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean_90 should be ' + testvalue);
 
             var count_test = function(post, metric){
               var mykey = 'stats.timers.a_test_value.' + metric;
-              return _.first(_.filter(_.pluck(post, mykey), function (e) { return e }));
+              return _.first(_.filter(_.pluck(post, mykey), function (e) { return e; }));
             };
             test.equals(count_test(hashes, 'count_ps'), 5, 'count_ps should be 5');
             test.equals(count_test(hashes, 'count'), 1, 'count should be 1');
@@ -278,9 +278,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'stats.statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 3);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 5);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 3');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 5');
 
             var testavgvalue_test = function(post){
               var mykey = 'stats.counters.a_test_value.rate';
@@ -354,6 +354,25 @@ module.exports = {
             test.ok(_.any(hashes, gaugevalue_test), 'stats.gauges.test_value should be ' + testresult);
 
             test.done();
+          });
+        });
+      });
+    });
+  },
+
+  metric_names_are_sanitized: function(test) {
+    var me = this;
+    this.acceptor.once('connection', function(c) {
+      statsd_send('fo/o:250|c',me.sock,'127.0.0.1',8125,function(){
+        statsd_send('b ar:250|c',me.sock,'127.0.0.1',8125,function(){
+          statsd_send('foo+bar:250|c',me.sock,'127.0.0.1',8125,function(){
+            collect_for(me.acceptor, me.myflush * 2, function(strings){
+              var str = strings.join();
+              test.ok(str.indexOf('fo-o') !== -1, "Did not map 'fo/o' => 'fo-o'");
+              test.ok(str.indexOf('b_ar') !== -1, "Did not map 'b ar' => 'b_ar'");
+              test.ok(str.indexOf('foobar') !== -1, "Did not map 'foo+bar' => 'foobar'");
+              test.done();
+            });
           });
         });
       });

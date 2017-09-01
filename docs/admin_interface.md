@@ -1,20 +1,29 @@
 TCP Stats Interface
--------------------
+===================
 
 A really simple TCP management interface is available by default on port 8126
 or overriden in the configuration file. Inspired by the memcache stats approach
 this can be used to monitor a live statsd server.  You can interact with the
 management server by telnetting to port 8126, the following commands are
-available:
+available based on the running server.
+
+Common commands
+---------------
+
+* health [up|down] - a way to get/set the health status of statsd. Alone will get you the current health status. Passing a second command will set the status to the new value. Accepted values are _up_ and _down_.
+* config - a dump of the current configuration
+* quit - close the connection from the server side
+
+Statsd specific commands
+------------------------
 
 * stats - some stats about the running server
 * counters - a dump of all the current counters
 * gauges - a dump of all the current gauges
 * timers - a dump of the current timers
 * delcounters - delete a counter or folder of counters
-* delgauges - delete a gauge or folder of gauges 
+* delgauges - delete a gauge or folder of gauges
 * deltimers - delete a timer or folder of timers
-* health - a way to set the health status of statsd
 
 The stats output currently will give you:
 
@@ -31,7 +40,7 @@ Or you can use the del command to delete a folder of metrics like this :
 
     #to delete counters sandbox.test.*
     echo "delcounters sandbox.test.*" | nc 127.0.0.1 8126
-    
+
 
 Each backend will also publish a set of statistics, prefixed by its module name.
 
@@ -55,3 +64,12 @@ The health output:
 * using health up or health down, you can change the current health status.
 * the healthStatus configuration option allows you to set the default health status at start.
 
+Statsd Proxy specific commands
+------------------------------
+
+* status - the status of the current server
+
+The __status__ output currently will give you:
+
+* uptime: the number of seconds elapsed since statsd proxy started
+* nodes: a space separated list of host:port for each active node in the ring

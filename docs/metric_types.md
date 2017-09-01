@@ -22,7 +22,7 @@ Tells StatsD that this counter is being sent sampled every 1/10th of the time.
 Timing
 ------
 
-    glork:320|ms
+    glork:320|ms|@0.1
 
 The glork took 320ms to complete this time. StatsD figures out percentiles,
 average (mean), standard deviation, sum, lower and upper bounds for the flush interval.
@@ -37,6 +37,12 @@ generate the following list of stats for each threshold:
 
 Where `$KEY` is the stats key you specify when sending to statsd, and `$PCT` is
 the percentile threshold.
+
+Note that the `mean` metric is the mean value of all timings recorded during
+the flush interval whereas `mean_$PCT` is the mean of all timings which fell
+into the `$PCT` percentile for that flush interval. And the same holds for sum
+and upper. See [issue #157](https://github.com/etsy/statsd/issues/157) for a
+more detailed explanation of the calculation.
 
 If the count at flush is 0 then you can opt to send no metric at all for this timer,
 by setting `config.deleteTimers`.
@@ -61,6 +67,10 @@ Examples:
         [ { metric: 'foo', bins: [] },
           { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
 
+Statsd also maintains a counter for each timer metric. The 3rd field
+specifies the sample rate for this counter (in this example @0.1). The field
+is optional and defaults to 1.
+
 Note:
 
 * first match for a metric wins.
@@ -76,7 +86,7 @@ StatsD now also supports gauges, arbitrary values, which can be recorded.
     gaugor:333|g
 
 If the gauge is not updated at the next flush, it will send the previous value. You can opt to send
-no metric at all for this gauge, by setting `config.deleteGauge`
+no metric at all for this gauge, by setting `config.deleteGauges`
 
 Adding a sign to the gauge value will change the value, rather than setting it.
 

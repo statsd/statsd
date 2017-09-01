@@ -1,31 +1,48 @@
 {
   "name": "statsd",
-  "description": "A simple, lightweight network daemon to collect metrics over UDP",
-  "author": "Etsy",
+  "version": "0.8.0",
+  "description": "Network daemon for the collection and aggregation of realtime application metrics",
+  "author": {
+      "name": "Etsy",
+      "url": "https://codeascraft.com"
+  },
+  "license" : "MIT",
+  "homepage": "https://github.com/etsy/statsd",
+  "bugs": "https://github.com/etsy/statsd/issues",
+  "keywords": [
+      "statsd",
+      "etsy",
+      "metric",
+      "aggregation",
+      "realtime"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/etsy/statsd.git"
+  },
+  "engines": {
+    "node" : ">=0.10"
+  },
+  "dependencies": {
+    "generic-pool": "2.2.0"
+  },
+  "devDependencies": {
+    "nodeunit": "0.9.x",
+    "underscore": "1.4.x",
+    "temp": "0.4.x"
+  },
+  "optionalDependencies": {
+    "modern-syslog":"1.1.2",
+    "hashring":"3.2.0",
+    "winser": "=0.1.6"
+  },
+  "bin": {
+      "statsd": "./bin/statsd"
+  },
   "scripts": {
     "test": "./run_tests.sh",
     "start": "node stats.js config.js",
     "install-windows-service": "node_modules\\.bin\\winser -i",
     "uninstall-windows-service": "node_modules\\.bin\\winser -r"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/etsy/statsd.git"
-  },
-  "version": "0.6.0",
-  "dependencies": {
-  },
-  "devDependencies": {
-    "nodeunit": "0.7.x",
-    "underscore": "1.4.x",
-    "temp": "0.4.x"
-  },
-  "optionalDependencies": {
-    "node-syslog":"1.1.7",
-    "winser": "=0.0.11"
-  },
-  "engines": {
-    "node" : ">=0.8"
-  },
-  "bin": { "statsd": "./bin/statsd" }
+  }
 }

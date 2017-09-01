@@ -157,7 +157,7 @@ module.exports = {
           return data;
         });
         test.ok(_.include(_.map(entries,function(x) { return _.keys(x)[0] }),'statsd.numStats'),'graphite output includes numStats');
-        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'statsd.numStats' })['statsd.numStats'],2);
+        test.equal(_.find(entries, function(x) { return _.keys(x)[0] == 'statsd.numStats' })['statsd.numStats'],3);
         test.done();
       });
     });
@@ -180,9 +180,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 0');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 4');
 
             var bad_lines_seen_value_test = function(post){
               var mykey = 'stats_counts.statsd.bad_lines_seen';
@@ -213,9 +213,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 2');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 4');
 
             var testtimervalue_test = function(post){
               var mykey = 'stats.timers.a_test_value.mean_90';
@@ -246,9 +246,9 @@ module.exports = {
             });
             var numstat_test = function(post){
               var mykey = 'statsd.numStats';
-              return _.include(_.keys(post),mykey) && (post[mykey] == 2);
+              return _.include(_.keys(post),mykey) && (post[mykey] == 4);
             };
-            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 2');
+            test.ok(_.any(hashes,numstat_test), 'statsd.numStats should be 4');
 
             var testavgvalue_test = function(post){
               var mykey = 'stats.a_test_value';

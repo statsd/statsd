@@ -46,7 +46,7 @@ module.exports = {
     test.done();
   },
   timers_single_time: function(test) {
-    test.expect(8);
+    test.expect(9);
     this.metrics.timers['a'] = [100];
     this.metrics.timer_counters['a'] = 1;
     pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
@@ -57,12 +57,13 @@ module.exports = {
     test.equal(1, timer_data.count);
     test.equal(10, timer_data.count_ps);
     test.equal(100, timer_data.sum);
+    test.equal(100 * 100, timer_data.sum_squares);
     test.equal(100, timer_data.mean);
     test.equal(100, timer_data.median);
     test.done();
   },
     timers_multiple_times: function(test) {
-    test.expect(8);
+    test.expect(9);
     this.metrics.timers['a'] = [100, 200, 300];
     this.metrics.timer_counters['a'] = 3;
     pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
@@ -73,12 +74,14 @@ module.exports = {
     test.equal(3, timer_data.count);
     test.equal(30, timer_data.count_ps);
     test.equal(600, timer_data.sum);
+    test.equal(100 * 100 + 200 * 200 + 300 * 300,
+               timer_data.sum_squares);
     test.equal(200, timer_data.mean);
     test.equal(200, timer_data.median);
     test.done();
   },
     timers_single_time_single_percentile: function(test) {
-    test.expect(3);
+    test.expect(4);
     this.metrics.timers['a'] = [100];
     this.metrics.timer_counters['a'] = 1;
     this.metrics.pctThreshold = [90];
@@ -87,48 +90,63 @@ module.exports = {
     test.equal(100, timer_data.mean_90);
     test.equal(100, timer_data.upper_90);
     test.equal(100, timer_data.sum_90);
+    test.equal(100 * 100, timer_data.sum_squares_90);
     test.done();
   },
     timers_single_time_multiple_percentiles: function(test) {
-    test.expect(6);
+    test.expect(9);
     this.metrics.timers['a'] = [100];
     this.metrics.timer_counters['a'] = 1;
     this.metrics.pctThreshold = [90, 80];
     pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
+    test.equal(1, timer_data.count_90);
     test.equal(100, timer_data.mean_90);
     test.equal(100, timer_data.upper_90);
     test.equal(100, timer_data.sum_90);
+    test.equal(100 * 100, timer_data.sum_squares_90);
     test.equal(100, timer_data.mean_80);
     test.equal(100, timer_data.upper_80);
     test.equal(100, timer_data.sum_80);
+    test.equal(100 * 100, timer_data.sum_squares_80);
     test.done();
   },
     timers_multiple_times_single_percentiles: function(test) {
-    test.expect(3);
+    test.expect(5);
     this.metrics.timers['a'] = [100, 200, 300];
     this.metrics.timer_counters['a'] = 3;
     this.metrics.pctThreshold = [90];
     pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
+    test.equal(3, timer_data.count_90);
     test.equal(200, timer_data.mean_90);
     test.equal(300, timer_data.upper_90);
     test.equal(600, timer_data.sum_90);
+    test.equal(100 * 100 + 200 * 200 + 300 * 300,
+               timer_data.sum_squares_90);
     test.done();
   },
     timers_multiple_times_multiple_percentiles: function(test) {
-    test.expect(6);
+    test.expect(11);
     this.metrics.timers['a'] = [100, 200, 300];
     this.metrics.timer_counters['a'] = 3;
     this.metrics.pctThreshold = [90, 80];
     pm.process_metrics(this.metrics, 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
+    test.equal(3, timer_data.count);
+    test.equal(3, timer_data.count_90);
     test.equal(200, timer_data.mean_90);
     test.equal(300, timer_data.upper_90);
     test.equal(600, timer_data.sum_90);
+    test.equal(100 * 100 + 200 * 200 + 300 * 300,
+               timer_data.sum_squares_90);
+
+    test.equal(2, timer_data.count_80);
     test.equal(150, timer_data.mean_80);
     test.equal(200, timer_data.upper_80);
     test.equal(300, timer_data.sum_80);
+    test.equal(100 * 100 + 200 * 200,
+               timer_data.sum_squares_80);
     test.done();
   },
     timers_sampled_times: function(test) {
@@ -174,7 +192,7 @@ module.exports = {
     // only 'abc' should have a bin_inf; also check all its counts,
     // and make sure it has no other bins
     test.equal(1, timer_data['abc']['histogram']['bin_1']);
-    test.equal(0, timer_data['abc']['histogram']['bin_2.21']);
+    test.equal(0, timer_data['abc']['histogram']['bin_2_21']);
     test.equal(4, timer_data['abc']['histogram']['bin_inf']);
     test.equal(3, _.size(timer_data['abc']['histogram']));
 

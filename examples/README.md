@@ -13,6 +13,8 @@ Here's a bunch of example code contributed by the community for interfacing with
     statsd.erl        - Erlang
     statsd-client.sh  - Bash
     StatsD.scala      - Scala
+    statsd.go         - Go
+    StatsdClient.jl   - Julia
 
 Third Party StatsD Libraries
 ============================

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -e
+
+APP_NAME="statsd"
+CLI="$APP_NAME"
+APP_USER=$(${CLI} config:get APP_USER)
+APP_GROUP=$(${CLI} config:get APP_GROUP)
+APP_CONFIG="/etc/${APP_NAME}/config.js"
+
+[ -f "$APP_CONFIG" ] || cp /opt/${APP_NAME}/exampleConfig.js $APP_CONFIG
+chown $APP_USER.$APP_GROUP $APP_CONFIG
+ln -f -s $APP_CONFIG /opt/$APP_NAME/config.js
+chmod 0640 $APP_CONFIG
+
+${CLI} scale web=0 || true
+${CLI} scale web=1 || true

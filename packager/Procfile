@@ -1,0 +1,1 @@
+web: node stats.js ${STATSD_CONFIG:="config.js"}

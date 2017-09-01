@@ -3,6 +3,8 @@
 set -e
 
 if [ "$1" = configure ]; then
+  # Automatically added by dh_installinit
+  (cd /usr/share/statsd && /usr/bin/npm install --production)
 
   if ! getent passwd _statsd > /dev/null; then
     adduser --system --quiet --home /nonexistent --no-create-home \
@@ -13,7 +15,13 @@ if [ "$1" = configure ]; then
     dpkg-statoverride --update --add _statsd _statsd 0755 /var/run/statsd
   fi
 
-  if ! dpkg-statoverride --list /var/log/statsd >/dev/null 2>&1; then
-    dpkg-statoverride --update --add _statsd _statsd 0755 /var/log/statsd
-  fi
+  cat << EOF
+Available systemd services are disabled by default:
+ * statsd
+ * statsd-proxy
+
+To enable one of them use:
+  systemctl enable NAME
+EOF
+
 fi

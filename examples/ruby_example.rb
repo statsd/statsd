@@ -68,6 +68,7 @@ class Statsd
         value = data[stat]
         sock.send("#{stat}:#{value}", 0, @@config[:host], @@config[:port])
       end
+      sock.close
     end
   end
 end
