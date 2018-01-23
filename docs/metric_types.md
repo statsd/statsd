@@ -22,9 +22,9 @@ Tells StatsD that this counter is being sent sampled every 1/10th of the time.
 Timing
 ------
 
-    glork:320|ms|@0.1
+    plumbus:320|ms|@0.1
 
-The glork took 320ms to complete this time. StatsD figures out percentiles,
+The plumbus took 320ms to complete this time. StatsD figures out percentiles,
 average (mean), standard deviation, sum, lower and upper bounds for the flush interval.
 The percentile threshold can be tweaked with `config.percentThreshold`.
 
@@ -116,7 +116,7 @@ Multi-Metric Packets
 StatsD supports receiving multiple metrics in a single packet by separating them
 with a newline.
 
-    gorets:1|c\nglork:320|ms\ngaugor:333|g\nuniques:765|s
+    gorets:1|c\nplumbus:320|ms\ngaugor:333|g\nuniques:765|s
 
 Be careful to keep the total length of the payload within your network's MTU. There
 is no single good value to use, but here are some guidelines for common network
