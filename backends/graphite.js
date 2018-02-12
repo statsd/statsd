@@ -14,7 +14,7 @@
  *   graphitePort: Port for the graphite text collector. Defaults to 2003.
  *   graphitePicklePort: Port for the graphite pickle collector. Defaults to 2004.
  *   graphiteProtocol: Either 'text' or 'pickle'. Defaults to 'text'.
- * 
+ *
  * If graphiteHost is not specified, metrics are processed but discarded.
  */
 
@@ -108,7 +108,7 @@ function Metric(key, value, ts) {
   this.value = value;
   this.ts = ts;
 
-  // return a string representation of this metric appropriate 
+  // return a string representation of this metric appropriate
   // for sending to the graphite collector. does not include
   // a trailing newline.
   this.toText = function() {
@@ -171,6 +171,14 @@ var flush_stats = function graphite_flush(ts, metrics) {
     }
   };
 
+  function format(namespace, key) {
+    var splitName = key.split(';');
+    var keyName = sk(splitName[0]);
+    var tags = splitName.length > 1 ? (';' + splitName.slice(1).join(';')) : '';
+
+    return namespace.concat(keyName, [].slice.call(arguments, 2)).join('.') + globalSuffix + tags;
+  }
+
   // Flatten all the different types of metrics into a single
   // collection so we can allow serialization to either the graphite
   // text and pickle formats.
@@ -179,18 +187,16 @@ var flush_stats = function graphite_flush(ts, metrics) {
   for (key in counters) {
     var value = counters[key];
     var valuePerSecond = counter_rates[key]; // pre-calculated "per second" rate
-    var keyName = sk(key);
-    var namespace = counterNamespace.concat(keyName);
 
     if (legacyNamespace === true) {
-      stats.add(namespace.join(".") + globalSuffix, valuePerSecond, ts);
+      stats.add(format(counterNamespace, key), valuePerSecond, ts);
       if (flush_counts) {
-        stats.add('stats_counts.' + keyName + globalSuffix, value, ts);
+        stats.add(format(['stats_counts'], key), value, ts);
       }
     } else {
-      stats.add(namespace.concat('rate').join(".")  + globalSuffix, valuePerSecond, ts);
+      stats.add(format(counterNamespace, key, 'rate'), valuePerSecond, ts);
       if (flush_counts) {
-        stats.add(namespace.concat('count').join(".") + globalSuffix, value, ts);
+        stats.add(format(counterNamespace, key, 'count'), value, ts);
       }
     }
 
@@ -198,18 +204,15 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   for (key in timer_data) {
-    var namespace = timerNamespace.concat(sk(key));
-    var the_key = namespace.join(".");
-
     for (timer_data_key in timer_data[key]) {
       if (typeof(timer_data[key][timer_data_key]) === 'number') {
-        stats.add(the_key + '.' + timer_data_key + globalSuffix, timer_data[key][timer_data_key], ts);
+        stats.add(format(timerNamespace, key, timer_data_key), timer_data[key][timer_data_key], ts);
       } else {
         for (var timer_data_sub_key in timer_data[key][timer_data_key]) {
           if (debug) {
             l.log(timer_data[key][timer_data_key][timer_data_sub_key].toString());
           }
-          stats.add(the_key + '.' + timer_data_key + '.' + timer_data_sub_key + globalSuffix,
+          stats.add(format(timerNamespace, key, timer_data_key, timer_data_sub_key),
                     timer_data[key][timer_data_key][timer_data_sub_key], ts);
         }
       }
@@ -218,14 +221,12 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   for (key in gauges) {
-    var namespace = gaugesNamespace.concat(sk(key));
-    stats.add(namespace.join(".") + globalSuffix, gauges[key], ts);
+    stats.add(format(gaugesNamespace, key), gauges[key], ts);
     numStats += 1;
   }
 
   for (key in sets) {
-    var namespace = setsNamespace.concat(sk(key));
-    stats.add(namespace.join(".") + '.count' + globalSuffix, sets[key].size(), ts);
+    stats.add(format(setsNamespace, key, 'count'), sets[key].size(), ts);
     numStats += 1;
   }
 
@@ -236,12 +237,10 @@ var flush_stats = function graphite_flush(ts, metrics) {
       stats.add('stats.' + prefixStats + '.' + key + globalSuffix, statsd_metrics[key], ts);
     }
   } else {
-    var namespace = globalNamespace.concat(prefixStats);
-    stats.add(namespace.join(".") + '.numStats' + globalSuffix, numStats, ts);
-    stats.add(namespace.join(".") + '.graphiteStats.calculationtime' + globalSuffix, (Date.now() - starttime) , ts);
+    stats.add(format(globalNamespace, prefixStats, 'numStats'), numStats, ts);
+    stats.add(format(globalNamespace, prefixStats, 'graphiteStats', 'calculationtime'), (Date.now() - starttime) , ts);
     for (key in statsd_metrics) {
-      var the_key = namespace.concat(key);
-      stats.add(the_key.join(".") + globalSuffix,+ statsd_metrics[key], ts);
+      stats.add(format(globalNamespace, prefixStats, key), statsd_metrics[key], ts);
     }
   }
   post_stats(stats);
