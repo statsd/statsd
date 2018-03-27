@@ -163,11 +163,11 @@ var flush_stats = function graphite_flush(ts, metrics) {
   // Sanitize key for graphite if not done globally
   function sk(key) {
     if (globalKeySanitize) {
-      return key;
-    } else {
       return key.replace(/\s+/g, '_')
                 .replace(/\//g, '-')
                 .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+    } else {
+      return key
     }
   };
 
