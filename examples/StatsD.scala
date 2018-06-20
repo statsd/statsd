@@ -42,7 +42,7 @@ import akka.actor._
  * @param multiMetrics If true, multiple stats will be sent in a single UDP packet
  * @param packetBufferSize If multiMetrics is true, this is the max buffer size before sending the UDP packet
  */
-class StatsD(context: ActorContext,
+class StatsD(context: ActorRefFactory,
              host: String,
              port: Int,
              multiMetrics: Boolean = true,
