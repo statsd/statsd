@@ -27,7 +27,7 @@ etc)
 
 * *values*
   Each stat will have a value. How it is interpreted depends on modifiers. In
-general values should be integer.
+general values should be integers.
 
 * *flush*
   After the flush interval timeout (defined by `config.flushInterval`,
