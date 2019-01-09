@@ -334,6 +334,44 @@ module.exports = {
 
     test.done();
   },
+  timers_histogram_with_filters: function (test) {
+    test.expect(13);
+    this.metrics.timers['a'] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    this.metrics.timers['abc'] = [0.1234, 2.89, 4, 6, 8];
+    this.metrics.timers['foo'] = [0, 2, 4, 6, 8];
+    this.metrics.timers['barbazfoobar'] = [0, 2, 4, 6, 8];
+    this.metrics.timers['bar.bazfoobar.abc'] = [0, 2, 4, 6, 8];
+    this.metrics.timers['xyz'] = [0, 2, 4, 6, 8];
+    this.metrics.histogram = [ { metric: 'foo', bins: [] },
+      { metric: 'abcd', bins: [ 1, 5, 'inf'] },
+      { metric: 'abc', bins: [ 1, 2.21, 'inf'] },
+      { metric: 'a', bins: [ 1, 2] } ];
+    pm.process_metrics(this.metrics, ['histogram'], 100, this.time_stamp, function(){});
+    timer_data = this.metrics.timer_data;
+    // nothing matches the 'abcd' filters, so nothing has bin_5
+    test.equal(undefined, timer_data['a']['histogram']['bin_5']);
+    test.equal(undefined, timer_data['abc']['histogram']['bin_5']);
+
+    // check that 'a' got the right filters and numbers
+    test.equal(0, timer_data['a']['histogram']['bin_1']);
+    test.equal(1, timer_data['a']['histogram']['bin_2']);
+    test.equal(undefined, timer_data['a']['histogram']['bin_inf']);
+
+    // only 'abc' should have a bin_inf; also check all its counts,
+    // and make sure it has no other bins
+    test.equal(1, timer_data['abc']['histogram']['bin_1']);
+    test.equal(0, timer_data['abc']['histogram']['bin_2_21']);
+    test.equal(4, timer_data['abc']['histogram']['bin_inf']);
+    test.equal(3, _.size(timer_data['abc']['histogram']));
+
+    // these all have histograms disabled ('foo' explicitly, rest implicitly)
+    test.equal(undefined, timer_data['foo']['histogram']);
+    test.equal(undefined, timer_data['barbazfoobar']['histogram']);
+    test.equal(undefined, timer_data['bar.bazfoobar.abc']['histogram']);
+    test.equal(undefined, timer_data['xyz']['histogram']);
+
+    test.done();
+  },
   timers_single_time_single_top_percentile: function(test) {
     test.expect(3);
     this.metrics.timers['a'] = [100];
