@@ -70,9 +70,9 @@ Optional Variables:
   keyNameSanitize:  sanitize all stat names on ingress [default: true]
                     If disabled, it is up to the backends to sanitize keynames
                     as appropriate per their storage requirements.
-  filters:          List of timer metrics that will be sent. Default will send all metrics.
+  timer_metrics_filters:          List of timer metrics that will be sent. Default will send all metrics.
                     To filter on percents and top percents: append '_percent' to the metric name.
-                    Example: filters: ['count', 'median', 'upper_percent', 'histogram']
+                    Example: timer_metrics_filters: ['count', 'median', 'upper_percent', 'histogram']
 
   console:
     prettyprint:    whether to prettyprint the console backend
