@@ -14,7 +14,7 @@ Optional Variables:
   graphiteProtocol: either 'text' or 'pickle' [default: 'text']
   backends:         an array of backends to load. Each backend must exist
                     by name in the directory backends/. If not specified,
-                    the default graphite backend will be loaded. 
+                    the default graphite backend will be loaded.
                     * example for console and graphite:
                     [ "./backends/console", "./backends/graphite" ]
 
@@ -70,6 +70,9 @@ Optional Variables:
   keyNameSanitize:  sanitize all stat names on ingress [default: true]
                     If disabled, it is up to the backends to sanitize keynames
                     as appropriate per their storage requirements.
+  filters:          List of timer metrics that will not be sent. Default will send all metrics.
+                    To filter out percents and tops: append '_percent' to the metric name.
+                    Example: filters: ['count', 'median', 'upper_percent']
 
   console:
     prettyprint:    whether to prettyprint the console backend
