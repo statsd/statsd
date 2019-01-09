@@ -67,7 +67,6 @@ var collect_for = function(server,timeout,cb){
 
   server.on('connection',collector);
 }
-
 module.exports = {
   setUp: function (callback) {
     this.testport = 31337;
@@ -76,7 +75,7 @@ module.exports = {
                ,  batch: 200 \n\
                ,  flushInterval: " + this.myflush + " \n\
                ,  percentThreshold: 90\n\
-               ,  filters: ['sum', 'sum_squares', 'sum_percent', 'sum_squares_percent']\n\
+               ,  filters: ['count_ps', 'count', 'count_percent', 'mean_percent', 'histogram']\n\
                ,  histogram: [ { metric: \"a_test_value\", bins: [1000] } ]\n\
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
@@ -165,7 +164,7 @@ module.exports = {
             var mykey = 'stats.timers.a_test_value.histogram.bin_1000';
             return _.include(_.keys(post),mykey) && (post[mykey] == 1);
           };
-          test.ok(_.any(hashes,testtimerhistogramvalue_test), 'stats.timers.a_test_value.histogram.bin_1000 should be ' + 1);
+          test.ok(_.any(hashes,testtimerhistogramvalue_test), 'stats.timers.a_test_value.histogram.bin_1000 should be 1');
           test.ok(_.any(hashes,testtimervalue_test), 'stats.timers.a_test_value.mean_90 should be ' + testvalue);
 
           var count_test = function(post, metric){

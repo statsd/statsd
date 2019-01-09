@@ -67,7 +67,8 @@ module.exports = {
     test.expect(10);
     this.metrics.timers['a'] = [100];
     this.metrics.timer_counters['a'] = 1;
-    pm.process_metrics(this.metrics, ['std'], 100, this.time_stamp, function(){});
+    let filter = ['upper', 'lower', 'count', 'count_ps', 'sum', 'sum_squares', 'mean', 'median']
+    pm.process_metrics(this.metrics, filter, 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(8, Object.keys(timer_data).length)
     test.equal(null, timer_data.std);
@@ -85,7 +86,7 @@ module.exports = {
     test.expect(10);
     this.metrics.timers['a'] = [100];
     this.metrics.timer_counters['a'] = 1;
-    let filter = ['std', 'count', 'sum', 'mean', 'median']
+    let filter = ['upper', 'lower', 'count_ps', 'sum_squares']
     pm.process_metrics(this.metrics, filter, 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(4, Object.keys(timer_data).length)
@@ -122,7 +123,7 @@ module.exports = {
     test.expect(9);
     this.metrics.timers['a'] = [100, 200, 300];
     this.metrics.timer_counters['a'] = 3;
-    let filters =  ['upper', 'lower', 'count_ps', 'sum']
+    let filters =  ['std', 'count', 'sum_squares', 'mean', 'median']
     pm.process_metrics(this.metrics, filters, 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(81.64965809277261, timer_data.std);
@@ -155,7 +156,7 @@ module.exports = {
     this.metrics.timers['a'] = [100];
     this.metrics.timer_counters['a'] = 1;
     this.metrics.pctThreshold = [90];
-    pm.process_metrics(this.metrics, ['mean_percent', 'sum_percent'], 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, ['upper_percent', 'sum_squares_percent'], 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(null, timer_data.mean_90);
     test.equal(100, timer_data.upper_90);
@@ -187,7 +188,7 @@ module.exports = {
     this.metrics.timers['a'] = [100];
     this.metrics.timer_counters['a'] = 1;
     this.metrics.pctThreshold = [90, 80];
-    let filters = ['sum_squares_percent', 'upper_percent', 'count_percent']
+    let filters = ['mean_percent', 'sum_percent']
     pm.process_metrics(this.metrics, filters, 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(null, timer_data.count_90);
@@ -222,7 +223,8 @@ module.exports = {
     this.metrics.timers['a'] = [100, 200, 300];
     this.metrics.timer_counters['a'] = 3;
     this.metrics.pctThreshold = [90];
-    pm.process_metrics(this.metrics, ['sum_percent', 'sum_squares_percent'], 100, this.time_stamp, function(){});
+    let filter = ['count_percent', 'mean_percent', 'upper_percent']
+    pm.process_metrics(this.metrics, filter, 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(3, timer_data.count_90);
     test.equal(200, timer_data.mean_90);
@@ -259,7 +261,7 @@ module.exports = {
     this.metrics.timers['a'] = [100, 200, 300];
     this.metrics.timer_counters['a'] = 3;
     this.metrics.pctThreshold = [90, 80];
-    pm.process_metrics(this.metrics, ['count', 'mean_percent', 'upper_percent'], 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, ['count_percent', 'sum_percent', 'sum_squares_percent'], 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(null, timer_data.count);
     test.equal(3, timer_data.count_90);
@@ -347,7 +349,7 @@ module.exports = {
     test.expect(3);
     this.metrics.timers['a'] = [100];
     this.metrics.pctThreshold = [-10];
-    pm.process_metrics(this.metrics, ['mean_percent', 'sum_percent'], 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, ['lower_percent'], 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(null, timer_data.mean_top10);
     test.equal(100, timer_data.lower_top10);
@@ -369,7 +371,7 @@ module.exports = {
     test.expect(3);
     this.metrics.timers['a'] = [10, 10, 10, 10, 10, 10, 10, 10, 100, 200];
     this.metrics.pctThreshold = [-20];
-    pm.process_metrics(this.metrics, ['lower_percent'], 100, this.time_stamp, function(){});
+    pm.process_metrics(this.metrics, ['mean_percent', 'sum_percent'], 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
     test.equal(150, timer_data.mean_top20);
     test.equal(null, timer_data.lower_top20);
@@ -396,7 +398,24 @@ module.exports = {
     this.metrics.timers['a'] = [300, 200, 400, 100];
     pm.process_metrics(this.metrics, ['median'], 100, this.time_stamp, function(){});
     timer_data = this.metrics.timer_data['a'];
-    test.equal(null, timer_data.median);
+    test.equal(250, timer_data.median);
+    test.done();
+  },
+  timers_with_invalid_filter: function(test) {
+    test.expect(9);
+    this.metrics.timers['a'] = [100];
+    this.metrics.timer_counters['a'] = 1;
+    pm.process_metrics(this.metrics, 'not a valid filter', 100, this.time_stamp, function(){});
+    timer_data = this.metrics.timer_data['a'];
+    test.equal(0, timer_data.std);
+    test.equal(100, timer_data.upper);
+    test.equal(100, timer_data.lower);
+    test.equal(1, timer_data.count);
+    test.equal(10, timer_data.count_ps);
+    test.equal(100, timer_data.sum);
+    test.equal(100 * 100, timer_data.sum_squares);
+    test.equal(100, timer_data.mean);
+    test.equal(100, timer_data.median);
     test.done();
   }
 }
