@@ -14,7 +14,7 @@ Optional Variables:
   graphiteProtocol: either 'text' or 'pickle' [default: 'text']
   backends:         an array of backends to load. Each backend must exist
                     by name in the directory backends/. If not specified,
-                    the default graphite backend will be loaded. 
+                    the default graphite backend will be loaded.
                     * example for console and graphite:
                     [ "./backends/console", "./backends/graphite" ]
 
@@ -60,7 +60,7 @@ Optional Variables:
     log:            location of log file for frequent keys [default: STDOUT]
   deleteIdleStats:  don't send values to graphite for inactive counters, sets, gauges, or timers
                     as opposed to sending 0.  For gauges, this unsets the gauge (instead of sending
-                    the previous value). Can be individually overriden. [default: false]
+                    the previous value). Can be individually overridden. [default: false]
   deleteGauges:     don't send values to graphite for inactive gauges, as opposed to sending the previous value [default: false]
   deleteTimers:     don't send values to graphite for inactive timers, as opposed to sending 0 [default: false]
   deleteSets:       don't send values to graphite for inactive sets, as opposed to sending 0 [default: false]
@@ -70,6 +70,10 @@ Optional Variables:
   keyNameSanitize:  sanitize all stat names on ingress [default: true]
                     If disabled, it is up to the backends to sanitize keynames
                     as appropriate per their storage requirements.
+
+  calculatedTimerMetrics: List of timer metrics that will be sent. Default will send all metrics.
+                          To filter on percents and top percents: append '_percent' to the metric name.
+                          Example: calculatedTimerMetrics: ['count', 'median', 'upper_percent', 'histogram']
 
   console:
     prettyprint:    whether to prettyprint the console backend
