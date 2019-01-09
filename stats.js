@@ -148,7 +148,7 @@ function flushMetrics() {
     }
   });
 
-  pm.process_metrics(metrics_hash, conf.timer_metrics_filters, flushInterval, time_stamp, function emitFlush(metrics) {
+  pm.process_metrics(metrics_hash, conf.calculated_timer_metrics, flushInterval, time_stamp, function emitFlush(metrics) {
     backendEvents.emit('flush', time_stamp, metrics);
   });
 

@@ -75,7 +75,7 @@ module.exports = {
                ,  batch: 200 \n\
                ,  flushInterval: " + this.myflush + " \n\
                ,  percentThreshold: 90\n\
-               ,  timer_metrics_filters: ['count_ps', 'count', 'count_percent', 'mean_percent', 'histogram']\n\
+               ,  calculated_timer_metrics: ['count_ps', 'count', 'count_percent', 'mean_percent', 'histogram']\n\
                ,  histogram: [ { metric: \"a_test_value\", bins: [1000] } ]\n\
                ,  port: 8125\n\
                ,  dumpMessages: false \n\

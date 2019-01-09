@@ -71,9 +71,9 @@ Optional Variables:
                     If disabled, it is up to the backends to sanitize keynames
                     as appropriate per their storage requirements.
 
-  timer_metrics_filters: List of timer metrics that will be sent. Default will send all metrics.
+  calculated_timer_metrics: List of timer metrics that will be sent. Default will send all metrics.
                          To filter on percents and top percents: append '_percent' to the metric name.
-                         Example: timer_metrics_filters: ['count', 'median', 'upper_percent', 'histogram']
+                         Example: calculated_timer_metrics: ['count', 'median', 'upper_percent', 'histogram']
 
   console:
     prettyprint:    whether to prettyprint the console backend
