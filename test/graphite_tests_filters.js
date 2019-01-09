@@ -174,7 +174,6 @@ module.exports = {
           };
           test.equals(count_test(hashes, 'count_ps'), 5, 'count_ps should be 5');
           test.equals(count_test(hashes, 'count'), 1, 'count should be 1');
-          console.log(count_test(hashes, 'count_90'));
           test.equals(count_test(hashes, 'count_90'), 1, 'count_90 should be 1');
           test.equals(count_test(hashes, 'sum'), null, 'sum should be null');
           test.equals(count_test(hashes, 'sum_squares'), null, 'sum_squares should be null');
