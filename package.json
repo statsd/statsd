@@ -6,9 +6,9 @@
       "name": "Etsy",
       "url": "https://codeascraft.com"
   },
-  "license" : "MIT",
-  "homepage": "https://github.com/etsy/statsd",
-  "bugs": "https://github.com/etsy/statsd/issues",
+  "license": "MIT",
+  "homepage": "https://github.com/statsd/statsd",
+  "bugs": "https://github.com/statsd/statsd/issues",
   "keywords": [
       "statsd",
       "etsy",
@@ -18,7 +18,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/etsy/statsd.git"
+    "url": "https://github.com/statsd/statsd.git"
   },
   "engines": {
     "node" : ">=0.10"
