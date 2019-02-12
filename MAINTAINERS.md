@@ -21,6 +21,7 @@ with statsd and how much time you think you can roughly spend on the project
 [dco]: https://github.com/statsd/statsd/blob/5f58a9cc7442900c2e553ed1df3d6ce99e885226/DCO.txt
 
 ## Past maintainers
+- [Tera Koch](https://github.com/pathzzrd)
 - [Ben Burry](https://github.com/benburry)
 - [Dan Rowe](https://github.com/draco2003)
 - [Erik Kastner](https://github.com/kastner)
