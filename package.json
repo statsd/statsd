@@ -3,25 +3,25 @@
   "version": "0.8.0",
   "description": "Network daemon for the collection and aggregation of realtime application metrics",
   "author": {
-      "name": "Etsy",
-      "url": "https://codeascraft.com"
+    "name": "Etsy",
+    "url": "https://codeascraft.com"
   },
   "license": "MIT",
   "homepage": "https://github.com/statsd/statsd",
   "bugs": "https://github.com/statsd/statsd/issues",
   "keywords": [
-      "statsd",
-      "etsy",
-      "metric",
-      "aggregation",
-      "realtime"
+    "statsd",
+    "etsy",
+    "metric",
+    "aggregation",
+    "realtime"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/statsd/statsd.git"
   },
   "engines": {
-    "node" : ">=0.10"
+    "node": ">=6"
   },
   "dependencies": {
     "generic-pool": "2.2.0"
@@ -32,12 +32,12 @@
     "temp": "0.4.x"
   },
   "optionalDependencies": {
-    "modern-syslog":"1.1.2",
-    "hashring":"3.2.0",
+    "modern-syslog": "1.1.2",
+    "hashring": "3.2.0",
     "winser": "=0.1.6"
   },
   "bin": {
-      "statsd": "./bin/statsd"
+    "statsd": "./bin/statsd"
   },
   "scripts": {
     "test": "./run_tests.sh",
