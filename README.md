@@ -78,12 +78,6 @@ background (don't do this on a production machine!).
 
 Tests can be executed with `./run_tests.sh`.
 
-
-Meta
----------
-- IRC channel: `#statsd` on freenode
-- Mailing list: `statsd@librelist.com`
-
 History
 ---------
 statsd was originally written at ([Etsy][etsy]) and released with a [blog post][blog post]
