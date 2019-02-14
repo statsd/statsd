@@ -30,7 +30,6 @@ the `events` object:
 
   ```
   metrics: {
-
     counters: counters,
     gauges: gauges,
     timers: timers,
