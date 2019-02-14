@@ -30,6 +30,7 @@ the `events` object:
 
   ```
   metrics: {
+
     counters: counters,
     gauges: gauges,
     timers: timers,
@@ -70,5 +71,3 @@ the `events` object:
   This is emitted for every incoming packet. The `packet` parameter contains
   the raw received message string and the `rinfo` parameter contains remote
   address information from the UDP socket.
-
-
