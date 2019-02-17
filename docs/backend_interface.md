@@ -28,8 +28,8 @@ the `events` object:
   two parameters: `time_stamp` is the current time in epoch seconds
   and `metrics` is a hash representing the StatsD statistics:
 
-```
-metrics: {
+  ```
+  metrics: {
     counters: counters,
     gauges: gauges,
     timers: timers,
@@ -38,8 +38,8 @@ metrics: {
     timer_data: timer_data,
     statsd_metrics: statsd_metrics,
     pctThreshold: pctThreshold
-}
-```
+  }
+  ```
 
   The counter_rates and timer_data are precalculated statistics to simplify
   the creation of backends, the statsd_metrics hash contains metrics generated
