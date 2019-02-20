@@ -48,7 +48,7 @@ while getopts ":H:P:k" opt; do
     esac
 done
 
-HEALTH="$(echo -e "health\n" | nc -q1 "${HOST}" "${PORT}")"
+HEALTH="$(echo -e "health\n" | nc "${HOST}" "${PORT}")"
 echo "Statsd '${HOST}:${PORT}' responded: '${HEALTH}'"
 
 if [[ "${HEALTH}" == "health: up" ]]; then
