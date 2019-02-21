@@ -47,6 +47,7 @@ queues and third-party services.
 - [librato-backend](https://github.com/librato/statsd-librato-backend)
 - [mongo-backend](https://github.com/dynmeth/mongo-statsd-backend)
 - [monitis backend](https://github.com/jeremiahshirk/statsd-monitis-backend)
+- [mysql backend](https://github.com/fradinni/nodejs-statsd-mysql-backend)
 - [netuitive backend](https://github.com/Netuitive/statsd-netuitive-backend)
 - [opentsdb backend](https://github.com/emurphy/statsd-opentsdb-backend)
 - [socket.io-backend](https://github.com/Chatham/statsd-socket.io)
