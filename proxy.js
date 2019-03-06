@@ -257,18 +257,18 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
       }
     });
     client.on('error', function(e) {
-      if (e.code == 'ECONNREFUSED') {
-        if (node_status[node_id] === undefined) {
-          node_status[node_id] = 1;
-        } else {
-          node_status[node_id]++;
-        }
-        if (node_status[node_id] < 2) {
-          log('Removing node ' + node_id + ' from the ring.', 'WARNING');
-          ring.remove(node_id);
-        }
-      } else {
+      if (e.code !== 'ECONNREFUSED' && e.code !== 'EHOSTUNREACH') {
         log('Error during healthcheck on node ' + node_id + ' with ' + e.code, 'ERROR');
+      }
+
+      if (node_status[node_id] === undefined) {
+        node_status[node_id] = 1;
+      } else {
+        node_status[node_id]++;
+      }
+      if (node_status[node_id] < 2) {
+        log('Removing node ' + node_id + ' from the ring.', 'WARNING');
+        ring.remove(node_id);
       }
     });
   }
