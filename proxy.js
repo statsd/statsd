@@ -12,7 +12,7 @@ var dgram    = require('dgram')
 
 var packet   = new events.EventEmitter();
 var startup_time = Math.round(new Date().getTime() / 1000);
-var node_status = [];
+var node_status = {};
 var workers = [];  // Keep track of all forked childs
 var node_ring = {};
 var servers_loaded;
@@ -36,6 +36,8 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
   };
 
   var healthStatus = configlib.healthStatus || 'up';
+  var healthCheckInterval = config.checkInterval || 10000;
+
   var broadcastMsg = function(msg) {
     for (var i = 0; i < workers.length; i++) {
       workers[i].send(msg);
@@ -214,7 +216,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     log("server is up", "INFO");
 
     // Set the interval for healthchecks
-    setInterval(doHealthChecks, config.checkInterval || 10000);
+    setInterval(doHealthChecks, healthCheckInterval);
   }
 
   // Perform health check on all nodes
@@ -224,52 +226,74 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     });
   }
 
+  function markNodeAsHealthy(node_id) {
+    if (node_status[node_id] !== undefined) {
+      if (node_status[node_id] > 0) {
+        var new_server = {};
+        new_server[node_id] = 100;
+        log('Adding node ' + node_id + ' to the ring.', 'WARNING');
+        ring.add(new_server);
+      }
+    }
+
+    node_status[node_id] = 0;
+  }
+
+  function markNodeAsUnhealthy(node_id) {
+    if (node_status[node_id] === undefined) {
+      node_status[node_id] = 1;
+    } else {
+      node_status[node_id]++;
+    }
+    if (node_status[node_id] < 2) {
+      log('Removing node ' + node_id + ' from the ring.', 'WARNING');
+      ring.remove(node_id);
+    }
+  }
+
   // Perform health check on node
   function healthcheck(node) {
+    var ended = false;
     var node_id = node.host + ':' + node.port;
-    var client = net.connect({port: node.adminport, host: node.host},
-        function() {
-      client.write('health\r\n');
+    var client = net.connect(
+      {port: node.adminport, host: node.host},
+      function onConnect() {
+        if (!ended) {
+          client.write('health\r\n');
+        }
+      }
+    );
+
+    client.setTimeout(healthCheckInterval, function() {
+      client.end();
+      markNodeAsUnhealthy(node_id);
+      client.removeAllListeners('data');
+      client.removeAllListeners('error');
+      ended = true;
     });
+
     client.on('data', function(data) {
+      if (ended) {
+        return;
+      }
+
       var health_status = data.toString();
       client.end();
+      ended = true;
+
       if (health_status.indexOf('up') < 0) {
-        if (node_status[node_id] === undefined) {
-          node_status[node_id] = 1;
-        } else {
-          node_status[node_id]++;
-        }
-        if (node_status[node_id] < 2) {
-          log('Removing node ' + node_id + ' from the ring.', 'WARNING');
-          ring.remove(node_id);
-        }
+        markNodeAsUnhealthy(node_id);
       } else {
-        if (node_status[node_id] !== undefined) {
-          if (node_status[node_id] > 0) {
-            var new_server = {};
-            new_server[node_id] = 100;
-            log('Adding node ' + node_id + ' to the ring.', 'WARNING');
-            ring.add(new_server);
-          }
-        }
-        node_status[node_id] = 0;
+        markNodeAsHealthy(node_id);
       }
     });
-    client.on('error', function(e) {
-      if (e.code !== 'ECONNREFUSED' && e.code !== 'EHOSTUNREACH') {
+
+    client.once('error', function(e) {
+      if (e.code !== 'ECONNREFUSED' && e.code !== 'EHOSTUNREACH' && e.code !== 'ECONNRESET') {
         log('Error during healthcheck on node ' + node_id + ' with ' + e.code, 'ERROR');
       }
 
-      if (node_status[node_id] === undefined) {
-        node_status[node_id] = 1;
-      } else {
-        node_status[node_id]++;
-      }
-      if (node_status[node_id] < 2) {
-        log('Removing node ' + node_id + ' from the ring.', 'WARNING');
-        ring.remove(node_id);
-      }
+      markNodeAsUnhealthy(node_id);
     });
   }
 
