@@ -268,7 +268,6 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
       client.end();
       markNodeAsUnhealthy(node_id);
       client.removeAllListeners('data');
-      client.removeAllListeners('error');
       ended = true;
     });
 
@@ -288,7 +287,11 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
       }
     });
 
-    client.once('error', function(e) {
+    client.on('error', function(e) {
+      if (ended) {
+        return;
+      }
+
       if (e.code !== 'ECONNREFUSED' && e.code !== 'EHOSTUNREACH' && e.code !== 'ECONNRESET') {
         log('Error during healthcheck on node ' + node_id + ' with ' + e.code, 'ERROR');
       }
