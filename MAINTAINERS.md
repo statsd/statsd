@@ -18,6 +18,7 @@ with statsd and how much time you think you can roughly spend on the project
 
 - **Daniel Schauenberg**: As a maintainer of Statsd, I agree to the [Developer Certificate of Origin][dco].
 - **Mike Heffner**: As a maintainer of Statsd, I agree to the [Developer Certificate of Origin][dco].
+- **Elliot Blackburn**: As a maintainer of Statsd, I agree to the [Developer Certificate of Origin][dco].
 
 [dco]: https://github.com/statsd/statsd/blob/5f58a9cc7442900c2e553ed1df3d6ce99e885226/DCO.txt
 
