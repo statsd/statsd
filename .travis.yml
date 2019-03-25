@@ -4,7 +4,7 @@ node_js:
   - '8'
   - '10'
   - '11'
-script: ./run_tests.sh
+script: node run_tests.js
 notifications:
   email: false
   irc:
