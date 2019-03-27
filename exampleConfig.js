@@ -65,6 +65,8 @@ Optional Variables:
   deleteTimers:     don't send values to graphite for inactive timers, as opposed to sending 0 [default: false]
   deleteSets:       don't send values to graphite for inactive sets, as opposed to sending 0 [default: false]
   deleteCounters:   don't send values to graphite for inactive counters, as opposed to sending 0 [default: false]
+  skipCounterRates: don't send the rate value for counters. This can help reduce counts of metrics.
+                    Rate can be caclulated at query time by dividing count by the flushInterval [default: false]
   prefixStats:      prefix to use for the statsd statistics data for this running instance of statsd [default: statsd]
                     applies to both legacy and new namespacing
   keyNameSanitize:  sanitize all stat names on ingress [default: true]
