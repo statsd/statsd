@@ -1,9 +1,9 @@
 language: node_js
 node_js:
-  - '6'
-  - '8'
-  - '10'
-  - '11'
+- '6'
+- '8'
+- '10'
+- '11'
 script: node run_tests.js
 notifications:
   email: false
@@ -13,7 +13,7 @@ deploy:
   provider: npm
   email: d@unwiredcouch.com
   api_key:
-    secure: IE9nz50eZsRL1Dbcxj2eY0apO1Io2swGF3ezZCzny20WgqQXiiVs24rHUi1GywDELGDc7+Vp0zJfmXigE+zTMvx0N3fTASiuDzd3C7fULa4JUSH2DoHNOXx7WSkr4EmujDsB7y1mEBDHOdBlLWBRApExt67TlYzvZiT8/Sffq3k=
+    secure: deHm/dx0AJoSpkgbi+480BbC8Qxsv5vf4TPfMqM8uGYicj6qMJBjG7AZtCUIcJ0mSEoc9Zf79jOJCeWC53CWziQX+D+AXDC/8RGlqtx1h1zgpM6m1NonceqUt9wN/tVG1eNa/22WrerMA3F2rxo5QtY3rMxGMlJjCYOwyFR++eM=
   on:
     tags: true
     repo: etsy/statsd
