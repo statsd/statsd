@@ -1,4 +1,4 @@
-StatsD [![Build Status][travis-ci_status_img]][travis-ci_statsd] [![Join the chat at https://gitter.im/statsd/community](https://badges.gitter.im/statsd/community.svg)](https://gitter.im/statsd/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+StatsD [![Build Status][travis-ci_status_img]][travis-ci_statsd] [![Join the chat at https://gitter.im/statsd/statsd](https://badges.gitter.im/statsd/statsd.svg)](https://gitter.im/statsd/statsd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 ======
 
 A network daemon that runs on the [Node.js][node] platform and
