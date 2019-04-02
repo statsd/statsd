@@ -1,4 +1,4 @@
-FROM node:5-onbuild
+FROM node:10.15.3-alpine
 
 RUN \
   cp -v exampleConfig.js config.js && \
