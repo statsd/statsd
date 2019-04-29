@@ -100,6 +100,7 @@ function flushMetrics() {
       conf.deleteSets = conf.deleteSets !== undefined ? conf.deleteSets : true;
       conf.deleteGauges = conf.deleteGauges !== undefined ? conf.deleteGauges : true;
     }
+    conf.skipCounterRates = conf.skipCounterRates !== undefined ? conf.skipCounterRates : false;
 
     // Clear the counters
     conf.deleteCounters = conf.deleteCounters || false;
@@ -148,7 +149,7 @@ function flushMetrics() {
     }
   });
 
-  pm.process_metrics(metrics_hash, flushInterval, time_stamp, function emitFlush(metrics) {
+  pm.process_metrics(metrics_hash, flushInterval, conf.skipCounterRates, time_stamp, function emitFlush(metrics) {
     backendEvents.emit('flush', time_stamp, metrics);
   });
 

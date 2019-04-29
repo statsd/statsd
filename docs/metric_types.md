@@ -13,6 +13,10 @@ If the count at flush is 0 then you can opt to send no metric at all for
 this counter, by setting `config.deleteCounters` (applies only to graphite
 backend).  Statsd will send both the rate as well as the count at each flush.
 
+The rate can be skipped with the `config.skipCounterRates` option.  This is a
+metric volume saving measure.  The rates will not be calculated in statsd, but
+can be calculated at query time by dividing count by flushInterval.
+
 ### Sampling
 
     gorets:1|c|@0.1
