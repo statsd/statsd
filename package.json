@@ -40,7 +40,7 @@
     "statsd": "./bin/statsd"
   },
   "scripts": {
-    "test": "node run_tests.sh",
+    "test": "node run_tests.js",
     "start": "node stats.js config.js",
     "install-windows-service": "node_modules\\.bin\\winser -i",
     "uninstall-windows-service": "node_modules\\.bin\\winser -r"
