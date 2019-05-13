@@ -26,10 +26,10 @@ general values should be integers.
 Installation and Configuration
 ------------------------------
 
- * Install node.js
+ * Install Node.js (All [`Current` and `LTS` Node.js versions](https://nodejs.org/en/about/releases/) are supported.)
  * Clone the project
  * Create a config file from `exampleConfig.js` and put it somewhere
- * Start the Daemon:  
+ * Start the Daemon:
    `node stats.js /path/to/config`
 
 Usage
