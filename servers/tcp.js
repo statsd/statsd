@@ -1,5 +1,5 @@
-var net  = require('net');
-var fs = require('fs');
+const net  = require('net');
+const fs = require('fs');
 
 function rinfo(tcpstream, data) {
     this.address = tcpstream.remoteAddress;
@@ -9,15 +9,15 @@ function rinfo(tcpstream, data) {
 }
 
 exports.start = function(config, callback) {
-  var server = net.createServer(function(stream) {
+    const server = net.createServer(function(stream) {
       stream.setEncoding('ascii');
 
-      var buffer = '';
+      let buffer = '';
       stream.on('data', function(data) {
           buffer += data;
-          var offset = buffer.lastIndexOf("\n");
+          const offset = buffer.lastIndexOf("\n");
           if (offset > -1) {
-             var packet = buffer.slice(0, offset + 1);
+             const packet = buffer.slice(0, offset + 1);
              buffer = buffer.slice(offset + 1);
              callback(packet, new rinfo(stream, packet));
           }

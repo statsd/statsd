@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 try {
-    var reporter = require('nodeunit').reporters.default;
+    const reporter = require('nodeunit').reporters.default;
 }
 catch(e) {
     console.log("Cannot find nodeunit module.");
