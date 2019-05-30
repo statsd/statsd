@@ -415,7 +415,7 @@ config.configFile(process.argv[2], function (config) {
     config.flushInterval = flushInterval;
 
     if (config.backends) {
-      for (const j = 0; j < config.backends.length; j++) {
+      for (let j = 0; j < config.backends.length; j++) {
         loadBackend(config, config.backends[j]);
       }
     } else {
