@@ -27,7 +27,7 @@
     "generic-pool": "2.2.0"
   },
   "devDependencies": {
-    "nodeunit": "0.9.x",
+    "nodeunit": "^0.11.3",
     "underscore": "1.4.x",
     "temp": "0.4.x"
   },
