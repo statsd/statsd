@@ -1,10 +1,10 @@
 TCP Stats Interface
 ===================
 
-A really simple TCP management interface is available by default on port 8126
+A really simple TCP management interface is available by default on port `8126`
 or overriden in the configuration file. Inspired by the memcache stats approach
 this can be used to monitor a live statsd server.  You can interact with the
-management server by telnetting to port 8126, the following commands are
+management server by telnetting to port `8126`, the following commands are
 available based on the running server.
 
 Common commands
@@ -55,7 +55,7 @@ Those statistics will also be sent to graphite under the namespaces
 `stats.statsd.graphiteStats.last_exception` and
 `stats.statsd.graphiteStats.last_flush`.
 
-A simple nagios check can be found in the utils/ directory that can be used to
+A simple nagios check can be found in the `utils/` directory that can be used to
 check metric thresholds, for example the number of seconds since the last
 successful flush to graphite.
 
