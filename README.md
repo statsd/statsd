@@ -1,13 +1,11 @@
-StatsD [![Build Status][travis-ci_status_img]][travis-ci_statsd] [![Join the chat at https://gitter.im/statsd/statsd](https://badges.gitter.im/statsd/statsd.svg)](https://gitter.im/statsd/statsd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-======
+# StatsD [![Build Status][travis-ci_status_img]][travis-ci_statsd] [![Join the chat at https://gitter.im/statsd/statsd](https://badges.gitter.im/statsd/statsd.svg)](https://gitter.im/statsd/statsd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 A network daemon that runs on the [Node.js][node] platform and
 listens for statistics, like counters and timers, sent over [UDP][udp] or
 [TCP][tcp] and sends aggregates to one or more pluggable backend services (e.g.,
 [Graphite][graphite]).
 
-Key Concepts
---------
+## Key Concepts
 
 * *buckets*
   Each stat is in its own "bucket". They are not predefined anywhere. Buckets
@@ -23,17 +21,21 @@ general values should be integers.
   default 10 seconds), stats are aggregated and sent to an upstream backend service.
 
 
-Installation and Configuration
-------------------------------
+## Installation and Configuration
 
+### Docker
+Statsd supports docker in two ways:
+* The official docker image on on [docker hub](https://hub.docker.com/r/statsd/statsd)
+* Building the image from the bundled [Dockerfile](./Dockerfile)
+
+### Manual installation
  * Install Node.js (All [`Current` and `LTS` Node.js versions](https://nodejs.org/en/about/releases/) are supported.)
  * Clone the project
  * Create a config file from `exampleConfig.js` and put it somewhere
  * Start the Daemon:
    `node stats.js /path/to/config`
 
-Usage
--------
+## Usage
 The basic line protocol expects metrics to be sent in the format:
 
     <metricname>:<value>|<type>
@@ -43,8 +45,7 @@ StatsD running with the default UDP server on localhost would be:
 
     echo "foo:1|c" | nc -u -w0 127.0.0.1 8125
 
-More Specific Topics
---------
+## More Specific Topics
 * [Metric Types][docs_metric_types]
 * [Graphite Integration][docs_graphite]
 * [Supported Servers][docs_server]
@@ -55,9 +56,7 @@ More Specific Topics
 * [Metric Namespacing][docs_namespacing]
 * [Statsd Cluster Proxy][docs_cluster_proxy]
 
-Debugging
----------
-
+## Debugging
 There are additional config variables available for debugging:
 
 * `debug` - log exceptions and print out more diagnostic info
@@ -66,9 +65,7 @@ There are additional config variables available for debugging:
 For more information, check the `exampleConfig.js`.
 
 
-Tests
------
-
+## Tests
 A test framework has been added using node-unit and some custom code to start
 and manipulate statsd. Please add tests under test/ for any new features or bug
 fixes encountered. Testing a live server can be tricky, attempts were made to
@@ -78,14 +75,11 @@ background (don't do this on a production machine!).
 
 Tests can be executed with `./run_tests.sh`.
 
-History
----------
+## History
 statsd was originally written at ([Etsy][etsy]) and released with a [blog post][blog post]
 about how it works and why we created it.
 
-Inspiration
------------
-
+## Inspiration
 StatsD was inspired (heavily) by the project (of the same name) at Flickr.
 Here's a post where Cal Henderson described it in depth:
 [Counting and timing][counting-timing]
