@@ -1,5 +1,4 @@
-Server Interface
------------------
+# Server Interface
 
 Server modules are Node.js [modules][nodemods] that receive metrics for StatsD.
 Each server module should export the following initialization function:

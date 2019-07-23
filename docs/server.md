@@ -1,5 +1,4 @@
-Supported Servers
-------------------
+# Supported Servers
 
 StatsD supports pluggable server modules that listen for incoming
 metrics.

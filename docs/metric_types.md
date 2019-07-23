@@ -1,9 +1,6 @@
-StatsD Metric Types
-==================
+# StatsD Metric Types
 
-
-Counting
---------
+## Counting
 
     gorets:1|c
 
@@ -13,14 +10,13 @@ If the count at flush is 0 then you can opt to send no metric at all for
 this counter, by setting `config.deleteCounters` (applies only to graphite
 backend).  Statsd will send both the rate as well as the count at each flush.
 
-### Sampling
+## Sampling
 
     gorets:1|c|@0.1
 
 Tells StatsD that this counter is being sent sampled every 1/10th of the time.
 
-Timing
-------
+## Timing
 
     glork:320|ms|@0.1
 
@@ -79,8 +75,8 @@ Note:
 histograms, as you can make each bin arbitrarily wide,
 i.e. class intervals of different sizes.
 
-Gauges
-------
+## Gauges
+
 StatsD now also supports gauges, arbitrary values, which can be recorded.
 
     gaugor:333|g
@@ -101,8 +97,8 @@ Note:
 This implies you can't explicitly set a gauge to a negative number
 without first setting it to zero.
 
-Sets
-----
+## Sets
+
 StatsD supports counting unique occurences of events between flushes,
 using a Set to store all occuring events.
 
@@ -111,8 +107,8 @@ using a Set to store all occuring events.
 If the count at flush is 0 then you can opt to send no metric at all for this set, by
 setting `config.deleteSets`.
 
-Multi-Metric Packets
---------------------
+## Multi-Metric Packets
+
 StatsD supports receiving multiple metrics in a single packet by separating them
 with a newline.
 
@@ -130,5 +126,3 @@ scenarios:
   of all the hops in your route.
 
 *(These payload numbers take into account the maximum IP + UDP header sizes)*
-
-

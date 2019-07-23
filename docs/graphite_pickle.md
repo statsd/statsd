@@ -1,5 +1,4 @@
-Pickling for Graphite
-=====================
+# Pickling for Graphite
 
 The graphite statsd backend can optionally be configured to use pickle
 for its over-the-wire protocol.
@@ -15,8 +14,7 @@ more CPU processing by the graphite endpoint.
 The message format expected by the graphite pickle endpoint consists
 of a header and payload.
 
-The Payload
------------
+## The Payload
 
 The message payload is a list of tuples. Each tuple contains the measurement
 for a single metric name. The measurement is encoded as a second,
@@ -60,8 +58,7 @@ The trailing `L` for long fields is unnecessary, but we are adding the
 character to match Python pickle output. It's a side-effect of
 `repr(long(1234))`.
 
-The Header
-----------
+## The Header
 
 The message header is a 32-bit integer sent over the wire as
 four-bytes. This integer must describe the length of the pickled

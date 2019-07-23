@@ -1,5 +1,4 @@
-Backend Interface
------------------
+# Backend Interface
 
 Backend modules are Node.js [modules][nodemods] that listen for a
 number of events emitted from StatsD. Each backend module should
