@@ -25,7 +25,7 @@ general values should be integers.
 
 ### Docker
 Statsd supports docker in two ways:
-* The official docker image on on [docker hub](https://hub.docker.com/r/statsd/statsd)
+* The official docker image on [docker hub](https://hub.docker.com/r/statsd/statsd)
 * Building the image from the bundled [Dockerfile](./Dockerfile)
 
 ### Manual installation
