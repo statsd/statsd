@@ -11,7 +11,7 @@ StatsD
 8125
 
 ### Description
-Network daemon for collecting metrics and publishing to various metric aggregation systems or services.
+Network daemon for collecting metrics
 
 ### Reference
 StatsD is used to collect statistics such as counters and timers to measure system and application performance. StatsD receives metrics over UDP or TCP in a basic line protocl of the following format:
