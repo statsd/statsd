@@ -1,21 +1,18 @@
-TCP Stats Interface
-===================
+# TCP Stats Interface
 
-A really simple TCP management interface is available by default on port 8126
+A really simple TCP management interface is available by default on port `8126`
 or overriden in the configuration file. Inspired by the memcache stats approach
 this can be used to monitor a live statsd server.  You can interact with the
-management server by telnetting to port 8126, the following commands are
+management server by telnetting to port `8126`, the following commands are
 available based on the running server.
 
-Common commands
----------------
+## Common commands
 
 * health [up|down] - a way to get/set the health status of statsd. Alone will get you the current health status. Passing a second command will set the status to the new value. Accepted values are _up_ and _down_.
 * config - a dump of the current configuration
 * quit - close the connection from the server side
 
-Statsd specific commands
-------------------------
+## Statsd specific commands
 
 * stats - some stats about the running server
 * counters - a dump of all the current counters
@@ -55,7 +52,7 @@ Those statistics will also be sent to graphite under the namespaces
 `stats.statsd.graphiteStats.last_exception` and
 `stats.statsd.graphiteStats.last_flush`.
 
-A simple nagios check can be found in the utils/ directory that can be used to
+A simple nagios check can be found in the `utils/` directory that can be used to
 check metric thresholds, for example the number of seconds since the last
 successful flush to graphite.
 
@@ -64,8 +61,7 @@ The health output:
 * using health up or health down, you can change the current health status.
 * the healthStatus configuration option allows you to set the default health status at start.
 
-Statsd Proxy specific commands
-------------------------------
+## Statsd Proxy specific commands
 
 * status - the status of the current server
 

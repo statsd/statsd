@@ -66,7 +66,7 @@ var collect_for = function(server,timeout,cb){
 // wire protocol into JSON written to stdout.
 var script =
   "import sys\n" +
-  "import cPickle\n" +
+  "import pickle\n" +
   "import struct\n" +
   "import json\n" +
   "payload = open(sys.argv[1], 'rb').read()\n" +
@@ -74,8 +74,8 @@ var script =
   "header_length = struct.calcsize(pack_format)\n" +
   "payload_length, = struct.unpack(pack_format, payload[:header_length])\n" +
   "batch_length = header_length + payload_length\n" +
-  "metrics = cPickle.loads(payload[header_length:batch_length])\n" +
-  "print json.dumps(metrics)\n";
+  "metrics = pickle.loads(payload[header_length:batch_length])\n" +
+  "print(json.dumps(metrics))\n";
 
 // Write our binary payload and unpickling script to disk
 // then process the unserialized results.

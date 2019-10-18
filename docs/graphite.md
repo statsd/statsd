@@ -1,5 +1,4 @@
-Configuring Graphite for StatsD 
--------------------------------
+# Configuring Graphite for StatsD
 
 Many users have been confused to see their hit counts averaged, gone missing when
 the data is intermittent, or never stored when statsd is sending at a different

@@ -1,8 +1,6 @@
-Statsd Cluster Proxy
-==============
+# Statsd Cluster Proxy
 
 Statsd Cluster Proxy is a udp proxy that sits infront of multiple statsd instances.
-
 
 Create a proxyConfig.js file:
 
@@ -20,8 +18,8 @@ It handles a simple health check that dynamically recalculates the hashring if a
 
 Config Options are documented in the [exampleProxyConfig.js][exampleProxyConfig.js]
 
-Notes
---------------
+## Notes
+
 In your statsd configuration make sure to have the following configuration set: `deleteIdleStats: true`
 
 We plan to remove this restriction in the near future: [#pull/348][pull_348]

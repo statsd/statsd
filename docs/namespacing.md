@@ -1,5 +1,5 @@
-Metric namespacing
--------------------
+# Metric namespacing
+
 The metric namespacing in the Graphite backend is configurable with regard to
 the prefixes. Per default all stats are put under `stats` in Graphite, which
 makes it easier to consolidate them all under one schema. However it is

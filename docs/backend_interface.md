@@ -1,5 +1,4 @@
-Backend Interface
------------------
+# Backend Interface
 
 Backend modules are Node.js [modules][nodemods] that listen for a
 number of events emitted from StatsD. Each backend module should
@@ -29,7 +28,7 @@ the `events` object:
   and `metrics` is a hash representing the StatsD statistics:
 
   ```
-metrics: {
+  metrics: {
     counters: counters,
     gauges: gauges,
     timers: timers,
@@ -38,7 +37,7 @@ metrics: {
     timer_data: timer_data,
     statsd_metrics: statsd_metrics,
     pctThreshold: pctThreshold
-}
+  }
   ```
 
   The counter_rates and timer_data are precalculated statistics to simplify
@@ -70,5 +69,3 @@ metrics: {
   This is emitted for every incoming packet. The `packet` parameter contains
   the raw received message string and the `rinfo` parameter contains remote
   address information from the UDP socket.
-
-

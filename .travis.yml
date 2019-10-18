@@ -1,20 +1,19 @@
 language: node_js
 node_js:
-  - '0.10'
-  - '0.12'
-  - '4'
-  - '5'
-  - 'stable'
-script: ./run_tests.sh
+- '8'
+- '10'
+- '11'
+- '12'
+script: node run_tests.js
 notifications:
   email: false
   irc:
   - irc.freenode.org#statsd
 deploy:
   provider: npm
-  email: d@unwiredcouch.com
+  email: elliot@lybrary.io
   api_key:
-    secure: IE9nz50eZsRL1Dbcxj2eY0apO1Io2swGF3ezZCzny20WgqQXiiVs24rHUi1GywDELGDc7+Vp0zJfmXigE+zTMvx0N3fTASiuDzd3C7fULa4JUSH2DoHNOXx7WSkr4EmujDsB7y1mEBDHOdBlLWBRApExt67TlYzvZiT8/Sffq3k=
+    secure: deHm/dx0AJoSpkgbi+480BbC8Qxsv5vf4TPfMqM8uGYicj6qMJBjG7AZtCUIcJ0mSEoc9Zf79jOJCeWC53CWziQX+D+AXDC/8RGlqtx1h1zgpM6m1NonceqUt9wN/tVG1eNa/22WrerMA3F2rxo5QtY3rMxGMlJjCYOwyFR++eM=
   on:
     tags: true
-    repo: etsy/statsd
+    repo: statsd/statsd

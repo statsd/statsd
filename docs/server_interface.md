@@ -1,7 +1,8 @@
-Server Interface
------------------
+# Server Interface
 
 Server modules are Node.js [modules][nodemods] that receive metrics for StatsD.
+Server interfaces can be distributed and installed via systems such as NPM.
+
 Each server module should export the following initialization function:
 
 * `start(config, callback)`: This method is invoked from StatsD to initialize
@@ -16,3 +17,7 @@ Each server module should export the following initialization function:
   The server module should return `true` from start() to indicate
   success. A return of `false` indicates a failure to load the module
   (missing configuration?) and will cause StatsD to exit.
+
+# Available third-party interfaces
+
+* [http-interface](https://github.com/msiebuhr/statsd-http-interface) Accepts data over HTTP.

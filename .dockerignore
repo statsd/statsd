@@ -1,0 +1,19 @@
+# Dotfiles
+.git*
+.pkgr.yml
+.travis.yml
+
+# Non-app files
+*.md
+*.txt
+exampleProxyConfig.js
+
+# Non-app directories
+debian
+node_modules
+packager
+examples
+docs
+
+# Local dev files
+config.js
