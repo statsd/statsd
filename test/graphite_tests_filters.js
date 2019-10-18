@@ -1,27 +1,27 @@
-var fs           = require('fs'),
-  net          = require('net'),
-  temp         = require('temp'),
-  spawn        = require('child_process').spawn,
-  util          = require('util'),
-  urlparse     = require('url').parse,
-  _            = require('underscore'),
-  dgram        = require('dgram'),
-  qsparse      = require('querystring').parse,
-  http         = require('http');
+var fs       = require('fs'),
+    net      = require('net'),
+    temp     = require('temp'),
+    spawn    = require('child_process').spawn,
+    util     = require('util'),
+    urlparse = require('url').parse,
+    _        = require('underscore'),
+    dgram    = require('dgram'),
+    qsparse  = require('querystring').parse,
+    http     = require('http');
 
 
-var writeconfig = function(text,worker,cb,obj){
+var writeconfig = function(text, worker, cb, obj){
   temp.open({suffix: '-statsdconf.js'}, function(err, info) {
     if (err) throw err;
     fs.writeSync(info.fd, text);
     fs.close(info.fd, function(err) {
       if (err) throw err;
-      worker(info.path,cb,obj);
+      worker(info.path, cb, obj);
     });
   });
 }
 
-var array_contents_are_equal = function(first,second){
+var array_contents_are_equal = function(first, second){
   var intlen = _.intersection(first,second).length;
   var unlen = _.union(first,second).length;
   return (intlen == unlen) && (intlen == first.length);
@@ -75,7 +75,7 @@ module.exports = {
                ,  batch: 200 \n\
                ,  flushInterval: " + this.myflush + " \n\
                ,  percentThreshold: 90\n\
-               ,  calculated_timer_metrics: ['count_ps', 'count', 'count_percent', 'mean_percent', 'histogram']\n\
+               ,  calculatedTimerMetrics: ['count_ps', 'count', 'count_percent', 'mean_percent', 'histogram']\n\
                ,  histogram: [ { metric: \"a_test_value\", bins: [1000] } ]\n\
                ,  port: 8125\n\
                ,  dumpMessages: false \n\
@@ -92,7 +92,7 @@ module.exports = {
     this.ok_to_die = false;
     this.exit_callback_callback = process.exit;
 
-    writeconfig(configfile,function(path,cb,obj){
+    writeconfig(configfile,function(path, cb, obj){
       obj.path = path;
       obj.server = spawn('node',['stats.js', path]);
       obj.exit_callback = function (code) {
@@ -140,7 +140,7 @@ module.exports = {
 
     var testvalue = 100;
     var me = this;
-    this.acceptor.once('connection',function(c){
+    this.acceptor.once('connection', function(c){
       statsd_send('a_test_value:' + testvalue + '|ms',me.sock,'127.0.0.1',8125,function(){
         collect_for(me.acceptor,me.myflush*2,function(strings){
           test.ok(strings.length > 0,'should receive some data');
