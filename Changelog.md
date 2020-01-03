@@ -1,5 +1,63 @@
 # Changelog
 
+## v0.8.5 (07/23/2019)
+
+- Update lodash (sub dependency) for security fix
+- Add the statsd history to the docs
+- Add third party server interfaces to docs
+- Migrate docs from github wiki, and standardise markdown notation
+- Minor formatting proposals
+- Add docker image info to readme
+
+## v0.8.4 (07/11/2019)
+
+- update modern-syslog to 1.2.0 for node 12 compatibility
+- update package.json version to 0.8.3
+
+## v0.8.3 (07/11/2019)
+
+- correct backend flush loop
+- test and declare support for Current and LTS node
+- Correct reporter decleration in test runner
+- Convert codebase from var -> let / const (#673)
+- correct npm test script
+- correct travis deploy step
+
+## v0.8.2 (04/02/2019)
+
+- update travis npm token
+- update dockerfile to latest node-lts
+- correct gitter link
+- update dockerfile base image to node lts
+- Add gitter chat badge
+- run tests using python 3.7's pickle rather than 2.x cPickle (#669)
+
+## v0.8.1 (03/13/2019)
+
+- drop statsd instance from proxy ring in instance of healthcheck failures (#665)
+- Add myself (elliot blackburn) to maintainers.md (#666)
+- add mysql backend link to docs/backend.md
+- Adding myself to MAINTAINERS.
+- begin testing on node lts and up
+- Added "opencensus-backend"
+- correct package.json links to new github organisation
+- Update MAINTAINERS.md
+- remove meta section of README
+- Create MAINTAINERS.md
+- Create DCO.txt
+- Create CODE_OF_CONDUCT.md
+- update README post transfer
+- Fixing Markdown formatting
+- fix simple typo
+- Added StatsdClient Kotlin implementation
+- fix formatting on backend interface docs
+- Update: ignore files
+- removes -q switch
+- Fix for failing test on node 0.10
+- fix usage of process.EventEmitter
+- Add plugin Warp10 to statsd
+- Updated graphite link to read the docs
+
 ## v0.8.0 (05/05/2016)
 - Modularized injest servers, with support for loading multiple servers
 - Added configurable tcp injest server
