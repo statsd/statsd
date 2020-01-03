@@ -92,7 +92,7 @@ function flushMetrics() {
     // TODO: a lot of this should be moved up into an init/constructor so we don't have to do it every
     // single flushInterval....
     // allows us to flag all of these on with a single config but still override them individually
-    conf.deleteIdleStats = conf.deleteIdleStats !== undefined ? conf.deleteIdleStats : false;
+    conf.deleteIdleStats = conf.deleteIdleStats !== undefined ? conf.deleteIdleStats : true;
     if (conf.deleteIdleStats) {
       conf.deleteCounters = conf.deleteCounters !== undefined ? conf.deleteCounters : true;
       conf.deleteTimers = conf.deleteTimers !== undefined ? conf.deleteTimers : true;
