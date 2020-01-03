@@ -1,3 +1,80 @@
+statsd (0.8.5-1) unstable; urgency=low
+
+  * Update lodash (sub dependency) for security fix
+  * Add the statsd history to the docs
+  * Add third party server interfaces to docs
+  * Migrate docs from github wiki, and standardise markdown notation
+  * Minor formatting proposals
+  * Add docker image info to readme
+
+ -- Elliot Blackburn <elliot@elliotblackburn.com>  Tue, 23 Jul 2019 00:00:00 +0000
+
+statsd (0.8.4-1) unstable; urgency=low
+
+  * update modern-syslog to 1.2.0 for node 12 compatibility
+  * update package.json version to 0.8.3
+
+ -- Elliot Blackburn <elliot@elliotblackburn.com>  Thu, 11 Jul 2019 00:00:00 +0000
+
+statsd (0.8.3-1) unstable; urgency=low
+
+  * correct backend flush loop
+  * test and declare support for Current and LTS node
+  * Correct reporter decleration in test runner
+  * Convert codebase from var -> let / const (#673)
+  * correct npm test script
+  * correct travis deploy step
+
+ -- Elliot Blackburn <elliot@elliotblackburn.com>  Thu, 11 Jul 2019 00:00:00 +0000
+
+statsd (0.8.2-1) unstable; urgency=low
+
+  * update travis npm token
+  * update dockerfile to latest node-lts
+  * correct gitter link
+  * update dockerfile base image to node lts
+  * Add gitter chat badge
+  * run tests using python 3.7's pickle rather than 2.x cPickle (#669)
+
+ -- Elliot Blackburn <elliot@elliotblackburn.com>  Tue, 02 Apr 2019 00:00:00 +0000
+
+statsd (0.8.1-1) unstable; urgency=low
+
+  * drop statsd instance from proxy ring in instance of healthcheck failures (#665)
+  * Add myself (elliot blackburn) to maintainers.md (#666)
+  * add mysql backend link to docs/backend
+ -- Elliot Blackburn <elliot@elliotblackburn.com>  Wed, 13 Mar 2019 00:00:00 +0000
+
+statsd (0.8.1-1) unstable; urgency=low
+
+  * drop statsd instance from proxy ring in instance of healthcheck failures (#665)
+  * Add myself (elliot blackburn) to maintainers.md (#666)
+  * add mysql backend link to docs/backend.md
+  * Adding myself to MAINTAINERS.
+  * begin testing on node lts and up
+  * remove extra newline from merge conflict fix
+  * Added "opencensus-backend"
+  * correct package.json links to new github organisation
+  * Update MAINTAINERS.md
+  * Update MAINTAINERS.md
+  * remove meta section of README
+  * Create MAINTAINERS.md
+  * Create DCO.txt
+  * Create CODE_OF_CONDUCT.md
+  * update README post transfer
+  * Fixing Markdown formatting
+  * fix simple typo
+  * Added StatsdClient Kotlin implementation
+  * fix formatting on backend interface docs
+  * Update: ignore files
+  * removes -q switch
+  * Fix for failing test on node 0.10
+  * fix usage of process.EventEmitter
+  * Add plugin Warp10 to statsd
+  * Updated graphite link to read the docs
+
+ -- Elliot Blackburn <elliot@elliotblackburn.com>  Wed, 13 Mar 2019 00:00:00 +0000
+
 statsd (0.8.0-1) unstable; urgency=low
 
   * Modularized injest servers, with support for loading multiple servers
