@@ -1,3 +1,11 @@
+statsd (0.8.5-2) unstable; urgency=low
+
+  * Move away idleStats related configuration variables from the flushMetrics method
+  * Write new tests for the gaugesMaxTTL option
+  * Write the logic for handling the deletion in the presence of gaugesMaxTTL
+
+ -- Claudio Benfatto <claudio.benfatto@gmail.com>  Thu, 17 Feb 2020 00:00:00 +0000
+
 statsd (0.8.5-1) unstable; urgency=low
 
   * Update lodash (sub dependency) for security fix
