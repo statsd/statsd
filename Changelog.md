@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.8.6 (02/19/2020)
+
+- Add an optional max TTL setting for gauges
+- add filter option for metrics
+
 ## v0.8.5 (07/23/2019)
 
 - Update lodash (sub dependency) for security fix

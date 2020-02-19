@@ -1,6 +1,6 @@
 {
   "name": "statsd",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "description": "Network daemon for the collection and aggregation of realtime application metrics",
   "author": {
     "name": "Etsy",
@@ -21,7 +21,7 @@
     "url": "https://github.com/statsd/statsd.git"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "dependencies": {
     "generic-pool": "2.2.0"
