@@ -2,6 +2,7 @@ statsd (0.8.6-1) unstable; urgency=low
 
   * Add an optional max TTL setting for gauges
   * add filter option for metrics
+  * fix double flush scenario in docker containers
 
  -- Elliot Blackburn <elliot@elliotblackburn.com>   Tue, 19 Feb 2020 00:43:00 +0000
 
