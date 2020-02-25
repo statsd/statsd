@@ -172,7 +172,12 @@ function sanitizeKeyName(key) {
 }
 
 function getFlushTimeout(interval) {
-    return interval - (new Date().getTime() - startup_time * 1000) % flushInterval
+  const now = new Date().getTime()
+  const deltaTime = now - startup_time * 1000;
+  const timeoutAttempt = Math.round(deltaTime / interval) + 1;
+  const fixedTimeout = (startup_time * 1000 + timeoutAttempt * interval) - now;
+
+  return fixedTimeout;
 }
 
 // Global for the logger
