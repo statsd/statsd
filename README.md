@@ -79,13 +79,13 @@ background (don't do this on a production machine!).
 Tests can be executed with `./run_tests.sh`.
 
 ## History
-statsd was originally written at ([Etsy][etsy]) and released with a [blog post][blog post]
-about how it works and why we created it.
+StatsD was originally written at [Etsy][etsy] and released with a
+[blog post][blog post] about how it works and why we created it.
 
 ## Inspiration
-StatsD was inspired (heavily) by the project (of the same name) at Flickr.
+StatsD was inspired (heavily) by the project of the same name at Flickr.
 Here's a post where Cal Henderson described it in depth:
-[Counting and timing][counting-timing]
+[Counting and timing][counting-timing].
 Cal re-released the code recently:
 [Perl StatsD][Flicker-StatsD]
 
@@ -93,7 +93,7 @@ Cal re-released the code recently:
 
 [graphite]: http://graphite.readthedocs.org/
 [etsy]: http://www.etsy.com
-[blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
+[blog post]: https://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
 [node]: http://nodejs.org
 [nodemods]: http://nodejs.org/api/modules.html
 [counting-timing]: http://code.flickr.com/blog/2008/10/27/counting-timing/
