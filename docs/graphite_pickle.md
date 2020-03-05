@@ -30,7 +30,7 @@ This ends up looking like:
 The graphite receiver `carbon.protocols.MetricPickleReceiver` coerces
 both the timestamp and measured value into `float`.
 
-The timestamp must be seconds since epoch encoded as a number. 
+The timestamp must be seconds since epoch encoded as a number.
 
 The measured value is encoded as a string. This may change in the
 future.

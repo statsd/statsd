@@ -24,12 +24,12 @@ This translates to: for all metrics starting with 'stats' (i.e. all metrics sent
 
 These settings have been a good tradeoff so far between size-of-file (database files are fixed size) and data we care about. Each "stats" database file is about 3.2 megs with these retentions.
 
-Retentions are read from the file in order and the first pattern that matches is used. 
+Retentions are read from the file in order and the first pattern that matches is used.
 Graphite stores each metric in its own database file, and the retentions take effect when a metric file is first created. This means that changing this config file would not affect any files already created. To view or alter the settings on existing files, use whisper-info.py and whisper-resize.py included with the Whisper package.
 
 #### Correlation with StatsD's flush interval:
 
-In the case of the above example, what would happen if you flush from StatsD any faster than every 10 seconds? in that case, multiple values for the same metric may reach Graphite at any given 10-second timespan, and only the last value would take hold and be persisted - so your data would immediately be partially lost. 
+In the case of the above example, what would happen if you flush from StatsD any faster than every 10 seconds? in that case, multiple values for the same metric may reach Graphite at any given 10-second timespan, and only the last value would take hold and be persisted - so your data would immediately be partially lost.
 
 To fix that, simply ensure your flush interval is at least as long as the highest-resolution retention. However, a long interval may cause other unfortunate mishaps, so keep reading - it pays to understand what's really going on.
 
@@ -37,15 +37,15 @@ To fix that, simply ensure your flush interval is at least as long as the highes
 
 ### Storage Aggregation
 
-The next step is ensuring your data isn't corrupted or discarded when downsampled. Continuing with the example above, take for instance the downsampling of .mean values calculated for all StatsD timers: 
+The next step is ensuring your data isn't corrupted or discarded when downsampled. Continuing with the example above, take for instance the downsampling of .mean values calculated for all StatsD timers:
 
-Graphite should downsample up to 6 samples representing 10-second mean values into a single value signfying the mean for a 1-minute timespan. This is simple: just average all samples to get the new value, and this is exactly the default method applied by Graphite. However, what about the .count metric also sent for timers? Each sample contains the count of occurences per flush interval, so you want these samples summed-up, not averaged! 
+Graphite should downsample up to 6 samples representing 10-second mean values into a single value signfying the mean for a 1-minute timespan. This is simple: just average all samples to get the new value, and this is exactly the default method applied by Graphite. However, what about the .count metric also sent for timers? Each sample contains the count of occurences per flush interval, so you want these samples summed-up, not averaged!
 
 You would not even notice any problem till you look at a graph for data older than 6 hours ago, since Graphite would need only the high-res 10-second samples to render the first 6 hours, but would have to switch to lower resolution data for rendering a longer timespan.
 
-Two other metric kinds also deserve a note: 
+Two other metric kinds also deserve a note:
 
-* Counts which are normalized by StatsD to signify a per-second count should not be summed, since their meaning does not change when downsampling. 
+* Counts which are normalized by StatsD to signify a per-second count should not be summed, since their meaning does not change when downsampling.
 
 * Metrics for minimum/maximum values should not be averaged but rather preserve the lowest/highest point, respectively.
 
