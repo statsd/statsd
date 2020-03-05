@@ -77,7 +77,7 @@ i.e. class intervals of different sizes.
 
 ## Gauges
 
-StatsD also supports gauges. A gauge will take on the arbitrary value assigned to it, and will maintain it's value until it is next set.
+StatsD also supports gauges. A gauge will take on the arbitrary value assigned to it, and will maintain its value until it is next set.
 
     gaugor:333|g
 
