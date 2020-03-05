@@ -1,10 +1,10 @@
-statsd is maintained by the following people.
+StatsD is maintained by the following people.
 
 All maintainers must agree to the [Developer Certificate of Origin][dco].
 
 ## Steps to becoming a maintainer
 1. Open a PR where you add yourself to this file and agree to the DCO. Attach a little bit about your experience
-with statsd and how much time you think you can roughly spend on the project
+with StatsD and how much time you think you can roughly spend on the project
 2. Current maintainers will review
 3. If it gets merged, you're in!
 
@@ -16,9 +16,9 @@ with statsd and how much time you think you can roughly spend on the project
 
 ## Current maintainers
 
-- **Daniel Schauenberg**: As a maintainer of Statsd, I agree to the [Developer Certificate of Origin][dco].
-- **Mike Heffner**: As a maintainer of Statsd, I agree to the [Developer Certificate of Origin][dco].
-- **Elliot Blackburn**: As a maintainer of Statsd, I agree to the [Developer Certificate of Origin][dco].
+- **Daniel Schauenberg**: As a maintainer of StatsD, I agree to the [Developer Certificate of Origin][dco].
+- **Mike Heffner**: As a maintainer of StatsD, I agree to the [Developer Certificate of Origin][dco].
+- **Elliot Blackburn**: As a maintainer of StatsD, I agree to the [Developer Certificate of Origin][dco].
 
 [dco]: https://github.com/statsd/statsd/blob/5f58a9cc7442900c2e553ed1df3d6ce99e885226/DCO.txt
 

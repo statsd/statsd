@@ -1,6 +1,6 @@
 # Pickling for Graphite
 
-The graphite statsd backend can optionally be configured to use pickle
+The graphite StatsD backend can optionally be configured to use pickle
 for its over-the-wire protocol.
 
 ```javascript
