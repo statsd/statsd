@@ -8,15 +8,18 @@ listens for statistics, like counters and timers, sent over [UDP][udp] or
 ## Key Concepts
 
 * *buckets*
+
   Each stat is in its own "bucket". They are not predefined anywhere. Buckets
 can be named anything that will translate to Graphite (periods make folders,
 etc)
 
 * *values*
+
   Each stat will have a value. How it is interpreted depends on modifiers. In
 general values should be integers.
 
 * *flush*
+
   After the flush interval timeout (defined by `config.flushInterval`,
   default 10 seconds), stats are aggregated and sent to an upstream backend service.
 
@@ -24,7 +27,7 @@ general values should be integers.
 ## Installation and Configuration
 
 ### Docker
-Statsd supports docker in two ways:
+StatsD supports docker in two ways:
 * The official docker image on [docker hub](https://hub.docker.com/r/statsd/statsd)
 * Building the image from the bundled [Dockerfile](./Dockerfile)
 
@@ -54,7 +57,7 @@ StatsD running with the default UDP server on localhost would be:
 * [Server Interface][docs_server_interface]
 * [Backend Interface][docs_backend_interface]
 * [Metric Namespacing][docs_namespacing]
-* [Statsd Cluster Proxy][docs_cluster_proxy]
+* [StatsD Cluster Proxy][docs_cluster_proxy]
 
 ## Debugging
 There are additional config variables available for debugging:
@@ -67,7 +70,7 @@ For more information, check the `exampleConfig.js`.
 
 ## Tests
 A test framework has been added using node-unit and some custom code to start
-and manipulate statsd. Please add tests under test/ for any new features or bug
+and manipulate StatsD. Please add tests under test/ for any new features or bug
 fixes encountered. Testing a live server can be tricky, attempts were made to
 eliminate race conditions but it may be possible to encounter a stuck state. If
 doing dev work, a `killall statsd` will kill any stray test servers in the
@@ -76,13 +79,13 @@ background (don't do this on a production machine!).
 Tests can be executed with `./run_tests.sh`.
 
 ## History
-statsd was originally written at ([Etsy][etsy]) and released with a [blog post][blog post]
-about how it works and why we created it.
+StatsD was originally written at [Etsy][etsy] and released with a
+[blog post][blog post] about how it works and why we created it.
 
 ## Inspiration
-StatsD was inspired (heavily) by the project (of the same name) at Flickr.
+StatsD was inspired (heavily) by the project of the same name at Flickr.
 Here's a post where Cal Henderson described it in depth:
-[Counting and timing][counting-timing]
+[Counting and timing][counting-timing].
 Cal re-released the code recently:
 [Perl StatsD][Flicker-StatsD]
 
@@ -90,7 +93,7 @@ Cal re-released the code recently:
 
 [graphite]: http://graphite.readthedocs.org/
 [etsy]: http://www.etsy.com
-[blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
+[blog post]: https://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
 [node]: http://nodejs.org
 [nodemods]: http://nodejs.org/api/modules.html
 [counting-timing]: http://code.flickr.com/blog/2008/10/27/counting-timing/

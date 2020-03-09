@@ -1,6 +1,6 @@
 # Pickling for Graphite
 
-The graphite statsd backend can optionally be configured to use pickle
+The graphite StatsD backend can optionally be configured to use pickle
 for its over-the-wire protocol.
 
 ```javascript
@@ -30,7 +30,7 @@ This ends up looking like:
 The graphite receiver `carbon.protocols.MetricPickleReceiver` coerces
 both the timestamp and measured value into `float`.
 
-The timestamp must be seconds since epoch encoded as a number. 
+The timestamp must be seconds since epoch encoded as a number.
 
 The measured value is encoded as a string. This may change in the
 future.

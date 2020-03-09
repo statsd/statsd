@@ -1,6 +1,6 @@
 # StatsD Clients
 
-A number of clients have been made for pushing metrics into statsd and open sourced by the wider community.
+A number of clients have been made for pushing metrics into StatsD and open sourced by the wider community.
 
 **Node**
 * [lynx](https://github.com/dscape/lynx) — Node.js client used by Mozilla, Nodejitsu, etc.

@@ -8,7 +8,7 @@
 ## v0.8.5 (07/23/2019)
 
 - Update lodash (sub dependency) for security fix
-- Add the statsd history to the docs
+- Add the StatsD history to the docs
 - Add third party server interfaces to docs
 - Migrate docs from github wiki, and standardise markdown notation
 - Minor formatting proposals
@@ -39,7 +39,7 @@
 
 ## v0.8.1 (03/13/2019)
 
-- drop statsd instance from proxy ring in instance of healthcheck failures (#665)
+- drop StatsD instance from proxy ring in instance of healthcheck failures (#665)
 - Add myself (elliot blackburn) to maintainers.md (#666)
 - add mysql backend link to docs/backend.md
 - Adding myself to MAINTAINERS.
@@ -60,7 +60,7 @@
 - removes -q switch
 - Fix for failing test on node 0.10
 - fix usage of process.EventEmitter
-- Add plugin Warp10 to statsd
+- Add plugin Warp10 to StatsD
 - Updated graphite link to read the docs
 
 ## v0.8.0 (05/05/2016)
@@ -115,7 +115,7 @@
 - added standard Deviation to timers stats (.std)
 - added last_flush_time and last_flush_length metrics to graphite backend
 - added ipv6 support
-- added Statsd repeater backend
+- added StatsD repeater backend
 - added helper script to decide which timers to sample down
 - added Windows service support
 - added Scala example

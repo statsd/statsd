@@ -8,7 +8,7 @@ This is a simple counter. Add 1 to the "gorets" bucket.
 At each flush the current count is sent and reset to 0.
 If the count at flush is 0 then you can opt to send no metric at all for
 this counter, by setting `config.deleteCounters` (applies only to graphite
-backend).  Statsd will send both the rate as well as the count at each flush.
+backend).  StatsD will send both the rate as well as the count at each flush.
 
 ## Sampling
 
@@ -31,7 +31,7 @@ generate the following list of stats for each threshold:
     stats.timers.$KEY.upper_$PCT
     stats.timers.$KEY.sum_$PCT
 
-Where `$KEY` is the stats key you specify when sending to statsd, and `$PCT` is
+Where `$KEY` is the stats key you specify when sending to StatsD, and `$PCT` is
 the percentile threshold.
 
 Note that the `mean` metric is the mean value of all timings recorded during
@@ -43,11 +43,11 @@ more detailed explanation of the calculation.
 If the count at flush is 0 then you can opt to send no metric at all for this timer,
 by setting `config.deleteTimers`.
 
-Use the `config.histogram` setting to instruct statsd to maintain histograms
+Use the `config.histogram` setting to instruct StatsD to maintain histograms
 over time.  Specify which metrics to match and a corresponding list of
 ordered non-inclusive upper limits of bins (class intervals).
 (use `inf` to denote infinity; a lower limit of 0 is assumed)
-Each `flushInterval`, statsd will store how many values (absolute frequency)
+Each `flushInterval`, StatsD will store how many values (absolute frequency)
 fall within each bin (class interval), for all matching metrics.
 Examples:
 
@@ -63,7 +63,7 @@ Examples:
         [ { metric: 'foo', bins: [] },
           { metric: '', bins: [ 50, 100, 150, 200, 'inf'] } ]
 
-Statsd also maintains a counter for each timer metric. The 3rd field
+StatsD also maintains a counter for each timer metric. The 3rd field
 specifies the sample rate for this counter (in this example @0.1). The field
 is optional and defaults to 1.
 
@@ -77,7 +77,7 @@ i.e. class intervals of different sizes.
 
 ## Gauges
 
-StatsD also supports gauges. A gauge will take on the arbitrary value assigned to it, and will maintain it's value until it is next set.
+StatsD also supports gauges. A gauge will take on the arbitrary value assigned to it, and will maintain its value until it is next set.
 
     gaugor:333|g
 
