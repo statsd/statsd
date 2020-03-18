@@ -1,4 +1,4 @@
-# StatsD [![Build Status][travis-ci_status_img]][travis-ci_statsd] [![Join the chat at https://gitter.im/statsd/statsd](https://badges.gitter.im/statsd/statsd.svg)](https://gitter.im/statsd/statsd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+# StatsD [![Build Status][travis-ci_status_img]][travis-ci_statsd] [![Join the chat at https://gitter.im/statsd/statsd](https://badges.gitter.im/statsd/statsd.svg)](https://gitter.im/statsd/statsd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Docker Pulls](https://img.shields.io/docker/pulls/statsd/statsd)](https://hub.docker.com/r/statsd/statsd)
 
 A network daemon that runs on the [Node.js][node] platform and
 listens for statistics, like counters and timers, sent over [UDP][udp] or
