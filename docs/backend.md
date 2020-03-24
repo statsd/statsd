@@ -37,7 +37,9 @@ queues and third-party services.
 * [node-bell](https://github.com/eleme/node-bell)
 * [couchdb-backend](https://github.com/sysadminmike/couch-statsd-backend)
 * [datadog-backend](https://github.com/DataDog/statsd-datadog-backend)
-* [elasticsearch-backend](https://github.com/markkimsal/statsd-elasticsearch-backend)
+* elasticsearch-backend
+  * [Elasticsearch 5 and 6](https://github.com/markkimsal/statsd-elasticsearch-backend)
+  * [Elasticsearch 7](https://github.com/lorenzoaiello/statsd-elasticsearch7-backend)
 * [ganglia-backend](https://github.com/jbuchbinder/statsd-ganglia-backend)
 * [hosted graphite backend](https://github.com/hostedgraphite/statsdplugin)
 * [influxdb backend](https://github.com/bernd/statsd-influxdb-backend)
