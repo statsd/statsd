@@ -14,7 +14,7 @@ To define retention and downsampling which match your needs, edit Graphite's con
 
     [stats]
     pattern = ^stats.*
-    retentions = 10s:6h,1min:6d,10min:1800d
+    retentions = 10s:6h,1m:6d,10m:1800d
 
 This translates to: for all metrics starting with 'stats' (i.e. all metrics sent by StatsD), capture:
 
