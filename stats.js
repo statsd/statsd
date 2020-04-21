@@ -165,7 +165,7 @@ function sanitizeKeyName(key) {
   if (keyNameSanitize) {
     return key.replace(/\s+/g, '_')
               .replace(/\//g, '-')
-              .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+              .replace(/[^a-zA-Z_\-0-9\.;=]/g, '');
   } else {
     return key;
   }
@@ -252,9 +252,17 @@ config.configFile(process.argv[2], function (config) {
         if (config.dumpMessages) {
           l.log(metrics[midx].toString());
         }
-        const bits = metrics[midx].toString().split(':');
-        const key = sanitizeKeyName(bits.shift());
-
+        let bits = metrics[midx].toString().split('|#');
+        let tags = null;
+        if (bits.length > 1) {
+          tags = bits[1];
+        }
+        bits = bits[0].split(':');
+        let key = bits.shift();
+        if (tags) {
+          key += ';' + tags.split(',').join(';').split(':').join('=')
+        }
+        key = sanitizeKeyName(key);
         if (keyFlushInterval > 0) {
           if (! keyCounter[key]) {
             keyCounter[key] = 0;
