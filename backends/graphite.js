@@ -316,7 +316,7 @@ exports.init = function graphite_init(startup_time, config, events, logger) {
   }
 
   graphiteStats.last_flush = startup_time;
-  graphiteStats.last_exception = startup_time;
+  graphiteStats.last_exception = 0;
   graphiteStats.flush_time = 0;
   graphiteStats.flush_length = 0;
 
