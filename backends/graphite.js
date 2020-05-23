@@ -82,7 +82,6 @@ var post_stats = function graphite_post_stats(stats) {
         graphiteStats.flush_time = (Date.now() - starttime);
         graphiteStats.flush_length = stats_payload.length;
         graphiteStats.last_flush = Math.round(Date.now() / 1000);
-        graphiteStats.last_exception = 0;
       });
     } catch(e){
       if (debug) {
@@ -318,7 +317,7 @@ exports.init = function graphite_init(startup_time, config, events, logger) {
   }
 
   graphiteStats.last_flush = startup_time;
-  graphiteStats.last_exception = startup_time;
+  graphiteStats.last_exception = 0;
   graphiteStats.flush_time = 0;
   graphiteStats.flush_length = 0;
 
