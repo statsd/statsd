@@ -14,7 +14,7 @@
  *   graphitePort: Port for the graphite text collector. Defaults to 2003.
  *   graphitePicklePort: Port for the graphite pickle collector. Defaults to 2004.
  *   graphiteProtocol: Either 'text' or 'pickle'. Defaults to 'text'.
- * 
+ *
  * If graphiteHost is not specified, metrics are processed but discarded.
  */
 
@@ -82,6 +82,7 @@ var post_stats = function graphite_post_stats(stats) {
         graphiteStats.flush_time = (Date.now() - starttime);
         graphiteStats.flush_length = stats_payload.length;
         graphiteStats.last_flush = Math.round(Date.now() / 1000);
+        graphiteStats.last_exception = 0;
       });
     } catch(e){
       if (debug) {
@@ -108,7 +109,7 @@ function Metric(key, value, ts) {
   this.value = value;
   this.ts = ts;
 
-  // return a string representation of this metric appropriate 
+  // return a string representation of this metric appropriate
   // for sending to the graphite collector. does not include
   // a trailing newline.
   this.toText = function() {
