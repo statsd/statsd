@@ -27,6 +27,9 @@ A number of clients have been made for pushing metrics into StatsD and open sour
 * [statsd](https://github.com/reinh/statsd/) — Ruby client (needs new maintainer)
 * [Statsd-Client](https://github.com/dawanda/statsd-client) — Ruby client (not maintained)
 
+**Swift**
+* [swift-statsd-client](https://github.com/apple/swift-statsd-client) - Swift client
+
 **Perl**
 * [Net::Statsd](https://github.com/cosimo/perl5-net-statsd) — Perl client, also available on [CPAN](https://metacpan.org/module/Net::Statsd)
 * [Net::StatsD::Client](https://github.com/sivy/statsd-client) — Perl client, not available on CPAN
