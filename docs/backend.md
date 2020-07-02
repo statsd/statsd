@@ -53,7 +53,7 @@ queues and third-party services.
 * [netuitive backend](https://github.com/Netuitive/statsd-netuitive-backend)
 * [opencensus-backend](https://github.com/DazWilkin/statsd-opencensus-backend)
 * [opentsdb backend](https://github.com/emurphy/statsd-opentsdb-backend)
-* [redistimeseries ackend](https://github.com/hashedin/statsd-redistimeseries-backend)
+* [redistimeseries backend](https://github.com/hashedin/statsd-redistimeseries-backend)
 * [socket.io-backend](https://github.com/Chatham/statsd-socket.io)
 * [stackdriver backend](https://github.com/Stackdriver/stackdriver-statsd-backend)
 * [statsd-backend](https://github.com/dynmeth/statsd-backend)
