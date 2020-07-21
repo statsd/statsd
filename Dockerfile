@@ -20,6 +20,7 @@ ENV my_prefix "test1"
 # Install dependencies
 COPY package.json /usr/src/app/
 RUN npm install && npm cache clean --force
+RUN npm install "applicationinsights" && npm cache clean --force
 
 # Copy required src (see .dockerignore)
 COPY . /usr/src/app
