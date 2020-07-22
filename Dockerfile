@@ -23,4 +23,4 @@ EXPOSE 8125/udp
 EXPOSE 8126
 
 # Start statsd with application insights backend
-ENTRYPOINT [ "node", "stats.js", "appinsightsconfig.js" ]
+ENTRYPOINT [ "node", "stats.js", "backends/config/appinsightsconfig.js" ]
