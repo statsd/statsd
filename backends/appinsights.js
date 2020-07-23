@@ -44,11 +44,10 @@ var AppInsightsBackend = (function () {
             }
             var parsedCounterKey = this.parseKey(counterKey);
             var counter = metrics.counters[counterKey];
-            var metricName = this.prefix + parsedCounterKey.metricname;
+            var metricName = parsedCounterKey.metricname;
 
             this.aiClient.trackMetric({name: metricName,value: counter});
             countersTracked++;
-            console.log("[aibackend] - metric {name: %s, value: %d}", metricName, counter)
         }
         ;
         console.log("[aibackend] %d counters tracked", countersTracked);
@@ -59,7 +58,7 @@ var AppInsightsBackend = (function () {
             }
             var parsedTimerKey = this.parseKey(timerKey);
             var timer = metrics.timer_data[timerKey];
-            var metricName = this.prefix + parsedTimerKey.metricname;
+            var metricName = parsedTimerKey.metricname;
 
             this.aiClient.trackMetric({ name: metricName, value: timer.sum, count: timer.count, min: timer.lower, max: timer.upper});
             timerDataTracked++;
@@ -73,7 +72,7 @@ var AppInsightsBackend = (function () {
             }
             var parsedGaugeKey = this.parseKey(gaugeKey);
             var gauge = metrics.gauges[gaugeKey];
-            var metricName = this.prefix + parsedGaugeKey.metricname;
+            var metricName = parsedGaugeKey.metricname;
 
             this.aiClient.trackMetric({ name: metricName,value:  gauge});
             gaugesTracked++;
@@ -84,20 +83,24 @@ var AppInsightsBackend = (function () {
         return true;
     };
     AppInsightsBackend.prototype.shouldProcess = function (key) {
+        // if trackStatsDMetrics equals false and no 'statsd.' found in keyName, then shouldn't process it
         if (!this.trackStatsDMetrics && key.indexOf("statsd.") === 0) {
             return false;
         }
+        // if prefix is defined well, and the prefix is found in the beginning of the key, then process it, otherwise shouldn't process it
         if (this.prefix !== undefined && this.prefix !== null) {
             return key.indexOf(this.prefix) === 0;
         }
         return true;
     };
     AppInsightsBackend.prototype.parseKey = function (key) {
+        /* remove this to keep the prefix
         if (this.prefix) {
             if (key.indexOf(this.prefix) === 0) {
                 key = key.substr(this.prefix.length);
             }
         }
+        */
         var endOfNameIndex = key.indexOf("__");
         var metricName = endOfNameIndex > 0 ? key.substring(0, endOfNameIndex) : key;
         var properties = undefined;
