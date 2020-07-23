@@ -60,7 +60,7 @@ var AppInsightsBackend = (function () {
             var timer = metrics.timer_data[timerKey];
             var metricName = parsedTimerKey.metricname;
 
-            this.aiClient.trackMetric({ name: metricName, value: timer.sum, count: timer.count, min: timer.lower, max: timer.upper});
+            this.aiClient.trackMetric({ name: metricName, value: timer.mean, count: timer.count, min: timer.lower, max: timer.upper});
             timerDataTracked++;
         }
         ;
