@@ -8,6 +8,8 @@ var AppInsightsBackend = (function () {
         this.roleName = config.aiRoleName;
         this.roleInstance = config.aiRoleInstance;
         this.instrumentationKey = config.aiInstrumentationKey;
+        this.debug = config.debug;
+
         if (!!config.aiPrefix) {
             this.prefix = config.aiPrefix + ".";
         }
@@ -53,6 +55,10 @@ var AppInsightsBackend = (function () {
         console.log("[aibackend] %d counters tracked", countersTracked);
         var timerDataTracked = 0;
         for (var timerKey in metrics.timer_data) {
+            if(this.debug){
+                console.log("[aibackend] timer: %s, count: %d", timerKey, metrics.timer_data[timerKey].count)
+            }
+
             if (!this.shouldProcess(timerKey)) {
                 continue;
             }
