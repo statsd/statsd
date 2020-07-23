@@ -83,11 +83,11 @@ var AppInsightsBackend = (function () {
         return true;
     };
     AppInsightsBackend.prototype.shouldProcess = function (key) {
-        // if trackStatsDMetrics equals false and no 'statsd.' found in keyName, then shouldn't process it
+        // if trackStatsDMetrics equals false and keyName begins with 'statsd.', then shouldn't process it
         if (!this.trackStatsDMetrics && key.indexOf("statsd.") === 0) {
             return false;
         }
-        // if prefix is defined well, and the prefix is found in the beginning of the key, then process it, otherwise shouldn't process it
+        // if prefix is defined well, and keyName begins with the prefix, then process it, otherwise shouldn't process it
         if (this.prefix !== undefined && this.prefix !== null) {
             return key.indexOf(this.prefix) === 0;
         }
