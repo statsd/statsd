@@ -1,6 +1,9 @@
 "use strict";
 console.log("[aibackend] Starting...");
 var util = require("util");
+var logger = require('../lib/logger')
+var l;  // logger
+
 var ai = require("applicationinsights");
 var AppInsightsBackend = (function () {
     function AppInsightsBackend(config) {
@@ -9,6 +12,7 @@ var AppInsightsBackend = (function () {
         this.roleInstance = config.aiRoleInstance;
         this.instrumentationKey = config.aiInstrumentationKey;
         this.debug = config.debug;
+        l = new logger.Logger(config.log || {});
 
         if (!!config.aiPrefix) {
             this.prefix = config.aiPrefix + ".";
@@ -25,7 +29,10 @@ var AppInsightsBackend = (function () {
         configurable: true
     });
     AppInsightsBackend.prototype.init = function (events) {
-        console.log("[aibackend] Initializing");
+        if(this.debug){
+            l.log("[aibackend] Initializing");
+        }
+        
         this.appInsights = ai.setup(this.instrumentationKey);
         if (this.roleName) {
             this.aiClient.context.tags[this.aiClient.context.keys.deviceRoleName] = this.roleName;
@@ -33,11 +40,15 @@ var AppInsightsBackend = (function () {
         if (this.roleInstance) {
             this.aiClient.context.tags[this.aiClient.context.keys.deviceRoleInstance] = this.roleInstance;
         }
-        console.log("[aibackend] Registering for 'flush' event");
+        if(this.debug){
+            l.log("[aibackend] Registering for 'flush' event");
+        }
         events.on("flush", this.onFlush.bind(this));
     };
     AppInsightsBackend.prototype.onFlush = function (timestamp, metrics) {
-        console.log("[aibackend] OnFlush called");
+        if(this.debug){
+            l.log("[aibackend] OnFlush called");
+        } 
 
         var countersTracked = 0;
         for (var counterKey in metrics.counters) {
@@ -52,13 +63,12 @@ var AppInsightsBackend = (function () {
             countersTracked++;
         }
         ;
-        console.log("[aibackend] %d counters tracked", countersTracked);
+        if(this.debug){
+            l.log("[aibackend] %d counters tracked", countersTracked);
+        }
+
         var timerDataTracked = 0;
         for (var timerKey in metrics.timer_data) {
-            if(this.debug){
-                console.log("[aibackend] timer: %s, count: %d", timerKey, metrics.timer_data[timerKey].count)
-            }
-
             if (!this.shouldProcess(timerKey)) {
                 continue;
             }
@@ -70,7 +80,9 @@ var AppInsightsBackend = (function () {
             timerDataTracked++;
         }
         ;
-        console.log("[aibackend] %d timer data tracked", timerDataTracked);
+        if(this.debug){
+            l.log("[aibackend] %d timer data tracked", timerDataTracked);
+        }
         var gaugesTracked = 0;
         for (var gaugeKey in metrics.gauges) {
             if (!this.shouldProcess(gaugeKey)) {
@@ -84,8 +96,10 @@ var AppInsightsBackend = (function () {
             gaugesTracked++;
         }
         ;
-        console.log("[aibackend] %d gauges tracked", gaugesTracked);
-        console.log("[aibackend] OnFlush completed");
+        if(this.debug){
+            l.log("[aibackend] %d gauges tracked", gaugesTracked);
+            l.log("[aibackend] OnFlush completed");
+        }
         return true;
     };
     AppInsightsBackend.prototype.shouldProcess = function (key) {
