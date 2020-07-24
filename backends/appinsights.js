@@ -64,7 +64,7 @@ var AppInsightsBackend = (function () {
         }
         ;
         if(this.debug){
-            l.log("[aibackend] %d counters tracked", countersTracked);
+            console.log("[aibackend] %d counters tracked", countersTracked);
         }
 
         var timerDataTracked = 0;
@@ -81,7 +81,7 @@ var AppInsightsBackend = (function () {
         }
         ;
         if(this.debug){
-            l.log("[aibackend] %d timer data tracked", timerDataTracked);
+            console.log("[aibackend] %d timer data tracked", timerDataTracked);
         }
         var gaugesTracked = 0;
         for (var gaugeKey in metrics.gauges) {
@@ -97,7 +97,7 @@ var AppInsightsBackend = (function () {
         }
         ;
         if(this.debug){
-            l.log("[aibackend] %d gauges tracked", gaugesTracked);
+            console.log("[aibackend] %d gauges tracked", gaugesTracked);
             l.log("[aibackend] OnFlush completed");
         }
         return true;
