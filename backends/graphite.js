@@ -167,7 +167,7 @@ var flush_stats = function graphite_flush(ts, metrics) {
     } else {
       return key.replace(/\s+/g, '_')
                 .replace(/\//g, '-')
-                .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+                .replace(/[^a-zA-Z_\-0-9\.;=]/g, '');
     }
   };
 
