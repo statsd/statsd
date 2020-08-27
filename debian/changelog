@@ -1,3 +1,13 @@
+statsd (0.9.0-1) unstable; urgency=low
+
+  * Add support for graphite tagged metrics
+  * Fix dashboard to 0 last_exception time on startup
+  * Multiple documentation updates
+  * Correct some out-dated integration examples
+  * Update container image to use recent node version
+
+ -- Elliot Blackburn <elliot@elliotblackburn.com>   Thu, 27 Aug 2020 15:30:29 +0000
+
 statsd (0.8.6-1) unstable; urgency=low
 
   * Add an optional max TTL setting for gauges

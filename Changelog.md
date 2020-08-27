@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.9.0 (08/27/2020)
+
+- Add support for graphite tagged metrics
+- Fix dashboard to 0 last_exception time on startup
+- Multiple documentation updates
+- Correct some out-dated integration examples
+- Update container image to use recent node version
+
 ## v0.8.6 (02/19/2020)
 
 - Add an optional max TTL setting for gauges
