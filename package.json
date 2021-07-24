@@ -27,13 +27,14 @@
     "generic-pool": "2.2.0"
   },
   "devDependencies": {
+    "dotenv": "^10.0.0",
     "nodeunit": "^0.11.3",
-    "underscore": "1.4.x",
-    "temp": "0.4.x"
+    "temp": "0.4.x",
+    "underscore": "1.4.x"
   },
   "optionalDependencies": {
-    "modern-syslog": "1.2.0",
     "hashring": "3.2.0",
+    "modern-syslog": "1.2.0",
     "winser": "=0.1.6"
   },
   "bin": {
