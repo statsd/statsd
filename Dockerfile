@@ -18,4 +18,4 @@ EXPOSE 8126
 
 # Start statsd
 USER node
-CMD [ "node", "stats.js", "config.js" ]
+ENTRYPOINT [ "node", "stats.js", "config.js" ]
