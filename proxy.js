@@ -115,7 +115,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
       if (packet_data.indexOf("\n") > -1) {
         var metrics;
         metrics = packet_data.split("\n");
-        // Loop through the metrics and split on : to get mertric name for hashing
+        // Loop through the metrics and split on : to get metric name for hashing
         for (var midx in metrics) {
           current_metric = metrics[midx];
           bits = current_metric.split(':');
@@ -139,10 +139,10 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
     var client = dgram.createSocket(udp_version);
     // Listen for the send message, and process the metric key and msg
     packet.on('send', function(key, msg) {
-      // retreives the destination for this key
+      // retrieves the destination for this key
       var statsd_host = ring.get(key);
 
-      // break the retreived host to pass to the send function
+      // break the retrieved host to pass to the send function
       if (statsd_host === undefined) {
         log('Warning: No backend statsd nodes available!', 'WARNING');
       } else {

@@ -99,7 +99,7 @@ without first setting it to zero.
 
 ## Sets
 
-StatsD supports counting unique occurences of events between flushes,
+StatsD supports counting unique occurrences of events between flushes,
 using a Set to store all occuring events.
 
     uniques:765|s

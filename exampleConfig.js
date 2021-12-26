@@ -32,7 +32,7 @@ Optional Variables:
     address_ipv6:   defines if the address is an IPv4 or IPv6 address [true or false, default: false]
     port:           port to listen for messages on [default: 8125]
     socket:         (only for tcp servers) path to unix domain socket which will be used to receive
-                    metrics [default: undefinded]
+                    metrics [default: undefined]
     socket_mod:     (only for tcp servers) file mode which should be applied to unix domain socket, relevant
                     only if socket option is used [default: undefined]
 

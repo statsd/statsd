@@ -150,7 +150,7 @@ class StatsdClient(object):
         >>> StatsdClient.send({"example.send":"11|c"}, ("127.0.0.1", 8125))
         """
         # TODO(rbtz@): IPv6 support
-        # TODO(rbtz@): Creating socket on each send is a waste of recources
+        # TODO(rbtz@): Creating socket on each send is a waste of resources
         udp_sock = socket(AF_INET, SOCK_DGRAM)
         # TODO(rbtz@): Add batch support
         for item in _dict.items():
