@@ -39,7 +39,7 @@ To fix that, simply ensure your flush interval is at least as long as the highes
 
 The next step is ensuring your data isn't corrupted or discarded when downsampled. Continuing with the example above, take for instance the downsampling of .mean values calculated for all StatsD timers:
 
-Graphite should downsample up to 6 samples representing 10-second mean values into a single value signfying the mean for a 1-minute timespan. This is simple: just average all samples to get the new value, and this is exactly the default method applied by Graphite. However, what about the .count metric also sent for timers? Each sample contains the count of occurences per flush interval, so you want these samples summed-up, not averaged!
+Graphite should downsample up to 6 samples representing 10-second mean values into a single value signifying the mean for a 1-minute timespan. This is simple: just average all samples to get the new value, and this is exactly the default method applied by Graphite. However, what about the .count metric also sent for timers? Each sample contains the count of occurrences per flush interval, so you want these samples summed-up, not averaged!
 
 You would not even notice any problem till you look at a graph for data older than 6 hours ago, since Graphite would need only the high-res 10-second samples to render the first 6 hours, but would have to switch to lower resolution data for rendering a longer timespan.
 
