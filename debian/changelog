@@ -1,3 +1,8 @@
+statsd (0.8.0-hostedgraphite3) unstable; urgency=low
+
+  * Align with the changes in NodeJs
+
+ -- Metricfire Package Maintainer <packaging@metricfire.com>  Thu, 06 Jul 2022 10:50:00 +0100
 statsd (0.7.1-hostedgraphite3) unstable; urgency=low
 
   * Respect command line arguments when setting the process title.

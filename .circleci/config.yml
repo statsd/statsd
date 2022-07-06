@@ -1,0 +1,45 @@
+version: 2
+jobs:
+  build:
+      docker:
+        - image: hostedgraphite/pythonbuild:focal_build3
+      environment:
+        CIRCLE_ARTIFACTS: /tmp/artifacts
+      steps:
+        - checkout
+        - run: mkdir -p $CIRCLE_ARTIFACTS
+        - run: dpkg-buildpackage -uc -us
+        - run: cp ../*.deb $CIRCLE_ARTIFACTS
+        - store_artifacts:
+            path: /tmp/artifacts
+        - save_cache:
+            paths:
+              - /tmp/artifacts/
+            key: statsd-{{ .Branch }}-{{ .Revision }}
+  deploy:
+      docker:
+        - image: hostedgraphite/pythonbuild:focal_build3
+      environment:
+        CIRCLE_ARTIFACTS: /tmp/artifacts
+      steps:
+        - checkout
+        - restore_cache:
+            keys:
+              - statsd-{{ .Branch }}-{{ .Revision }}
+        - run: aws s3 sync $CIRCLE_ARTIFACTS s3://mfprivateapt-queue-prod/ --exclude "*" --include "*.deb"
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - build
+      - deploy:
+          context: mfprivate-apt-repo
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+                - v0.8.0
+
