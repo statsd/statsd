@@ -12,7 +12,7 @@
     "type": "git",
     "url": "https://github.com/etsy/statsd.git"
   },
-  "version": "0.7.1",
+  "version": "0.8.0",
   "dependencies": {
   },
   "devDependencies": {
@@ -21,12 +21,12 @@
     "temp": "0.4.x"
   },
   "optionalDependencies": {
-    "node-syslog":"1.1.7",
-    "hashring":"1.0.1",
+    "node-syslog": "1.1.7",
+    "hashring": "1.0.1",
     "winser": "=0.1.6"
   },
   "engines": {
-    "node" : ">=0.8"
+    "node": ">=0.8"
   },
   "bin": { "statsd": "./bin/statsd" }
 }
