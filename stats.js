@@ -185,11 +185,20 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         if (config.dumpMessages) {
           l.log(metrics[midx].toString());
         }
-        var bits = metrics[midx].toString().split(':');
-        var key = bits.shift()
-                      .replace(/\s+/g, '_')
-                      .replace(/\//g, '-')
-                      .replace(/[^a-zA-Z_\-0-9\.]/g, '');
+        
+        let bits = metrics[midx].toString().split('|#');
+        let tags = [];
+        if (bits.length > 1 && bits[1].length > 0) {
+          tags = bits[1].split(',');  // separator for multiple tags
+        }
+        bits = bits[0].split(':'); // splits the api and metric name from the value and statsd type
+        let key = bits.shift();
+        if (tags.length > 0) {
+          key += ';' + tags.join(';');
+        }
+        key = key.replace(/\s+/g, '_')
+                 .replace(/\//g, '-')
+                 .replace(/[^a-zA-Z_\-0-9\.;=]/g, '');
 
         if (keyFlushInterval > 0) {
           if (! keyCounter[key]) {
