@@ -35,6 +35,7 @@ queues and third-party services.
 * [atsd-backend](https://github.com/axibase/atsd-statsd-backend)
 * [aws-cloudwatch-backend](https://github.com/camitz/aws-cloudwatch-statsd-backend)
 * [node-bell](https://github.com/eleme/node-bell)
+* [coralogix-backend](https://github.com/coralogix/statsd-coralogix-backend)
 * [couchdb-backend](https://github.com/sysadminmike/couch-statsd-backend)
 * [datadog-backend](https://github.com/DataDog/statsd-datadog-backend)
 * elasticsearch-backend
