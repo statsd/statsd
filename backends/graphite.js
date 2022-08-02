@@ -44,7 +44,7 @@ var setsNamespace    = [];
 
 var graphiteStats = {};
 
-var post_stats = function graphite_post_stats(statString) {
+var post_stats = function graphite_post_stats(stats) {
   var last_flush = graphiteStats.last_flush || 0;
   var last_exception = graphiteStats.last_exception || 0;
   var flush_time = graphiteStats.flush_time || 0;
@@ -59,22 +59,20 @@ var post_stats = function graphite_post_stats(statString) {
       });
       graphite.on('connect', function() {
         var ts = Math.round(new Date().getTime() / 1000);
-        var ts_suffix = ' ' + ts + "\n";
         var namespace = globalNamespace.concat(prefixStats).join(".");
-        statString += namespace + '.graphiteStats.last_exception' + globalSuffix + last_exception + ts_suffix;
-        statString += namespace + '.graphiteStats.last_flush'     + globalSuffix + last_flush     + ts_suffix;
-        statString += namespace + '.graphiteStats.flush_time'     + globalSuffix + flush_time     + ts_suffix;
-        statString += namespace + '.graphiteStats.flush_length'   + globalSuffix + flush_length   + ts_suffix;
+        stats.add(namespace + '.graphiteStats.last_exception' + globalSuffix, last_exception, ts);
+        stats.add(namespace + '.graphiteStats.last_flush'     + globalSuffix, last_flush    , ts);
+        stats.add(namespace + '.graphiteStats.flush_time'     + globalSuffix, flush_time    , ts);
+        stats.add(namespace + '.graphiteStats.flush_length'   + globalSuffix, flush_length  , ts);
 
-        // Apply the globalPrefix in legacyNamespace mode.
-        if(legacyNamespace && globalPrefix.length > 0)
-           statString = globalPrefix + "." + statString.slice(0, -1).replace(/\n/g, "\n" + globalPrefix + ".") + "\n";
+        payload = stats.toText();
 
         var starttime = Date.now();
-        this.write(statString);
+        this.write(payload);
         this.end();
+
         graphiteStats.flush_time = (Date.now() - starttime);
-        graphiteStats.flush_length = statString.length;
+        graphiteStats.flush_length = payload.length;
         graphiteStats.last_flush = Math.round(new Date().getTime() / 1000);
       });
     } catch(e){
@@ -86,10 +84,33 @@ var post_stats = function graphite_post_stats(statString) {
   }
 };
 
+function Metric(key, value, ts) {
+  var m = this;
+  this.key = key;
+  this.value = value;
+  this.ts = ts;
+
+  this.toText = function () {
+    return m.key + " " + m.value + " " + m.ts;
+  }
+}
+
+function Stats() {
+  var s = this;
+  this.metrics = [];
+  
+  this.add = function (key, value, ts) {
+    s.metrics.push(new Metric(key, value, ts));
+  }
+
+  this.toText = function () {
+    return s.metrics.map(function(m) { return m.toText(); }).join('\n') + '\n';
+  }
+}
+
+
 var flush_stats = function graphite_flush(ts, metrics) {
-  var ts_suffix = ' ' + ts + "\n";
   var starttime = Date.now();
-  var statString = '';
   var numStats = 0;
   var key;
   var timer_data_key;
@@ -101,20 +122,30 @@ var flush_stats = function graphite_flush(ts, metrics) {
   var timer_data = metrics.timer_data;
   var statsd_metrics = metrics.statsd_metrics;
 
+  function format(namespace, key) {
+    var splitName = key.split(';');
+    var keyName = splitName[0];
+    var tags = splitName.length > 1 ? (';' + splitName.slice(1).join(';')) : '';
+
+    return namespace.concat(keyName, [].slice.call(arguments, 2)).join('.') + globalSuffix + tags;
+  }
+
+  var stats = new Stats();
+
   for (key in counters) {
-    var namespace = counterNamespace.concat(key);
+
     var value = counters[key];
-    var valuePerSecond = counter_rates[key]; // pre-calculated "per second" rate
+    var valuePerSecond = counter_rates[key];
 
     if (legacyNamespace === true) {
-      statString += namespace.join(".")   + globalSuffix + valuePerSecond + ts_suffix;
+      stats.add(format(counterNamespace, key), valuePerSecond, ts);
       if (flush_counts) {
-        statString += 'stats_counts.' + key + globalSuffix + value + ts_suffix;
+        stats.add(format(['stats_counts'], key), value, ts);
       }
     } else {
-      statString += namespace.concat('rate').join(".")  + globalSuffix + valuePerSecond + ts_suffix;
+      stats.add(format(counterNamespace, key, 'rate'), valuePerSecond, ts);
       if (flush_counts) {
-        statString += namespace.concat('count').join(".") + globalSuffix + value + ts_suffix;
+        stats.add(format(counterNamespace, key, 'count'), value, ts);
       }
     }
 
@@ -122,18 +153,16 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   for (key in timer_data) {
-    var namespace = timerNamespace.concat(key);
-    var the_key = namespace.join(".");
     for (timer_data_key in timer_data[key]) {
       if (typeof(timer_data[key][timer_data_key]) === 'number') {
-        statString += the_key + '.' + timer_data_key + globalSuffix + timer_data[key][timer_data_key] + ts_suffix;
+        stats.add(format(timerNamespace, key, timer_data_key), timer_data[key][timer_data_key], ts);
       } else {
         for (var timer_data_sub_key in timer_data[key][timer_data_key]) {
           if (debug) {
             l.log(timer_data[key][timer_data_key][timer_data_sub_key].toString());
           }
-          statString += the_key + '.' + timer_data_key + '.' + timer_data_sub_key + globalSuffix +
-                        timer_data[key][timer_data_key][timer_data_sub_key] + ts_suffix;
+          stats.add(format(timerNamespace, key, timer_data_key, timer_data_sub_key),
+                    timer_data[key][timer_data_key][timer_data_sub_key], ts);
         }
       }
     }
@@ -141,33 +170,29 @@ var flush_stats = function graphite_flush(ts, metrics) {
   }
 
   for (key in gauges) {
-    var namespace = gaugesNamespace.concat(key);
-    statString += namespace.join(".") + globalSuffix + gauges[key] + ts_suffix;
+    stats.add(format(gaugesNamespace, key), gauges[key], ts);
     numStats += 1;
   }
 
   for (key in sets) {
-    var namespace = setsNamespace.concat(key);
-    statString += namespace.join(".") + '.count' + globalSuffix + sets[key].values().length + ts_suffix;
+    stats.add(format(setsNamespace, key, 'count'), sets[key].size(), ts);
     numStats += 1;
   }
 
-  var namespace = globalNamespace.concat(prefixStats);
   if (legacyNamespace === true) {
-    statString += prefixStats + '.numStats' + globalSuffix + numStats + ts_suffix;
-    statString += 'stats.' + prefixStats + '.graphiteStats.calculationtime' + globalSuffix + (Date.now() - starttime) + ts_suffix;
+    stats.add(prefixStats + '.numStats' + globalSuffix, numStats, ts);
+    stats.add('stats.' + prefixStats + '.graphiteStats.calculationtime' + globalSuffix, (Date.now() - starttime), ts);
     for (key in statsd_metrics) {
-      statString += 'stats.' + prefixStats + '.' + key + globalSuffix + statsd_metrics[key] + ts_suffix;
+      stats.add('stats.' + prefixStats + '.' + key + globalSuffix, statsd_metrics[key], ts);
     }
   } else {
-    statString += namespace.join(".") + '.numStats' + globalSuffix + numStats + ts_suffix;
-    statString += namespace.join(".") + '.graphiteStats.calculationtime' + globalSuffix + (Date.now() - starttime) + ts_suffix;
+    stats.add(format(globalNamespace, prefixStats, 'numStats'), numStats, ts);
+    stats.add(format(globalNamespace, prefixStats, 'graphiteStats', 'calculationtime'), (Date.now() - starttime) , ts);
     for (key in statsd_metrics) {
-      var the_key = namespace.concat(key);
-      statString += the_key.join(".") + globalSuffix + statsd_metrics[key] + ts_suffix;
+      stats.add(format(globalNamespace, prefixStats, key), statsd_metrics[key], ts);
     }
   }
-  post_stats(statString);
+  post_stats(stats);
 
   if (debug) {
    l.log("numStats: " + numStats);
@@ -193,6 +218,8 @@ exports.init = function graphite_init(startup_time, config, events, logger) {
   prefixSet       = config.graphite.prefixSet;
   globalSuffix    = config.graphite.globalSuffix;
   legacyNamespace = config.graphite.legacyNamespace;
+  prefixStats     = config.prefixStats;
+
 
   // set defaults for prefixes & suffix
   globalPrefix  = globalPrefix !== undefined ? globalPrefix : "stats";
@@ -200,12 +227,13 @@ exports.init = function graphite_init(startup_time, config, events, logger) {
   prefixTimer   = prefixTimer !== undefined ? prefixTimer : "timers";
   prefixGauge   = prefixGauge !== undefined ? prefixGauge : "gauges";
   prefixSet     = prefixSet !== undefined ? prefixSet : "sets";
+  prefixStats   = prefixStats !== undefined ? prefixStats : "statsd";
   legacyNamespace = legacyNamespace !== undefined ? legacyNamespace : true;
 
   // In order to unconditionally add this string, it either needs to be
   // a single space if it was unset, OR surrounded by a . and a space if
   // it was set.
-  globalSuffix  = globalSuffix !== undefined ? '.' + globalSuffix + ' ' : ' ';
+  globalSuffix  = globalSuffix !== undefined ? '.' + globalSuffix : '';
 
   if (legacyNamespace === false) {
     if (globalPrefix !== "") {
