@@ -358,5 +358,23 @@ module.exports = {
         });
       });
     });
-  }
+  },
+  graphite_tags_are_supported: function(test) {
+    var me = this;
+    this.acceptor.once('connection', function(c) {
+      statsd_send('fo/o;tag1=val1:250|c',me.sock,'127.0.0.1',8125,function(){
+        statsd_send('b ar;tag1=val1;tag2=val2:250|c',me.sock,'127.0.0.1',8125,function(){
+          statsd_send('foo+bar;tag1=val1;tag3=val3;tag2=val2:250|c',me.sock,'127.0.0.1',8125,function(){
+            collect_for(me.acceptor, me.myflush * 2, function(strings){
+              var str = strings.join();
+              test.ok(str.indexOf('fo-o.count;tag1=val1') !== -1, "Did not map 'fo/o;tag1=val1' => 'fo-o.count;tag1=val1'");
+              test.ok(str.indexOf('b_ar.count;tag1=val1;tag2=val2') !== -1, "Did not map 'b ar;tag1=val1;tag2=val2' => 'b_ar.count;tag1=val1;tag2=val2'");
+              test.ok(str.indexOf('foobar.count;tag1=val1;tag3=val3;tag2=val2') !== -1, "Did not map 'foo+bar;tag1=val1;tag3=val3;tag2=val2' => 'foobar.count;tag1=val1;tag3=val3;tag2=val2'");
+              test.done();
+            });
+          });
+        });
+      });
+    });
+  },
 }
