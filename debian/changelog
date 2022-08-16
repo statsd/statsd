@@ -1,3 +1,8 @@
+statsd (0.8.1-hostedgraphite3) unstable; urgency=low
+
+  * Adding tag metric ingestion
+
+ -- Metricfire Package Maintainer <packaging@metricfire.com>  Tue, 16 Aug 2022 05:50:00 +0100
 statsd (0.8.0-hostedgraphite3) unstable; urgency=low
 
   * Align with the changes in NodeJs
