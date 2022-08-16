@@ -186,13 +186,13 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           l.log(metrics[midx].toString());
         }
         
-        let bits = metrics[midx].toString().split('|#');
-        let tags = [];
+        var bits = metrics[midx].toString().split('|#');
+        var tags = [];
         if (bits.length > 1 && bits[1].length > 0) {
           tags = bits[1].split(',');  // separator for multiple tags
         }
         bits = bits[0].split(':'); // splits the api and metric name from the value and statsd type
-        let key = bits.shift();
+        var key = bits.shift();
         if (tags.length > 0) {
           key += ';' + tags.join(';');
         }
