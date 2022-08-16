@@ -42,4 +42,5 @@ workflows:
               only:
                 - master
                 - v0.8.0
+                - tag-addition
 
