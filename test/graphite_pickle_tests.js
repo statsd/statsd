@@ -95,7 +95,7 @@ var unpickle = function(payload, cb) {
         fs.close(unpickle_info.fd, function(err) {
           if (err) throw err;
 
-          var cmd = 'python ' + unpickle_info.path + ' ' + payload_info.path;
+          var cmd = 'python3 ' + unpickle_info.path + ' ' + payload_info.path;
           var python = cp.exec(cmd, function(err, stdout, stderr) {
             if (err) throw err;
             var metrics = JSON.parse(stdout);
