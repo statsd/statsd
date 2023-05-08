@@ -1,8 +1,8 @@
 language: node_js
 node_js:
-- '10'
-- '12'
 - '14'
+- '16'
+- '18'
 script: node run_tests.js
 notifications:
   email: false
