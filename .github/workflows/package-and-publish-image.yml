@@ -24,30 +24,42 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
+            statsd/statsd
             ghcr.io/statsd/statsd
           flavor: |
             latest=true
-          # type=semver,pattern=v{{version}},event=tag
-          # type=semver,pattern=v{{major.minor}},event=tag
-          # type=semver,pattern=v{{major}},event=tag
+          
           # type=edge,branch=$repo.default_branch,event=push
           # type=sha,branch=$repo.default_branch,event=push
           tags: |
+            type=semver,pattern=v{{version}},event=tag
+            type=semver,pattern=v{{major.minor}},event=tag
+            type=semver,pattern=v{{major}},event=tag
             type=edge,event=push
             type=sha,event=push
+
       - name: Setup buildx
         uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub container registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Login to GitHub container registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
+
       - name: Build and publish image
         id: docker_build
         uses: docker/build-push-action@v4
         with:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+
       - name: Echo image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
