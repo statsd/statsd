@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and publish image
         id: docker_build
-        uses: docker/build-and-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
