@@ -12,7 +12,6 @@ on:
   push:
     branches:
       - master
-      - docker-publish-test
 
 jobs:
   publish:
@@ -28,15 +27,12 @@ jobs:
             ghcr.io/statsd/statsd
           flavor: |
             latest=true
-          
-          # type=edge,branch=$repo.default_branch,event=push
-          # type=sha,branch=$repo.default_branch,event=push
           tags: |
             type=semver,pattern=v{{version}},event=tag
             type=semver,pattern=v{{major.minor}},event=tag
             type=semver,pattern=v{{major}},event=tag
-            type=edge,event=push
-            type=sha,event=push
+            type=edge,branch=$repo.default_branch,event=push
+            type=sha,branch=$repo.default_branch,event=push
 
       - name: Setup buildx
         uses: docker/setup-buildx-action@v1
