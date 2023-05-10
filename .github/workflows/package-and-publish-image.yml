@@ -25,14 +25,14 @@ jobs:
         with:
           images: |
             ghcr.io/statsd/statsd
-          flavour: |
+          flavor: |
             latest=true
           # type=semver,pattern=v{{version}},event=tag
           # type=semver,pattern=v{{major.minor}},event=tag
           # type=semver,pattern=v{{major}},event=tag
           # type=edge,branch=$repo.default_branch,event=push
           # type=sha,branch=$repo.default_branch,event=push
-          tag: |
+          tags: |
             type=edge,event=push
             type=sha,event=push
       - name: Setup buildx
