@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.10.1 (05/11/2023)
+
+- Include tag pushes in docker builds
+
 ## v0.10.0 (05/11/2023)
 
 - Multiple documentation updates

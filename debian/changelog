@@ -1,3 +1,9 @@
+statsd (0.10.1-1) unstable; urgency=low
+
+  * Include tag pushes in docker builds
+
+ -- Mike Heffner <mikeh@fesnel.com>   Thu, 11 May 2023 16:02:29 +0000
+
 statsd (0.10.0-1) unstable; urgency=low
 
   * Multiple documentation updates
