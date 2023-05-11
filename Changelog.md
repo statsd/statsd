@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.10.0 (05/11/2023)
+
+- Multiple documentation updates
+- Updated docker-compose syntax
+- Upgrade tests to use python3
+- Upgrade node base for Docker image
+- Automatic container publishing via GHA
+
 ## v0.9.0 (08/27/2020)
 
 - Add support for graphite tagged metrics
