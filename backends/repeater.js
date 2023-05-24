@@ -106,7 +106,7 @@ TCPRepeaterBackend.prototype.process = function(packet, rinfo) {
   }
 
   for(var i = 0; i < this.pools.length; i++) {
-    send(new Buffer(packet.toString() + "\n"), this.pools[i]);
+    send(Buffer.from(packet.toString() + "\n"), this.pools[i]);
   }
 };
 

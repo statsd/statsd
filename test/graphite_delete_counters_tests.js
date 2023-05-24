@@ -35,7 +35,7 @@ var array_contents_are_equal = function(first,second){
 }
 
 var statsd_send = function(data,sock,host,port,cb){
-  send_data = new Buffer(data);
+  send_data = Buffer.from(data);
   sock.send(send_data,0,send_data.length,port,host,function(err,bytes){
     if (err) {
       throw err;

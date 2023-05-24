@@ -138,7 +138,7 @@ function Stats() {
     // The first four bytes of the graphite pickle format
     // contain the length of the rest of the payload.
     // We use Buffer because this is binary data.
-    var buf = new Buffer(4 + body.length);
+    var buf = Buffer.alloc(4 + body.length);
 
     buf.writeUInt32BE(body.length,0);
     buf.write(body,4);
