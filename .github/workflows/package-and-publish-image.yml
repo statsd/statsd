@@ -57,6 +57,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
+          platforms: linux/amd64,linux/s390x
           tags: ${{ steps.meta.outputs.tags }}
 
       - name: Echo image digest
