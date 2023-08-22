@@ -31,7 +31,7 @@ jobs:
             latest=true
           tags: |
             type=semver,pattern=v{{version}},event=tag
-            type=semver,pattern=v{{major.minor}},event=tag
+            type=semver,pattern=v{{major}}.{{minor}},event=tag
             type=semver,pattern=v{{major}},event=tag
             type=edge,branch=$repo.default_branch,event=push
             type=sha,branch=$repo.default_branch,event=push
