@@ -23,7 +23,7 @@ var writeconfig = function(text,worker,cb,obj){
 };
 
 var statsd_send = function(data,sock,host,port,cb){
-  send_data = new Buffer(data);
+  send_data = Buffer.from(data);
   sock.send(send_data,0,send_data.length,port,host,function(err,bytes){
     if (err) {
       throw err;
@@ -36,7 +36,7 @@ var statsd_send = function(data,sock,host,port,cb){
 // this will let us capture all data chunks so we don't miss one
 var collect_for = function(server,timeout,cb){
   // We have binary data arriving over the wire. Avoid strings.
-  var received = new Buffer(0);
+  var received = Buffer.alloc(0);
   var in_flight = 0;
   var timed_out = false;
   var collector = function(req,res){

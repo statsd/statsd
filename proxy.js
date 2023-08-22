@@ -121,7 +121,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
           bits = current_metric.split(':');
           key = bits.shift();
           if (current_metric !== '') {
-            var new_msg = new Buffer(current_metric);
+            var new_msg = Buffer.from(current_metric);
             packet.emit('send', key, new_msg);
           }
         }
