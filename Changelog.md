@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.10.2 (08/22/2023)
+
+- Support publishing amd64 and s390x container images
+
 ## v0.10.1 (05/11/2023)
 
 - Include tag pushes in docker builds

@@ -1,6 +1,6 @@
 {
   "name": "statsd",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Network daemon for the collection and aggregation of realtime application metrics",
   "author": {
     "name": "Etsy",

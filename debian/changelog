@@ -1,3 +1,9 @@
+statsd (0.10.2-1) unstable; urgency=low
+
+  * Support publishing amd64 and s390x container images
+
+ -- Elliot Blackburn <elliot@elliotblackburn.com>   Tue, 22 Aug 2023 13:14:48 +0000
+
 statsd (0.10.1-1) unstable; urgency=low
 
   * Include tag pushes in docker builds
