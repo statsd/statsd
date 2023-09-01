@@ -7,6 +7,7 @@ var dgram    = require('dgram')
   , hashring = require('hashring')
   , cluster = require('cluster')
   , helpers = require('./lib/helpers')
+  , process_mgmt = require('./lib/process_mgmt')
   , mgmt_server = require('./lib/mgmt_server')
   , configlib   = require('./lib/config');
 
@@ -23,6 +24,7 @@ configlib.configFile(process.argv[2], function (conf, oldConfig) {
   config = conf;
   var udp_version = config.address_ipv6 ? 'udp6' : 'udp4';
   var nodes = config.nodes;
+  process_mgmt.init(conf);
   l = new logger.Logger(config.log || {});
 
   var forkCount = config.forkCount;
