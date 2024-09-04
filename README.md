@@ -32,6 +32,12 @@ StatsD supports docker in three ways:
 * The official container image on [DockerHub](https://hub.docker.com/r/statsd/statsd)
 * Building the image from the bundled [Dockerfile](./Dockerfile)
 
+To configure the statsd container, create a `config.js` file (you can refer to `exampleConfig.js` for guidance),
+and then add the volume to the container as follows:
+```
+docker run statsd/statsd -v /path/to/config.js:/usr/src/app/config.js
+```
+
 ### Manual installation
  * Install Node.js (All [`Current` and `LTS` Node.js versions](https://nodejs.org/en/about/releases/) are supported.)
  * Clone the project
