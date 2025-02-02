@@ -19,7 +19,7 @@ module.exports = {
     });
     test.ok(started);
 
-    var buf = new Buffer(msg);
+    var buf = Buffer.from(msg);
     var sock = dgram.createSocket('udp4');
     sock.send(buf, 0, buf.length, config.port, config.address, function(err, bytes) {
           sock.close();
