@@ -1,4 +1,4 @@
-FROM node:18.16.0
+FROM node:18.16.0-alpine
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 # RUN apk add --no-cache --update g++ gcc libgcc libstdc++ linux-headers make python
 
 # Setup node envs
-ARG NODE_ENV
+ARG NODE_ENV="production"
 ENV NODE_ENV $NODE_ENV
 
 # Install dependencies
