@@ -4,6 +4,7 @@ The following is a list of projects that re-implement StatsD, if the the main pr
 
 * [brubeck](https://github.com/github/brubeck) - Server in C
 * [clj-statsd-svr](https://github.com/netmelody/clj-statsd-svr) — Clojure server
+* [g3statsd](https://github.com/bytedance/g3/tree/master/g3statsd) - Server in Rust
 * [gographite](https://github.com/amir/gographite) — Server in Go
 * [gostatsd](https://github.com/atlassian/gostatsd) — Server in Go
 * [netdata](https://github.com/firehol/netdata) - Embedded StatsD server in the netdata server, in C, with visualization
