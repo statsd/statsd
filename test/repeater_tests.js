@@ -72,7 +72,7 @@ RepeaterServer.prototype.start = function(cb) {
 };
 
 RepeaterServer.prototype.send = function(stringval) {
-  this.emitter.emit('packet', new Buffer(stringval), {});
+  this.emitter.emit('packet', Buffer.from(stringval), {});
 };
 
 RepeaterServer.prototype.stop = function(cb) {
