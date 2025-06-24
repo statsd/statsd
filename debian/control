@@ -3,7 +3,7 @@ Section: devel
 Priority: optional
 Maintainer: Elliot Blackburn <elliot@lybrary.io>
 Standards-Version: 3.9.3
-Build-Depends: debhelper (>= 8.0.0), dh-systemd (>= 1.5)
+Build-Depends: debhelper (>= 12)
 
 Package: statsd
 Architecture: all
