@@ -292,12 +292,18 @@ config.configFile(process.argv[2], function (config) {
           }
 
           const metric_type = fields[1].trim();
-          if (metric_type === "ms") {
-            if (! timers[key]) {
+if (metric_type === "ms" || metric_type === "us" || metric_type === "ns") {            if (! timers[key]) {
               timers[key] = [];
               timer_counters[key] = 0;
             }
-            timers[key].push(Number(fields[0] || 0));
+            timers[key].pushlet timerValue = Number(fields[0] || 0);
+            // Convert us and ns to ms for consistent internal storage
+            if (metric_type === "us") {
+              timerValue = timerValue / 1000;
+            } else if (metric_type === "ns") {
+              timerValue = timerValue / 1000000;
+            }
+            timers[key].push(timerValue);
             timer_counters[key] += (1 / sampleRate);
           } else if (metric_type === "g") {
             // if deleteGauges is true reset the max TTL to its initial value
