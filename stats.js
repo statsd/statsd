@@ -442,7 +442,7 @@ config.configFile(process.argv[2], function (config) {
     );
 
     serversLoaded = true;
-    util.log("server is up", "INFO");
+    l.log("server is up", "INFO");
 
     pctThreshold = config.percentThreshold || 90;
     if (!Array.isArray(pctThreshold)) {
