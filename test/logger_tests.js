@@ -67,12 +67,23 @@ module.exports = {
     test.done();
   },
 
-  stdout_untyped_defaults_to_debug: function (test) {
+  stdout_untyped_uses_configured_level: function (test) {
     const l = new Logger({ backend: 'stdout', level: 'LOG_INFO' });
     const lines = captureLog(function () {
       l.log('no type given');
     });
-    test.equal(0, lines.length);
+    test.equal(1, lines.length);
+    test.ok(lines[0].indexOf('DEBUG: no type given') !== -1);
+    test.done();
+  },
+
+  stdout_untyped_emits_when_level_is_err: function (test) {
+    const l = new Logger({ backend: 'stdout', level: 'LOG_ERR' });
+    const lines = captureLog(function () {
+      l.log('still visible');
+    });
+    test.equal(1, lines.length);
+    test.ok(lines[0].indexOf('DEBUG: still visible') !== -1);
     test.done();
   },
 

@@ -84,7 +84,8 @@ Optional Variables:
     backend:        where to log: stdout or syslog [string, default: stdout]
     application:    name of the application for syslog [string, default: statsd]
     level:          log level [string, default: LOG_INFO]
-                    For stdout, messages below this severity are omitted.
+                    For stdout, typed messages below this severity are omitted.
+                    Messages with no type use this level (always shown).
                     For syslog, used as the default priority when no type is given.
 
   graphite:
