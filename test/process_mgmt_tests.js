@@ -46,6 +46,17 @@ module.exports = {
         console.log("Not running this test, due to this being a node version before v0.10 and a Darwin os");
       }
       test.done();
+  },
+
+  test_init_does_not_stack_sigterm_listeners: function(test){
+      test.expect(2);
+      process_mgmt.init({});
+      var after_first = process.listeners('SIGTERM').length;
+      test.ok(after_first >= 1, "process_mgmt.init() should register a SIGTERM listener");
+      process_mgmt.init({});
+      process_mgmt.init({});
+      test.equal(process.listeners('SIGTERM').length, after_first, "process_mgmt.init() should not add another SIGTERM listener on subsequent calls");
+      test.done();
   }
 
 };
