@@ -83,7 +83,9 @@ Optional Variables:
   log:              log settings [object, default: undefined]
     backend:        where to log: stdout or syslog [string, default: stdout]
     application:    name of the application for syslog [string, default: statsd]
-    level:          log level for [node-]syslog [string, default: LOG_INFO]
+    level:          log level [string, default: LOG_INFO]
+                    For stdout, messages below this severity are omitted.
+                    For syslog, used as the default priority when no type is given.
 
   graphite:
     legacyNamespace:  use the legacy namespace [default: true]
