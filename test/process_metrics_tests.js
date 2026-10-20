@@ -416,6 +416,20 @@ module.exports = {
     test.equal(300, timer_data.sum_top20);
     test.done();
   },
+  timers_multiple_times_top_percentile_covering_all_values: function(test) {
+    test.expect(5);
+    this.metrics.timers['a'] = [100, 200, 300];
+    this.metrics.pctThreshold = [-90];
+    pm.process_metrics(this.metrics, this.calculatedTimerMetrics, 100, this.time_stamp, function(){});
+    timer_data = this.metrics.timer_data['a'];
+    test.equal(3, timer_data.count_top90);
+    test.equal(200, timer_data.mean_top90);
+    test.equal(100, timer_data.lower_top90);
+    test.equal(600, timer_data.sum_top90);
+    test.equal(100 * 100 + 200 * 200 + 300 * 300,
+      timer_data.sum_squares_top90);
+    test.done();
+  },
   statsd_metrics_exist: function(test) {
     test.expect(1);
     pm.process_metrics(this.metrics, this.calculatedTimerMetrics, 100, this.time_stamp, function(){});
