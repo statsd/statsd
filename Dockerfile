@@ -1,4 +1,4 @@
-FROM node:18.16.0
+FROM node:22.23.5-trixie
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
